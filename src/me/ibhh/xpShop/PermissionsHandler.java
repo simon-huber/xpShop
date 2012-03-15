@@ -18,7 +18,8 @@ public class PermissionsHandler {
 
     public PermissionsHandler(xpShop pl, String von) {
         this.plugin = pl;
-        if(plugin.config.debug){
+        final String von2 = von;
+        if (plugin.config.debug) {
             plugin.Logger("New permissions handler by: " + von, "Debug");
         }
         final PluginManager pluginManager = plugin.getServer().getPluginManager();
@@ -29,12 +30,15 @@ public class PermissionsHandler {
         }
         plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
 
-                @Override
-                public void run() {
-                    plugin.Logger("checking PermissionsPlugin!", "");
-                    searchpermplugin();
+            @Override
+            public void run() {
+                plugin.Logger("checking PermissionsPlugin!", "");
+                if (plugin.config.debug) {
+                    plugin.Logger("New permissions handler (loop) by: " + von2, "Debug");
                 }
-            }, 1L);
+                searchpermplugin();
+            }
+        }, 1);
     }
 
     public void searchpermplugin() {
@@ -44,7 +48,7 @@ public class PermissionsHandler {
         } else if (plugin.getServer().getPluginManager().isPluginEnabled("GroupManager")) {
             PermPlugin = 3;
             plugin.Logger("Permissions: Hooked into GroupManager!", "");
-        } else if(Bukkit.getServer().getPluginManager().isPluginEnabled("bPermissions")){
+        } else if (Bukkit.getServer().getPluginManager().isPluginEnabled("bPermissions")) {
             PermPlugin = 4;
             plugin.Logger("Permissions: Hooked into bPermissions!", "");
         } else {
@@ -107,16 +111,16 @@ public class PermissionsHandler {
                 e.printStackTrace();
                 return false;
             }
-        } else if(PermPlugin == 4){
-            try{
-                if(de.bananaco.bpermissions.api.ApiLayer.hasPermission(player.getWorld().getName(), CalculableType.USER, player.getName() , action)){
+        } else if (PermPlugin == 4) {
+            try {
+                if (de.bananaco.bpermissions.api.ApiLayer.hasPermission(player.getWorld().getName(), CalculableType.USER, player.getName(), action)) {
                     return true;
-                } else if(de.bananaco.bpermissions.api.ApiLayer.hasPermission(player.getWorld().getName(), CalculableType.GROUP, player.getName() , action)) {
+                } else if (de.bananaco.bpermissions.api.ApiLayer.hasPermission(player.getWorld().getName(), CalculableType.GROUP, player.getName(), action)) {
                     return true;
                 } else {
                     return false;
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 plugin.Logger("Error on checking permissions with bPermissions!", "Error");
                 plugin.PlayerLogger(player, "Error on checking permissions with bPermissions!", "Error");
                 e.printStackTrace();

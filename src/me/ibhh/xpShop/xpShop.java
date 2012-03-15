@@ -3,6 +3,7 @@ package me.ibhh.xpShop;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.logging.Level;
+import me.ibhh.xpShopupdatehelper.xpShopupdatehelper;
 import net.minecraft.server.EntityPlayer;
 import net.minecraft.server.ItemInWorldManager;
 import net.minecraft.server.MinecraftServer;
@@ -13,6 +14,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.InvalidPluginException;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.UnknownDependencyException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class xpShop extends JavaPlugin {
@@ -36,9 +40,17 @@ public class xpShop extends JavaPlugin {
     public ConfigHandler config;
     public xpShopListener ListenerShop;
     public Update upd;
+    public xpShop xpShop = this;
     public String Blacklistcode = "0000000000000";
     public String Blacklistmsg;
     public SQLConnectionHandler SQL;
+    public String versionsfile = "http://ibhh.de:80/aktuelleversionxpShop.html";
+    public String jarfile = "http://ibhh.de:80/xpShop.jar";
+    public static boolean updateaviable = false;
+    public xpShopupdatehelper helper;
+
+    public xpShop() {
+    }
 
     /**
      * Called by Bukkit on stopping the server
@@ -70,6 +82,11 @@ public class xpShop extends JavaPlugin {
         Logger("disabled in " + timetemp + "ms", "");
     }
 
+    public File getLocation() {
+        File location = xpShop.getFile();
+        return location;
+    }
+
     /**
      * Delete an download new version of xpShop in the Update folder.
      *
@@ -77,6 +94,7 @@ public class xpShop extends JavaPlugin {
      * @return
      */
     public boolean autoUpdate(String url, String path, String name, String type) {
+
         try {
             upd.autoDownload(url, path, name, type);
             return true;
@@ -178,12 +196,15 @@ public class xpShop extends JavaPlugin {
      * @param url from newVersion file + currentVersion
      * @return true if newVersion recommend.
      */
-    public boolean UpdateAvailable(String url, float currVersion) {
-        boolean a = false;
-        if (upd.getNewVersion(url) > currVersion) {
-            a = true;
+    public boolean UpdateAvailable(String url, final float currVersion) {
+        if (upd.getNewVersion(versionsfile) > currVersion) {
+            xpShop.updateaviable = true;
         }
-        return a;
+        if (updateaviable) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public Player getmyOfflinePlayer(String[] args, int index) {
@@ -281,6 +302,17 @@ public class xpShop extends JavaPlugin {
         Standartstart(1);
         ListenerShop = new xpShopListener(this);
         Standartstart(2);
+        if (xpShop.getServer().getPluginManager().getPlugin("xpShopupdatehelper") == null) {
+            String path = "plugins" + File.separator;
+            Logger("Download xpShophelper !", "Warning");
+            try {
+                upd.autoDownload("http://ibhh.de/xpShopupdatehelper.jar", path, "xpShopupdatehelper.jar", "forceupdate");
+            } catch (Exception ex) {
+                Logger("xpShop server currently not aviable!", "Error");
+            }
+            Logger("Downloaded xpShophelper successfully!", "Warning");
+            Logger(".. Done!", "Warning");
+        }
         if (!(Blacklistcode.startsWith("1"))) {
             if (getConfig().getBoolean("firstRun")) {
 //                try{
@@ -312,6 +344,7 @@ public class xpShop extends JavaPlugin {
             Logger("All funktions deactivated to prevent the server!", "Warning");
         }
         timetemp1 = (System.nanoTime() - timetemp1) / 1000000;
+
         Logger("Enabled in " + timetemp1 + "ms", "");
     }
 
@@ -324,12 +357,16 @@ public class xpShop extends JavaPlugin {
 
                 @Override
                 public void run() {
-                    Logger("checking Blacklist!", "");
+                    if (config.debug) {
+                        Logger("checking Blacklist!", "");
+                    }
                     blacklistcheck();
-                    if (Blacklistcode.equals("0000000000000")) {
-                        Logger("Result: false", "");
-                    } else {
-                        Logger("Result: true", "");
+                    if (config.debug) {
+                        if (Blacklistcode.equals("0000000000000")) {
+                            Logger("Result: false", "");
+                        } else {
+                            Logger("Result: true", "");
+                        }
                     }
                 }
             }, 200L, 50000L);
@@ -349,6 +386,10 @@ public class xpShop extends JavaPlugin {
                             XP = (int) xpShop.this.getTOTALXP(p);
                             try {
                                 neu = xpShop.this.SQL.getXP(p.getName());
+
+
+
+
                             } catch (SQLException ex) {
                                 java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
                             }
@@ -390,10 +431,8 @@ public class xpShop extends JavaPlugin {
                 Logger("New version: " + upd.getNewVersion(URL) + " found!", "Warning");
                 Logger("******************************************", "Warning");
                 Logger("*********** Please update!!!! ************", "Warning");
-                Logger("* http://ibhh.de/" + this.getDescription().getName() + ".jar *", "Warning");
+                Logger("* http://ibhh.de/xpShop.jar *", "Warning");
                 Logger("******************************************", "Warning");
-                Logger(this.getDescription().getName() + " will be updated on the next restart!", "Warning");
-                Logger("Version: " + Version + " successfully enabled!", "");
             }
         }
 
@@ -441,6 +480,13 @@ public class xpShop extends JavaPlugin {
                                 } else {
                                     return false;
                                 }
+                            } else if (ActionxpShop.equalsIgnoreCase("version")) {
+                                PlayerLogger(player, "Version: " + getDescription().getVersion(), "");
+                                if (config.debug) {
+                                    temptime = (System.nanoTime() - temptime) / 1000000;
+                                    Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "");
+                                }
+                                return true;
                             } else if (ActionxpShop.equalsIgnoreCase("infolevel")) {
                                 if (Permission.checkpermissions(player, "xpShop.infolevel.own")) {
                                     infolevel(sender, args);
@@ -452,13 +498,6 @@ public class xpShop extends JavaPlugin {
                                 } else {
                                     return false;
                                 }
-                            } else if (ActionxpShop.equalsIgnoreCase("version")) {
-                                PlayerLogger(player, "Version: " + getDescription().getVersion(), "");
-                                if (config.debug) {
-                                    temptime = (System.nanoTime() - temptime) / 1000000;
-                                    Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "");
-                                }
-                                return true;
                             } else {
                                 Help.help(sender, args);
                             }
@@ -479,6 +518,14 @@ public class xpShop extends JavaPlugin {
                                     PlayerLogger(player, config.commanderrornoint, "Error");
                                     return false;
                                 }
+                            } else if (ActionxpShop.equalsIgnoreCase("testsetxp")) {
+                                player.setTotalExperience(Integer.parseInt(args[1]));
+                                PlayerLogger(player, "This are: " + getTOTALXP(player), "");
+                                if (config.debug) {
+                                    temptime = (System.nanoTime() - temptime) / 1000000;
+                                    Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "");
+                                }
+                                return true;
                             } else if (ActionxpShop.equals("buylevel")) {
                                 if (Permission.checkpermissions(player, "xpShop.buylevel")) {
                                     if (Tools.isInteger(args[1])) {
@@ -700,6 +747,18 @@ public class xpShop extends JavaPlugin {
                             Logger("Config reloaded!", "Debug");
                         }
                         return true;
+                    } else if (args[0].equalsIgnoreCase("install")) {
+                        if (UpdateAvailable(versionsfile, Version)) {
+                            Logger("Started install!", "");
+                            xpShop.this.getServer().broadcastMessage(ChatColor.DARK_BLUE + Prefix + ChatColor.RED + "Warning: " + ChatColor.GOLD + "Installing new xpShop version!");
+                            xpShop.this.getServer().broadcastMessage(ChatColor.DARK_BLUE + Prefix + ChatColor.RED + "Warning: " + ChatColor.GOLD + "Expect some lags!");
+                            xpShop.this.getServer().reload();
+                            xpShop.this.getServer().broadcastMessage(ChatColor.DARK_BLUE + Prefix + ChatColor.RED + "Warning: " + ChatColor.GOLD + "Install done!");
+                            Logger("Install done!", "");
+                        } else {
+                            Logger("No new version found!", "");
+                        }
+                        return true;
                     }
                 }
             }
@@ -749,7 +808,7 @@ public class xpShop extends JavaPlugin {
 
     public void PlayerLogger(Player p, String msg, String TYPE) {
         if (TYPE.equalsIgnoreCase("Error")) {
-            p.sendMessage(ChatColor.DARK_BLUE + Prefix + ChatColor.GOLD + "Error: " + msg);
+            p.sendMessage(ChatColor.DARK_BLUE + Prefix + ChatColor.RED + "Error: " + ChatColor.GOLD + msg);
         } else {
             p.sendMessage(ChatColor.DARK_BLUE + Prefix + ChatColor.GOLD + msg);
         }

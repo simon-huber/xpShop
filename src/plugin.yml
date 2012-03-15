@@ -1,8 +1,8 @@
 name: xpShop
-version: 5.5
+version: 6.0
 description: Player can buy xp
 author: ibhh
-website: http://www.ibhh.de
+website: http://ibhh.de/xpShop.jar
 softdepend: [Vault]
 
 main: me.ibhh.xpShop.xpShop

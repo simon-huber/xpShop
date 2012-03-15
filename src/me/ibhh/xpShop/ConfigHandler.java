@@ -65,7 +65,7 @@ public class ConfigHandler {
             Playerxpset,
             Playerreset,
             dbnotused;
-    public boolean autodownload, debug, firstRun, onlysendxptoonlineplayers, useMySQL, usedbtomanageXP;
+    public boolean autodownload, debug, firstRun, onlysendxptoonlineplayers, useMySQL, usedbtomanageXP, keepxpondeath, autoinstall;
     public double moneytoxp, xptomoney, TaskRepeat, DelayTimeTask;
 
     public ConfigHandler(xpShop pl) {
@@ -301,6 +301,8 @@ public class ConfigHandler {
         onlysendxptoonlineplayers = plugin.getConfig().getBoolean("onlysendxptoonlineplayers");
         useMySQL = plugin.getConfig().getBoolean("SQL");
         usedbtomanageXP = plugin.getConfig().getBoolean("usedbtomanageXP");
+        keepxpondeath = plugin.getConfig().getBoolean("keepxpondeath");
+        autoinstall = plugin.getConfig().getBoolean("autoinstall");
     }
 
     public void loadStrings() {
