@@ -64,7 +64,12 @@ public class ConfigHandler {
             substractedxp,
             Playerxpset,
             Playerreset,
-            dbnotused;
+            dbnotused,
+            safestore,
+            safedestore,
+            safenotenoughxptostore,
+            safenotenoughinsafe,
+            safenotyoursafe;
     public boolean autodownload, debug, firstRun, onlysendxptoonlineplayers, useMySQL, usedbtomanageXP, keepxpondeath, autoinstall;
     public double moneytoxp, xptomoney, TaskRepeat, DelayTimeTask;
 
@@ -322,6 +327,11 @@ public class ConfigHandler {
         Playerreset = plugin.getConfig().getString("Playerreset." + language);
         Playerxpset = plugin.getConfig().getString("Playerxpset." + language);
         dbnotused = plugin.getConfig().getString("dbnotused." + language);
+        safestore = plugin.getConfig().getString("safe.store." + language);
+        safedestore = plugin.getConfig().getString("safe.destore." + language);
+        safenotenoughinsafe = plugin.getConfig().getString("safe.notenoughinsafe." + language);
+        safenotenoughxptostore = plugin.getConfig().getString("safe.notenoughxptostore." + language);
+        safenotyoursafe = plugin.getConfig().getString("safe.notyoursafe." + language);
         Shoperrornotenoughmoneyconsumer = plugin.getConfig().getString("Shop.error.notenoughmoneyconsumer." + language);
         Shoperrornotenoughmoneyseller = plugin.getConfig().getString("Shop.error.notenoughmoneyseller." + language);
         Shoperrorcantbuyhere = plugin.getConfig().getString("Shop.error.cantbuyhere." + language);

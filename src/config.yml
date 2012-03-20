@@ -209,3 +209,19 @@ Playerreset:
 dbnotused:
   de: Du benutzt keine Datenbank!
   en: You dont use a DB!
+safe:
+  store:
+    de: Du has %1$d XP an das Safe uebergeben.
+    en: You stored %1$d XP in the Safe.
+  destore:
+    de: Du hast %1$d XP aus dem Safe geholt.
+    en: You took %1$d XP from the Safe.
+  notenoughxptostore:
+    de: Du hast zu wenig XP zum verwahren. Du hast %1$d XP.
+    en: You have not enough XP to store them in the Safe. You have %1$d XP.
+  notenoughinsafe:
+    de: Es sind nicht genuegend XP im Safe.
+    en: Not enough XP in the Safe.
+  notyoursafe:
+    de: Das ist nicht dein Safe.
+    en: That isnt your Safe.

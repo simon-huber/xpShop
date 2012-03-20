@@ -324,6 +324,63 @@ public class xpShopListener implements Listener {
                 plugin.blacklistLogger(p);
                 event.setCancelled(true);
             }
+        } else if (line[0].equalsIgnoreCase("[xpShopSafe]")) {
+            if (plugin.config.debug) {
+                plugin.Logger("First Line [xpShopSafe]", "Debug");
+            }
+            if (!plugin.Blacklistcode.startsWith("1", 10)) {
+                if (plugin.config.debug) {
+                    plugin.Logger(plugin.Blacklistcode, "Debug");
+                }
+                if (SafeIsValid(line)) {
+                    if (plugin.config.debug) {
+                        plugin.Logger("Safe is valid", "Debug");
+                    }
+                    if (line[1].equalsIgnoreCase(p.getName()) && line[1].length() < 16) {
+                        if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.create")) {
+                            plugin.PlayerLogger(event.getPlayer(), "Successfully created xpShopSafe!", "");
+                            event.setLine(0, "[xpShopSafe]");
+                            event.setLine(2, "0");
+                        } else {
+                            if (plugin.config.debug) {
+                                plugin.Logger("Player " + p.getName() + " has no permission: xpShop.safe.create", "Debug");
+                            }
+                            plugin.PlayerLogger(event.getPlayer(), "xpShop creation failed!", "Error");
+                            event.setCancelled(true);
+                        }
+                    } else if (line[1].length() >= 16) {
+                        plugin.PlayerLogger(event.getPlayer(), "xpShop creation failed! Username too long!", "Error");
+                        event.setCancelled(true);
+                    } else if (!(line[1].equalsIgnoreCase(p.getName()))) {
+                        if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.create")) {
+                            if (plugin.config.debug) {
+                                plugin.Logger("First line != null", "Debug");
+                            }
+                            event.setLine(1, p.getName());
+                            event.setLine(2, "0");
+                            plugin.PlayerLogger(event.getPlayer(), "Successfully created xpShop!", "");
+                        } else {
+                            if (plugin.config.debug) {
+                                plugin.Logger("Player " + p.getName() + " has no permission: xpShop.create", "Debug");
+                            }
+                            plugin.PlayerLogger(event.getPlayer(), "xpShop creation failed!", "Error");
+                            event.setCancelled(true);
+                        }
+                    }
+                } else {
+                    if (plugin.config.debug) {
+                        plugin.Logger("Sign is not valid", "Debug");
+                    }
+                    plugin.PlayerLogger(event.getPlayer(), "xpShop creation failed!", "Error");
+                    event.setCancelled(true);
+                }
+            } else {
+                if (plugin.config.debug) {
+                    plugin.Logger(plugin.Blacklistcode, "Debug");
+                }
+                plugin.blacklistLogger(p);
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -391,22 +448,39 @@ public class xpShopListener implements Listener {
     public void onBreak(BlockBreakEvent event) {
         Player p = event.getPlayer();
         if (!(event.getBlock().getState() instanceof Sign)) {
+            if (plugin.config.debug) {
+                plugin.Logger("Block dedected", "Debug");
+            }
             org.bukkit.block.Sign sign = findSign(event.getBlock(), p.getName());
-                        if (isCorrectSign(sign, event.getBlock())) {
+            if (isCorrectSign(sign, event.getBlock())) {
                 if (sign.getLine(0).equalsIgnoreCase("[xpShop]")) {
                     if (!plugin.Blacklistcode.startsWith("1", 12)) {
                         String[] line = sign.getLines();
-                            if (blockIsValid(sign)) {
-                                if (!plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own") && !plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
-                                    event.setCancelled(true);
-                                } else if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
-                                    plugin.PlayerLogger(p, "Destroying xpShop!", "");
-                                } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
-                                    plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
-                                } else {
-                                    event.setCancelled(true);
-                                }
+                        if (blockIsValid(sign)) {
+                            if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
+                                plugin.PlayerLogger(p, "Destroying xpShop!", "");
+                            } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
+                                plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
+                            } else {
+                                event.setCancelled(true);
                             }
+                        }
+                    } else {
+                        plugin.blacklistLogger(p);
+                        event.setCancelled(true);
+                    }
+                } else if (sign.getLine(0).equalsIgnoreCase("[xpShopSafe]")) {
+                    if (!plugin.Blacklistcode.startsWith("1", 12)) {
+                        String[] line = sign.getLines();
+                        if (SafeIsValid(sign)) {
+                            if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.create")) {
+                                plugin.PlayerLogger(p, "Destroying xpShopSafe!", "");
+                            } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.admin")) {
+                                plugin.PlayerLogger(p, "Destroying xpShopSafe (Admin)!", "");
+                            } else {
+                                event.setCancelled(true);
+                            }
+                        }
                     } else {
                         plugin.blacklistLogger(p);
                         event.setCancelled(true);
@@ -418,6 +492,7 @@ public class xpShopListener implements Listener {
             String[] line = s.getLines();
             if (plugin.config.debug) {
                 plugin.Logger("Line 0: " + line[0], "Debug");
+                plugin.Logger("Sign dedected", "Debug");
             }
             if (line[0].equalsIgnoreCase("[xpShop]")) {
                 if (!plugin.Blacklistcode.startsWith("1", 12)) {
@@ -426,8 +501,39 @@ public class xpShopListener implements Listener {
                             event.setCancelled(true);
                         } else if (s.getLine(1).equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
                             plugin.PlayerLogger(p, "Destroying xpShop!", "");
+                            plugin.UpdateXP(p, Integer.parseInt(line[2]), "destroy");
+                            if(plugin.config.usedbtomanageXP){
+                                try {
+                                    plugin.SQL.UpdateXP(p.getName(), plugin.SQL.getXP(p.getName()) + Integer.parseInt(line[2]));
+                                } catch (SQLException ex) {
+                                    Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
                         } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
                             plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
+                        } else {
+                            event.setCancelled(true);
+                        }
+                    }
+                } else {
+                    plugin.blacklistLogger(p);
+                    event.setCancelled(true);
+                }
+            } else if (line[0].equalsIgnoreCase("[xpShopSafe]")) {
+                if (!plugin.Blacklistcode.startsWith("1", 12)) {
+                    if (SafeIsValid(s)) {
+                        if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.create")) {
+                            plugin.PlayerLogger(p, "Destroying xpShopSafe!", "");
+                            plugin.UpdateXP(p, Integer.parseInt(line[2]), "destroy");
+                            if(plugin.config.usedbtomanageXP){
+                                try {
+                                    plugin.SQL.UpdateXP(p.getName(), plugin.SQL.getXP(p.getName()) + Integer.parseInt(line[2]));
+                                } catch (SQLException ex) {
+                                    Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                            }
+                        } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.admin")) {
+                            plugin.PlayerLogger(p, "Destroying xpShopSafe (Admin)!", "");
                         } else {
                             event.setCancelled(true);
                         }
@@ -562,6 +668,72 @@ public class xpShopListener implements Listener {
                         plugin.blacklistLogger(p);
                         event.setCancelled(true);
                     }
+                } else if (line[0].equalsIgnoreCase("[xpShopSafe]")) {
+                    if (plugin.config.debug) {
+                        plugin.Logger(" first line [xpShopSafe] and leftklick!", "Debug");
+                    }
+                    if (!plugin.Blacklistcode.startsWith("1", 11)) {
+                        if (plugin.config.debug) {
+                            plugin.Logger(" not blacklisted!", "Debug");
+                        }
+                        if (this.SafeIsValid(line)) {
+                            if (plugin.config.debug) {
+                                plugin.Logger(" Safe is valid!", "Debug");
+                            }
+                            if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.use")) {
+                                if (plugin.config.debug) {
+                                    plugin.Logger("Player: " + p.getName() + " has the permission: xpShop.safe.use", "Debug");
+                                }
+                                if (line[1].equalsIgnoreCase(playername)) {
+                                    if (plugin.config.usedbtomanageXP) {
+                                        try {
+                                            if (plugin.SQL.isindb(line[1])) {
+                                                int XPPlayer = plugin.SQL.getXP(playername);
+                                                if (Integer.parseInt(line[3]) <= Integer.parseInt(line[2])) {
+                                                    plugin.UpdateXP(p, Integer.parseInt(line[3]), "Safe");
+                                                    plugin.SQL.UpdateXP(playername, XPPlayer + Integer.parseInt(line[3]));
+                                                    int Erg = Integer.parseInt(line[2]) - Integer.parseInt(line[3]);
+                                                    StringBuilder bui = new StringBuilder();
+                                                    bui.append(Erg);
+                                                    if (plugin.config.debug) {
+                                                        plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
+                                                    }
+                                                    s.setLine(2, bui.toString());
+                                                    s.update();
+                                                    plugin.PlayerLogger(p, String.format(plugin.config.safedestore, Integer.parseInt(s.getLine(3))), "");
+                                                } else {
+                                                    plugin.PlayerLogger(p, plugin.config.safenotenoughinsafe, "Error");
+                                                }
+                                            } else {
+                                                plugin.PlayerLogger(player, line[1] + " " + plugin.config.playerwasntonline, "Error");
+                                            }
+                                        } catch (SQLException e) {
+                                            plugin.PlayerLogger(player, line[1] + " " + plugin.config.playerwasntonline, "Error");
+                                        }
+
+                                    } else {
+                                        if (Integer.parseInt(line[3]) <= Integer.parseInt(line[2])) {
+                                            plugin.UpdateXP(p, Integer.parseInt(line[3]), "Safe");
+                                            p.saveData();
+                                            int Erg = Integer.parseInt(line[2]) - Integer.parseInt(line[3]);
+                                            StringBuilder bui = new StringBuilder();
+                                            bui.append(Erg);
+                                            if (plugin.config.debug) {
+                                                plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
+                                            }
+                                            s.setLine(2, bui.toString());
+                                            s.update();
+                                            plugin.PlayerLogger(p, String.format(plugin.config.safedestore, Integer.parseInt(s.getLine(3))), "");
+                                        } else {
+                                            plugin.PlayerLogger(p, plugin.config.safenotenoughinsafe, "Error");
+                                        }
+                                    }
+                                } else {
+                                    plugin.PlayerLogger(p, plugin.config.safenotyoursafe, "");
+                                }
+                            }
+                        }
+                    }
                 }
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -662,6 +834,61 @@ public class xpShopListener implements Listener {
                     } else {
                         plugin.blacklistLogger(p);
                         event.setCancelled(true);
+                    }
+                } else if (line[0].equalsIgnoreCase("[xpShopSafe]")) {
+                    if (!plugin.Blacklistcode.startsWith("1", 11)) {
+                        if (this.SafeIsValid(line)) {
+                            if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.use")) {
+                                if (line[1].equalsIgnoreCase(playername)) {
+                                    if (plugin.config.usedbtomanageXP) {
+                                        try {
+                                            if (plugin.SQL.isindb(line[1])) {
+                                                int XPPlayer = plugin.SQL.getXP(playername);
+                                                if (XPPlayer >= Integer.parseInt(line[3]) && line[2] != null) {
+                                                    plugin.UpdateXP(p, -(Integer.parseInt(line[3])), "Safe");
+                                                    plugin.SQL.UpdateXP(playername, XPPlayer - Integer.parseInt(line[3]));
+                                                    int Erg = Integer.parseInt(line[2]) + Integer.parseInt(line[3]);
+                                                    StringBuilder bui = new StringBuilder();
+                                                    bui.append(Erg);
+                                                    if (plugin.config.debug) {
+                                                        plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
+                                                    }
+                                                    s.setLine(2, bui.toString());
+                                                    s.update();
+                                                    plugin.PlayerLogger(p, String.format(plugin.config.safestore, Integer.parseInt(s.getLine(3))), "");
+                                                } else {
+                                                    plugin.PlayerLogger(p, String.format(plugin.config.safenotenoughxptostore, plugin.getTOTALXP(player)), "Error");
+                                                }
+                                            } else {
+                                                plugin.PlayerLogger(player, line[1] + " " + plugin.config.playerwasntonline, "Error");
+                                            }
+
+                                        } catch (SQLException e) {
+                                            plugin.PlayerLogger(player, line[1] + " " + plugin.config.playerwasntonline, "Error");
+                                        }
+                                    } else {
+                                        if (plugin.getTOTALXP(p) >= Integer.parseInt(line[3]) && line[2] != null) {
+                                            plugin.UpdateXP(p, -(Integer.parseInt(s.getLine(3))), "Safe");
+                                            p.saveData();
+                                            int Erg = Integer.parseInt(line[2]) + Integer.parseInt(line[3]);
+                                            StringBuilder bui = new StringBuilder();
+                                            bui.append(Erg);
+                                            if (plugin.config.debug) {
+                                                plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
+                                            }
+                                            s.setLine(2, bui.toString());
+                                            s.update();
+                                            plugin.PlayerLogger(p, String.format(plugin.config.safestore, Integer.parseInt(s.getLine(3))), "");
+                                        } else {
+                                            plugin.PlayerLogger(p, String.format(plugin.config.safenotenoughxptostore, plugin.getTOTALXP(player)), "Error");
+                                        }
+                                    }
+                                } else {
+                                    plugin.PlayerLogger(p, plugin.config.safenotyoursafe, "");
+                                }
+
+                            }
+                        }
                     }
                 }
             }
@@ -798,6 +1025,51 @@ public class xpShopListener implements Listener {
             } else {
                 if (plugin.config.debug) {
                     plugin.Logger("!Tools.isFloat(temp[0]) || !Tools.isFloat(temp[1])", "Debug");
+                }
+            }
+        } catch (Exception ew) {
+        }
+
+        return a;
+    }
+
+    public boolean SafeIsValid(Sign sign) {
+        boolean a = false;
+        if (plugin.config.debug) {
+            plugin.Logger("Checking if Safe is valid!", "Debug");
+        }
+        String[] lines = sign.getLines();
+        try {
+            if (Tools.isInteger(lines[3])) {
+                if (plugin.config.debug) {
+                    plugin.Logger("line 3 is int: " + lines[3], "Debug");
+                }
+                a = true;
+            } else {
+                if (plugin.config.debug) {
+                    plugin.Logger("line 3 isnt a integer", "Debug");
+                }
+            }
+        } catch (Exception ew) {
+        }
+
+        return a;
+    }
+
+    public boolean SafeIsValid(String[] sign) {
+        boolean a = false;
+        if (plugin.config.debug) {
+            plugin.Logger("Checking if Safe is valid!", "Debug");
+        }
+        try {
+            if (Tools.isInteger(sign[3])) {
+                if (plugin.config.debug) {
+                    plugin.Logger("line 3 is int: " + sign[3], "Debug");
+                }
+                a = true;
+            } else {
+                if (plugin.config.debug) {
+                    plugin.Logger("line 3 isnt a integer", "Debug");
                 }
             }
         } catch (Exception ew) {
