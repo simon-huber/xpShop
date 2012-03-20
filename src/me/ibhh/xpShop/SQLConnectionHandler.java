@@ -32,10 +32,14 @@ public class SQLConnectionHandler {
             st = cn.createStatement();
             if (auTrade.getConfig().getBoolean("SQL")) {
                 st.executeUpdate(sql);
-                System.out.println("[xpShop] Table created!");
+                if (auTrade.config.debug) {
+                    System.out.println("[xpShop] Table created!");
+                }
             } else {
                 st.executeUpdate("CREATE TABLE IF NOT EXISTS xpShop (Name VARCHAR PRIMARY KEY NOT NULL, XP INT)");
-                System.out.println("[xpShop] Table created!");
+                if (auTrade.config.debug) {
+                    System.out.println("[xpShop] Table created!");
+                }
             }
             cn.commit();
             st.close();
@@ -86,7 +90,7 @@ public class SQLConnectionHandler {
             ps.executeUpdate();
             cn.commit();
             ps.close();
-            
+
         } catch (SQLException e) {
             System.out.println("[xpShop] Error while inserting XP into DB! - " + e.getMessage());
             SQLErrorHandler(e);
@@ -196,11 +200,11 @@ public class SQLConnectionHandler {
         try {
             result.next();
             int b = result.getInt(1);
-            if(auTrade.config.debug){
+            if (auTrade.config.debug) {
                 auTrade.Logger("Lines: " + b, "Debug");
             }
-            if(b > 0){
-                a =true;
+            if (b > 0) {
+                a = true;
             }
 
             cn.commit();

@@ -14,9 +14,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.InvalidPluginException;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.UnknownDependencyException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class xpShop extends JavaPlugin {
@@ -31,8 +28,6 @@ public class xpShop extends JavaPlugin {
     public float Version = 0;
     int rounds1 = 0;
     int rounds = 0;
-    public iConomyHandler Geldsystem;
-    public PermissionsHandler Permission;
     private Help Help;
     public static String PrefixConsole = "[xpShop] ";
     public static String Prefix = "[xpShop] ";
@@ -48,6 +43,9 @@ public class xpShop extends JavaPlugin {
     public String jarfile = "http://ibhh.de:80/xpShop.jar";
     public static boolean updateaviable = false;
     public xpShopupdatehelper helper;
+    public StatsHandler Stats;
+    public PermissionsChecker PermissionsHandler;
+    public iConomyHandler MoneyHandler;
 
     public xpShop() {
     }
@@ -65,12 +63,7 @@ public class xpShop extends JavaPlugin {
             SQL.CloseCon();
             SQL = null;
         }
-        Geldsystem = null;
-        Permission = null;
-        Help = null;
-        panel = null;
-        config = null;
-        ListenerShop = null;
+//        Stats.CloseCon();
         try {
             finalize();
         } catch (Throwable ew) {
@@ -302,17 +295,17 @@ public class xpShop extends JavaPlugin {
         Standartstart(1);
         ListenerShop = new xpShopListener(this);
         Standartstart(2);
-        if (xpShop.getServer().getPluginManager().getPlugin("xpShopupdatehelper") == null) {
-            String path = "plugins" + File.separator;
-            Logger("Download xpShophelper !", "Warning");
-            try {
-                upd.autoDownload("http://ibhh.de/xpShopupdatehelper.jar", path, "xpShopupdatehelper.jar", "forceupdate");
-            } catch (Exception ex) {
-                Logger("xpShop server currently not aviable!", "Error");
-            }
-            Logger("Downloaded xpShophelper successfully!", "Warning");
-            Logger(".. Done!", "Warning");
-        }
+//        if (xpShop.getServer().getPluginManager().getPlugin("xpShopupdatehelper") == null) {
+//            String path = "plugins" + File.separator;
+//            Logger("Download xpShophelper !", "Warning");
+//            try {
+//                upd.autoDownload("http://ibhh.de/xpShopupdatehelper.jar", path, "xpShopupdatehelper.jar", "forceupdate");
+//            } catch (Exception ex) {
+//                Logger("xpShop server currently not aviable!", "Error");
+//            }
+//            Logger("Downloaded xpShophelper successfully!", "Warning");
+//            Logger(".. Done!", "Warning");
+//        }
         if (!(Blacklistcode.startsWith("1"))) {
             if (getConfig().getBoolean("firstRun")) {
 //                try{
@@ -331,18 +324,58 @@ public class xpShop extends JavaPlugin {
                 }
             }
             Help = new Help(this);
-            Geldsystem = new iConomyHandler(this);
-            Permission = new PermissionsHandler(this, "xpShop");
+            MoneyHandler = new iConomyHandler(this);
+            PermissionsHandler = new PermissionsChecker(this, "xpShop");
             Standartstart(3);
             if (config.usedbtomanageXP) {
                 SQL = new SQLConnectionHandler(this);
                 SQL.createConnection();
                 SQL.PrepareDB();
             }
+//            Stats = new StatsHandler(this);
+//            this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+//
+//                @Override
+//                public void run() {
+//                    
+//                    Stats.createConnection();
+//                    Stats.PrepareDB();
+//                }
+//            }, 1);
+
+
         } else {
             Logger(this.getDescription().getName() + " version " + Version + " is blacklisted because of bugs, after restart an bugfix will be installed!", "Warning");
             Logger("All funktions deactivated to prevent the server!", "Warning");
         }
+//        if (this.getServer().getPluginManager().getPlugin("PermissionsHandler") == null) {
+//            String path = "plugins" + File.separator;
+//            Logger("Download PermissionsHandler !", "Warning");
+//            try {
+//                upd.autoDownload("http://ibhh.de/PermissionsHandler.jar", path, "PermissionsHandler.jar", "forceupdate");
+//            } catch (Exception ex) {
+//                Logger("ibhhs server currently not aviable!", "Error");
+//            }
+//            Logger("Downloaded PermissionsHandler successfully!", "Warning");
+//            Logger(".. Done!", "Warning");
+//            Logger("Restart the server to enable Permissions support, other wise it wont work!", "Error");
+//            Blacklistcode = "1111111111111";
+//            Blacklistmsg = "A needed plugin isnt installed! PermissionsHandler or MoneyHandler";
+//        }
+//        if (this.getServer().getPluginManager().getPlugin("MoneyHandler") == null) {
+//            String path = "plugins" + File.separator;
+//            Logger("Download MoneyHandler !", "Warning");
+//            try {
+//                upd.autoDownload("http://ibhh.de/MoneyHandler.jar", path, "MoneyHandler.jar", "forceupdate");
+//            } catch (Exception ex) {
+//                Logger("ibhhs server currently not aviable!", "Error");
+//            }
+//            Logger("Downloaded MoneyHandler successfully!", "Warning");
+//            Logger(".. Done!", "Warning");
+//            Logger("Restart the server to enable any money support, other wise it wont work!", "Error");
+//            Blacklistcode = "1111111111111";
+//            Blacklistmsg = "A needed plugin isnt installed! PermissionsHandler or MoneyHandler";
+//        }
         timetemp1 = (System.nanoTime() - timetemp1) / 1000000;
 
         Logger("Enabled in " + timetemp1 + "ms", "");
@@ -414,6 +447,55 @@ public class xpShop extends JavaPlugin {
 
                     }
                 }, (long) (config.DelayTimeTask * 20), (long) (config.TaskRepeat) * 20);
+                this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if (getConfig().getBoolean("debug")) {
+                            Logger("Searching update for xpShop!", "");
+                        }
+                        float newversion = upd.getNewVersion("http://ibhh.de:80/aktuelleversionxpShop.html");
+                        if (getConfig().getBoolean("debug")) {
+                            Logger("installed xpShop version: " + Version + ", latest version: " + newversion, "");
+                        }
+                        if (newversion > Version) {
+                            Logger("New version: " + newversion + " found!", "Warning");
+                            Logger("******************************************", "Warning");
+                            Logger("*********** Please update!!!! ************", "Warning");
+                            Logger("* http://ibhh.de/xpShop.jar *", "Warning");
+                            Logger("******************************************", "Warning");
+                            xpShop.updateaviable = true;
+//                        if (getConfig().getBoolean("autodownload") == true) {
+//                            try {
+//                                String path = "plugins" + File.separator;
+//                                if (getConfig().getBoolean("autoinstall")) {
+//                                    Logger("Started install!", "");
+//                                    xpShopupdatehelper.this.getServer().broadcastMessage(ChatColor.DARK_BLUE + Prefix + ChatColor.RED + "Warning: " + ChatColor.GOLD + "Installing new xpShop version!");
+//                                    xpShopupdatehelper.this.getServer().broadcastMessage(ChatColor.DARK_BLUE + Prefix + ChatColor.RED + "Warning: " + ChatColor.GOLD + "Expect some lags!");
+//                                    xpShopupdatehelper.this.getPluginLoader().disablePlugin(xpShopplugin);
+//                                    upd.autoDownload("http://ibhh.de/xpShop.jar", path, "xpShop.jar", "forceupdate");
+//                                    xpShopupdatehelper.this.getPluginLoader().loadPlugin(new File("plugins" + File.separator + "xpShop.jar"));
+//                                    xpShopupdatehelper.this.getPluginLoader().enablePlugin(xpShopplugin);
+//                                    xpShopupdatehelper.this.getServer().broadcastMessage(ChatColor.DARK_BLUE + Prefix + ChatColor.RED + "Warning: " + ChatColor.GOLD + "Install done!");
+//                                    Logger("Install done!", "");
+//                                } else {
+//                                    Logger("xpShop will be updated on the next restart!", "Warning");
+//                                }
+//                            } catch (Exception e) {
+//                                Logger("Error on donwloading new Version!", "Error");
+//                                e.printStackTrace();
+//                            }
+//                        } else {
+//                            Logger("Please type [xpShop download] to download manual! ", "Warning");
+//                        }
+                        } else {
+                            if (getConfig().getBoolean("debug")) {
+                                Logger("No update found!", "");
+                            }
+                        }
+
+                    }
+                }, 400L, 50000L);
             }
         } else if (run == 1) {
             try {
@@ -470,7 +552,7 @@ public class xpShop extends JavaPlugin {
                         case 1:
                             ActionxpShop = args[0];
                             if (ActionxpShop.equalsIgnoreCase("infoxp")) {
-                                if (Permission.checkpermissions(player, "xpShop.infoxp.own")) {
+                                if (PermissionsHandler.checkpermissions(player, "xpShop.infoxp.own")) {
                                     infoxp(sender, args);
                                     if (config.debug) {
                                         temptime = (System.nanoTime() - temptime) / 1000000;
@@ -487,8 +569,35 @@ public class xpShop extends JavaPlugin {
                                     Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "");
                                 }
                                 return true;
+                            } else if (ActionxpShop.equalsIgnoreCase("update")) {
+                                if (PermissionsHandler.checkpermissions(player, "xpShop.admin")) {
+                                    String path = "plugins" + File.separator;
+                                    autoUpdate("http://ibhh.de/xpShop.jar", path, "xpShop.jar", "forceupdate");
+                                    PlayerLogger(player, "Downloaded new Version!", "Warning");
+                                    PlayerLogger(player, "xpShop will be updated on the next restart!", "Warning");
+                                    return true;
+                                }
+                            } else if (ActionxpShop.equalsIgnoreCase("stats")) {
+                                final Player pl = player;
+                                this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            Stats.getStats(pl);
+                                        } catch (SQLException ex) {
+                                            java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    }
+                                }, 1);
+
+                                if (config.debug) {
+                                    temptime = (System.nanoTime() - temptime) / 1000000;
+                                    Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "");
+                                }
+                                return true;
                             } else if (ActionxpShop.equalsIgnoreCase("infolevel")) {
-                                if (Permission.checkpermissions(player, "xpShop.infolevel.own")) {
+                                if (PermissionsHandler.checkpermissions(player, "xpShop.infolevel.own")) {
                                     infolevel(sender, args);
                                     if (config.debug) {
                                         temptime = (System.nanoTime() - temptime) / 1000000;
@@ -505,7 +614,7 @@ public class xpShop extends JavaPlugin {
                         case 2:
                             ActionxpShop = args[0];
                             if (ActionxpShop.equals("selllevel")) {
-                                if (Permission.checkpermissions(player, "xpShop.selllevel")) {
+                                if (PermissionsHandler.checkpermissions(player, "xpShop.selllevel")) {
                                     if (Tools.isInteger(args[1])) {
                                         selllevel = Integer.parseInt(args[1]);
                                         selllevel(player, this.selllevel, true);
@@ -527,7 +636,7 @@ public class xpShop extends JavaPlugin {
                                 }
                                 return true;
                             } else if (ActionxpShop.equals("buylevel")) {
-                                if (Permission.checkpermissions(player, "xpShop.buylevel")) {
+                                if (PermissionsHandler.checkpermissions(player, "xpShop.buylevel")) {
                                     if (Tools.isInteger(args[1])) {
                                         buylevel = Integer.parseInt(args[1]);
                                         buylevel(player, this.buylevel, true);
@@ -541,7 +650,7 @@ public class xpShop extends JavaPlugin {
                                     return false;
                                 }
                             } else if (ActionxpShop.equals("sell")) {
-                                if (Permission.checkpermissions(player, "xpShop.sell")) {
+                                if (PermissionsHandler.checkpermissions(player, "xpShop.sell")) {
                                     if (Tools.isInteger(args[1])) {
                                         sell = Integer.parseInt(args[1]);
                                         sell(player, this.sell, true, "sell");
@@ -555,7 +664,7 @@ public class xpShop extends JavaPlugin {
                                     return false;
                                 }
                             } else if (ActionxpShop.equals("buy")) {
-                                if (Permission.checkpermissions(player, "xpShop.buy")) {
+                                if (PermissionsHandler.checkpermissions(player, "xpShop.buy")) {
                                     if (Tools.isInteger(args[1])) {
                                         buy = Integer.parseInt(args[1]);
                                         buy(player, this.buy, true, "buy");
@@ -568,7 +677,7 @@ public class xpShop extends JavaPlugin {
                                     return false;
                                 }
                             } else if (ActionxpShop.equalsIgnoreCase("infoxp")) {
-                                if (Permission.checkpermissions(player, "xpShop.infoxp.other")) {
+                                if (PermissionsHandler.checkpermissions(player, "xpShop.infoxp.other")) {
                                     if (!Tools.isInteger(args[1])) {
                                         infoxp(sender, args);
                                         if (config.debug) {
@@ -581,7 +690,7 @@ public class xpShop extends JavaPlugin {
                                     return false;
                                 }
                             } else if (ActionxpShop.equalsIgnoreCase("infolevel")) {
-                                if (Permission.checkpermissions(player, "xpShop.infolevel.other")) {
+                                if (PermissionsHandler.checkpermissions(player, "xpShop.infolevel.other")) {
                                     if (!Tools.isInteger(args[1])) {
                                         infolevel(sender, args);
                                         if (config.debug) {
@@ -594,7 +703,7 @@ public class xpShop extends JavaPlugin {
                                     return false;
                                 }
                             } else if (ActionxpShop.equalsIgnoreCase("help")) {
-                                if (Permission.checkpermissions(player, "xpShop.help")) {
+                                if (PermissionsHandler.checkpermissions(player, "xpShop.help")) {
                                     if (!Tools.isInteger(args[1])) {
                                         Help.help(player, args);
                                         if (config.debug) {
@@ -608,7 +717,7 @@ public class xpShop extends JavaPlugin {
                                 }
                             } else if (ActionxpShop.equalsIgnoreCase("resetplayer")) {
                                 if (config.usedbtomanageXP) {
-                                    if (Permission.checkpermissions(player, "xpShop.resetplayer")) {
+                                    if (PermissionsHandler.checkpermissions(player, "xpShop.resetplayer")) {
                                         SQL.UpdateXP(args[1], 0);
                                         PlayerLogger(player, String.format(config.Playerreset, args[1]), "");
                                         return true;
@@ -624,7 +733,7 @@ public class xpShop extends JavaPlugin {
                         case 3:
                             ActionxpShop = args[0];
                             if (ActionxpShop.equalsIgnoreCase("info")) {
-                                if (Permission.checkpermissions(player, "xpShop.info")) {
+                                if (PermissionsHandler.checkpermissions(player, "xpShop.info")) {
                                     if ((!Tools.isInteger(args[1])) && (Tools.isInteger(args[2]))) {
                                         info(player, args);
                                         if (config.debug) {
@@ -637,7 +746,7 @@ public class xpShop extends JavaPlugin {
                                     return false;
                                 }
                             } else if (ActionxpShop.equalsIgnoreCase("send")) {
-                                if (Permission.checkpermissions(player, "xpShop.send")) {
+                                if (PermissionsHandler.checkpermissions(player, "xpShop.send")) {
                                     if ((!Tools.isInteger(args[1])) && (Tools.isInteger(args[2]))) {
                                         int xp = Integer.parseInt(args[2]);
                                         sendxp(sender, xp, args[1], args);
@@ -652,7 +761,7 @@ public class xpShop extends JavaPlugin {
                                 }
                             } else if (ActionxpShop.equalsIgnoreCase("setXP")) {
                                 if (config.usedbtomanageXP) {
-                                    if (Permission.checkpermissions(player, "xpShop.setxp")) {
+                                    if (PermissionsHandler.checkpermissions(player, "xpShop.setxp")) {
                                         if (Tools.isInteger(args[2])) {
                                             SQL.UpdateXP(args[1], Integer.parseInt(args[2]));
                                             PlayerLogger(player, String.format(config.Playerxpset, args[1], Integer.parseInt(args[2])), "");
@@ -1094,7 +1203,7 @@ public class xpShop extends JavaPlugin {
             boolean valid;
             valid = false;
             if (moneyactive) {
-                if (Geldsystem.getBalance(player) >= TOTALXPDOUBLE) {
+                if (MoneyHandler.getBalance(player) >= TOTALXPDOUBLE) {
                     valid = true;
                 } else {
                     PlayerLogger(player, config.commanderrornotenoughmoney, "Error");
@@ -1109,12 +1218,12 @@ public class xpShop extends JavaPlugin {
                     }
                     UpdateXP(sender, buyamount, "buy");
                     if (moneyactive) {
-                        Geldsystem.substract(TOTALXPDOUBLE, player);
+                        MoneyHandler.substract(TOTALXPDOUBLE, player);
                     }
                 } else {
                     if (!von.equals("buylevel")) {
                         PlayerLogger(player, "Invalid exp count: " + buyamount, "Error");
-                        PlayerLogger(player, String.format(config.commanderrorinfo, Geldsystem.getBalance(player), (int) (Geldsystem.getBalance(player) / getmoney)), "Error");
+                        PlayerLogger(player, String.format(config.commanderrorinfo, MoneyHandler.getBalance(player), (int) (MoneyHandler.getBalance(player) / getmoney)), "Error");
                     }
                 }
                 if (ActionxpShop.equalsIgnoreCase("buy")) {
@@ -1154,7 +1263,7 @@ public class xpShop extends JavaPlugin {
                     }
                     UpdateXP(sender, -sellamount, "sell");
                     if (moneyactive) {
-                        Geldsystem.addmoney(sellamount * getmoney, player);
+                        MoneyHandler.addmoney(sellamount * getmoney, player);
                     }
                     SubstractedXP = sellamount;
                 } else {
@@ -1198,7 +1307,7 @@ public class xpShop extends JavaPlugin {
             double xpNeededForLevel = getLevelXP(levelamontbuy + level);
             double xpAktuell = getTOTALXP(player);
             double neededXP = xpNeededForLevel - xpAktuell;
-            if (Geldsystem.getBalance(player) < (money1 * neededXP)) {
+            if (MoneyHandler.getBalance(player) < (money1 * neededXP)) {
                 PlayerLogger(player, "Stopped because of not having enough money!", "Error");
                 PlayerLogger(player, "Invalid exp count: " + levelamontbuy, "Error");
             } else {

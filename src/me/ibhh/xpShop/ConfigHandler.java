@@ -77,7 +77,9 @@ public class ConfigHandler {
             plugin.getConfig().options().copyDefaults(true);
             plugin.saveConfig();
             plugin.reloadConfig();
-            plugin.Logger("Config file found!", "");
+            if (debug) {
+                plugin.Logger("Config file found!", "");
+            }
             reload();
         } catch (Exception e) {
             e.printStackTrace();

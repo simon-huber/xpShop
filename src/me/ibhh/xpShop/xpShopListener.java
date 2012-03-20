@@ -20,6 +20,7 @@ public class xpShopListener implements Listener {
 
     private final xpShop plugin;
     private String[] split;
+    private static final BlockFace[] shopFaces = {BlockFace.SELF, BlockFace.DOWN, BlockFace.UP, BlockFace.EAST, BlockFace.NORTH, BlockFace.WEST, BlockFace.SOUTH};
 
     public xpShopListener(xpShop xpShop) {
         this.plugin = xpShop;
@@ -66,17 +67,19 @@ public class xpShopListener implements Listener {
                 player.saveData();
             }
         }
-        if (plugin.Permission.checkpermissions(event.getPlayer(), "xpShop.admin")) {
-            if(plugin.config.debug){
-                plugin.Logger("Player: " + event.getPlayer().getName() + " has permission: \"xpShop.admin\"", "Debug");
-            }
-            if (plugin.updateaviable) {
-                plugin.PlayerLogger(event.getPlayer(), "New xpShop update aviable: type \"xpShopupdate\" please!", "Warning");
-            }
-            
-        } else {
-            if(plugin.config.debug){
-                plugin.Logger("Player: " + event.getPlayer().getName() + " has no permission: \"xpShop.admin\"", "Debug");
+        if (!plugin.Blacklistcode.startsWith("1")) {
+            if (plugin.PermissionsHandler.checkpermissionssilent(event.getPlayer(), "xpShop.admin")) {
+                if (plugin.config.debug) {
+                    plugin.Logger("Player: " + event.getPlayer().getName() + " has permission: \"xpShop.admin\"", "Debug");
+                }
+                if (plugin.updateaviable) {
+                    plugin.PlayerLogger(event.getPlayer(), "New xpShop update aviable: type \"xpShopupdate\" please!", "Warning");
+                }
+
+            } else {
+                if (plugin.config.debug) {
+                    plugin.Logger("Player: " + event.getPlayer().getName() + " has no permission: \"xpShop.admin\"", "Debug");
+                }
             }
         }
     }
@@ -139,14 +142,14 @@ public class xpShopListener implements Listener {
     public void resp(PlayerDeathEvent event) {
         if (plugin.config.keepxpondeath) {
             Player player = (Player) event.getEntity();
-            if(player != null){
-            player.setExp(0);
-            player.setLevel(0);
-            try {
-                plugin.UpdateXP(player, plugin.SQL.getXP(player.getName()), "respawn");
-            } catch (SQLException ex) {
-                Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            if (player != null) {
+                player.setExp(0);
+                player.setLevel(0);
+                try {
+                    plugin.UpdateXP(player, plugin.SQL.getXP(player.getName()), "respawn");
+                } catch (SQLException ex) {
+                    Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
     }
@@ -260,7 +263,7 @@ public class xpShopListener implements Listener {
                             plugin.Logger("Sign is valid", "Debug");
                         }
                         if (!line[1].equalsIgnoreCase("AdminShop") && line[1].length() < 16) {
-                            if (plugin.Permission.checkpermissions(p, "xpShop.create.own")) {
+                            if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
                                 if (plugin.config.debug) {
                                     plugin.Logger("First line != null", "Debug");
                                 }
@@ -274,7 +277,7 @@ public class xpShopListener implements Listener {
                                 event.setCancelled(true);
                             }
                         } else if (line[1].equalsIgnoreCase(p.getName()) && line[1].length() < 16) {
-                            if (plugin.Permission.checkpermissions(p, "xpShop.create.own")) {
+                            if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
                                 plugin.PlayerLogger(event.getPlayer(), "Successfully created xpShop!", "");
                                 event.setLine(0, "[xpShop]");
                             } else {
@@ -285,7 +288,7 @@ public class xpShopListener implements Listener {
                                 event.setCancelled(true);
                             }
                         } else if (line[1].equalsIgnoreCase("AdminShop")) {
-                            if (plugin.Permission.checkpermissions(p, "xpShop.create.admin")) {
+                            if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
                                 if (plugin.config.debug) {
                                     plugin.Logger("Player " + p.getName() + " has permission: xpShop.create.admin", "Debug");
                                 }
@@ -359,119 +362,51 @@ public class xpShopListener implements Listener {
 //            }
 //        }
 //    }
+    public static Block getAttachedFace(org.bukkit.block.Sign sign) {
+        return sign.getBlock().getRelative(((org.bukkit.material.Sign) sign.getData()).getAttachedFace());
+    }
+
+    private static boolean isCorrectSign(org.bukkit.block.Sign sign, Block block) {
+        return (sign != null) && ((sign.getBlock().equals(block)) || (getAttachedFace(sign).equals(block)));
+    }
+
+    public static boolean isSign(Block block) {
+        return block.getState() instanceof Sign;
+    }
+
+    public Sign findSign(Block block, String originalName) {
+        for (BlockFace bf : shopFaces) {
+            Block faceBlock = block.getRelative(bf);
+            if (isSign(faceBlock)) {
+                Sign sign = (Sign) faceBlock.getState();
+                if ((blockIsValid(sign)) && ((faceBlock.equals(block)) || (getAttachedFace(sign).equals(block)))) {
+                    return sign;
+                }
+            }
+        }
+        return null;
+    }
+
     @EventHandler(priority = EventPriority.HIGH)
     public void onBreak(BlockBreakEvent event) {
         Player p = event.getPlayer();
         if (!(event.getBlock().getState() instanceof Sign)) {
-            Block temp = event.getBlock().getRelative(BlockFace.EAST);
-            if (temp.getState() instanceof Sign) {
-                Sign s1 = (Sign) temp.getState();
-                if (s1.getLine(0).equalsIgnoreCase("[xpShop]")) {
+            org.bukkit.block.Sign sign = findSign(event.getBlock(), p.getName());
+                        if (isCorrectSign(sign, event.getBlock())) {
+                if (sign.getLine(0).equalsIgnoreCase("[xpShop]")) {
                     if (!plugin.Blacklistcode.startsWith("1", 12)) {
-                        String[] line = s1.getLines();
-                        if (this.blockIsValid(line, "break", p)) {
-                            if (!plugin.Permission.checkpermissions(p, "xpShop.create.own") && !plugin.Permission.checkpermissions(p, "xpShop.create.admin")) {
-                                event.setCancelled(true);
-                            } else if (line[1].equalsIgnoreCase(p.getName()) && plugin.Permission.checkpermissions(p, "xpShop.create.own")) {
-                                plugin.PlayerLogger(p, "Destroying xpShop!", "");
-                            } else if (plugin.Permission.checkpermissions(p, "xpShop.create.admin")) {
-                                plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
-                            } else {
-                                event.setCancelled(true);
+                        String[] line = sign.getLines();
+                            if (blockIsValid(sign)) {
+                                if (!plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own") && !plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
+                                    event.setCancelled(true);
+                                } else if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
+                                    plugin.PlayerLogger(p, "Destroying xpShop!", "");
+                                } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
+                                    plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
+                                } else {
+                                    event.setCancelled(true);
+                                }
                             }
-                        }
-                    } else {
-                        plugin.blacklistLogger(p);
-                        event.setCancelled(true);
-                    }
-                }
-            }
-            temp = event.getBlock().getRelative(BlockFace.WEST);
-            if (temp.getState() instanceof Sign) {
-                Sign s1 = (Sign) temp.getState();
-                if (s1.getLine(0).equalsIgnoreCase("[xpShop]")) {
-                    String[] line = s1.getLines();
-                    if (!plugin.Blacklistcode.startsWith("1", 12)) {
-                        if (this.blockIsValid(line, "break", p)) {
-                            if (!plugin.Permission.checkpermissions(p, "xpShop.create.own") && !plugin.Permission.checkpermissions(p, "xpShop.create.admin")) {
-                                event.setCancelled(true);
-                            } else if (line[1].equalsIgnoreCase(p.getName()) && plugin.Permission.checkpermissions(p, "xpShop.create.own")) {
-                                plugin.PlayerLogger(p, "Destroying xpShop!", "");
-                            } else if (plugin.Permission.checkpermissions(p, "xpShop.create.admin")) {
-                                plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
-                            } else {
-                                event.setCancelled(true);
-                            }
-                        }
-                    } else {
-                        plugin.blacklistLogger(p);
-                        event.setCancelled(true);
-                    }
-                }
-            }
-            temp = event.getBlock().getRelative(BlockFace.NORTH);
-            if (temp.getState() instanceof Sign) {
-                Sign s1 = (Sign) temp.getState();
-                if (s1.getLine(0).equalsIgnoreCase("[xpShop]")) {
-                    String[] line = s1.getLines();
-                    if (!plugin.Blacklistcode.startsWith("1", 12)) {
-                        if (this.blockIsValid(line, "break", p)) {
-                            if (!plugin.Permission.checkpermissions(p, "xpShop.create.own") && !plugin.Permission.checkpermissions(p, "xpShop.create.admin")) {
-                                event.setCancelled(true);
-                            } else if (line[1].equalsIgnoreCase(p.getName()) && plugin.Permission.checkpermissions(p, "xpShop.create.own")) {
-                                plugin.PlayerLogger(p, "Destroying xpShop!", "");
-                            } else if (plugin.Permission.checkpermissions(p, "xpShop.create.admin")) {
-                                plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
-                            } else {
-                                event.setCancelled(true);
-                            }
-                        }
-                    } else {
-                        plugin.blacklistLogger(p);
-                        event.setCancelled(true);
-                    }
-                }
-            }
-            temp = event.getBlock().getRelative(BlockFace.SOUTH);
-            if (temp.getState() instanceof Sign) {
-                Sign s1 = (Sign) temp.getState();
-                if (s1.getLine(0).equalsIgnoreCase("[xpShop]")) {
-                    String[] line = s1.getLines();
-                    if (!plugin.Blacklistcode.startsWith("1", 12)) {
-                        if (this.blockIsValid(line, "break", p)) {
-                            if (!plugin.Permission.checkpermissions(p, "xpShop.create.own") && !plugin.Permission.checkpermissions(p, "xpShop.create.admin")) {
-                                event.setCancelled(true);
-                            } else if (line[1].equalsIgnoreCase(p.getName()) && plugin.Permission.checkpermissions(p, "xpShop.create.own")) {
-                                plugin.PlayerLogger(p, "Destroying xpShop!", "");
-                            } else if (plugin.Permission.checkpermissions(p, "xpShop.create.admin")) {
-                                plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
-                            } else {
-                                event.setCancelled(true);
-                            }
-                        }
-                    } else {
-                        plugin.blacklistLogger(p);
-                        event.setCancelled(true);
-                    }
-                }
-            }
-            temp = event.getBlock().getRelative(BlockFace.UP);
-            if (temp.getState() instanceof Sign) {
-                Sign s1 = (Sign) temp.getState();
-                if (s1.getLine(0).equalsIgnoreCase("[xpShop]")) {
-                    String[] line = s1.getLines();
-                    if (!plugin.Blacklistcode.startsWith("1", 12)) {
-                        if (this.blockIsValid(line, "break", p)) {
-                            if (!plugin.Permission.checkpermissions(p, "xpShop.create.own") && !plugin.Permission.checkpermissions(p, "xpShop.create.admin")) {
-                                event.setCancelled(true);
-                            } else if (line[1].equalsIgnoreCase(p.getName()) && plugin.Permission.checkpermissions(p, "xpShop.create.own")) {
-                                plugin.PlayerLogger(p, "Destroying xpShop!", "");
-                            } else if (plugin.Permission.checkpermissions(p, "xpShop.create.admin")) {
-                                plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
-                            } else {
-                                event.setCancelled(true);
-                            }
-                        }
                     } else {
                         plugin.blacklistLogger(p);
                         event.setCancelled(true);
@@ -487,11 +422,11 @@ public class xpShopListener implements Listener {
             if (line[0].equalsIgnoreCase("[xpShop]")) {
                 if (!plugin.Blacklistcode.startsWith("1", 12)) {
                     if (this.blockIsValid(line, "break", p)) {
-                        if (!plugin.Permission.checkpermissions(p, "xpShop.create.own") && !plugin.Permission.checkpermissions(p, "xpShop.create.admin")) {
+                        if (!plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own") && !plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
                             event.setCancelled(true);
-                        } else if (s.getLine(1).equalsIgnoreCase(p.getName()) && plugin.Permission.checkpermissions(p, "xpShop.create.own")) {
+                        } else if (s.getLine(1).equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
                             plugin.PlayerLogger(p, "Destroying xpShop!", "");
-                        } else if (plugin.Permission.checkpermissions(p, "xpShop.create.admin")) {
+                        } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
                             plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
                         } else {
                             event.setCancelled(true);
@@ -535,15 +470,15 @@ public class xpShopListener implements Listener {
                             if (plugin.config.debug) {
                                 plugin.Logger(" Block is valid!", "Debug");
                             }
-                            if (plugin.Permission.checkpermissions(p, "xpShop.use")) {
+                            if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.use")) {
                                 if (plugin.config.debug) {
                                     plugin.Logger("Player: " + p.getName() + " has the permission: xpShop.use", "Debug");
                                 }
                                 if (line[1].equalsIgnoreCase("AdminShop")) {
                                     double price = getPrice(s, p, true);
                                     if (price > 0) {
-                                        if ((plugin.Geldsystem.getBalance(p) - price) >= 0) {
-                                            plugin.Geldsystem.substract(price, p);
+                                        if ((plugin.MoneyHandler.getBalance(p) - price) >= 0) {
+                                            plugin.MoneyHandler.substract(price, p);
                                             if (plugin.config.usedbtomanageXP) {
                                                 plugin.SQL.UpdateXP(p.getName(), (int) (Integer.parseInt(line[2]) + plugin.getTOTALXP(player)));
                                             }
@@ -563,13 +498,13 @@ public class xpShopListener implements Listener {
                                                 if (plugin.SQL.getXP(line[1]) >= Integer.parseInt(line[2])) {
                                                     if (getPrice(s, p, true) > 0) {
                                                         double price = getPrice(s, p, true);
-                                                        if ((plugin.Geldsystem.getBalance(p) - price) >= 0) {
-                                                            plugin.Geldsystem.substract(price, p);
+                                                        if ((plugin.MoneyHandler.getBalance(p) - price) >= 0) {
+                                                            plugin.MoneyHandler.substract(price, p);
                                                             plugin.UpdateXP(p, Integer.parseInt(line[2]), "Sign");
                                                             plugin.SQL.UpdateXP(playername, XPPlayer + Integer.parseInt(line[2]));
                                                             plugin.PlayerLogger(p, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), split[0]), "");
                                                             plugin.SQL.UpdateXP(line[1], plugin.SQL.getXP(line[1]) - Integer.parseInt(line[2]));
-                                                            plugin.Geldsystem.addmoney(price, line[1]);
+                                                            plugin.MoneyHandler.addmoney(price, line[1]);
                                                             if (plugin.getServer().getPlayer(line[1]) != null) {
                                                                 Player Empfaenger = plugin.getServer().getPlayer(line[1]);
                                                                 plugin.UpdateXP(Empfaenger, -(Integer.parseInt(line[2])), "Sign");
@@ -598,12 +533,12 @@ public class xpShopListener implements Listener {
                                                 if (plugin.getTOTALXP(empfaenger) >= Integer.parseInt(line[2])) {
                                                     if (getPrice(s, p, true) > 0) {
                                                         double price = getPrice(s, p, true);
-                                                        if ((plugin.Geldsystem.getBalance(p) - price) >= 0) {
-                                                            plugin.Geldsystem.substract(price, p);
+                                                        if ((plugin.MoneyHandler.getBalance(p) - price) >= 0) {
+                                                            plugin.MoneyHandler.substract(price, p);
                                                             plugin.UpdateXP(p, (Integer.parseInt(s.getLine(2))), "Sign");
                                                             plugin.PlayerLogger(p, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), split[0]), "");
                                                             plugin.UpdateXP(empfaenger, -(Integer.parseInt(s.getLine(2))), "Sign");
-                                                            plugin.Geldsystem.addmoney(price, empfaenger);
+                                                            plugin.MoneyHandler.addmoney(price, empfaenger);
                                                             empfaenger.saveData();
                                                             plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), p.getName(), split[0]), "");
                                                         } else {
@@ -638,12 +573,12 @@ public class xpShopListener implements Listener {
                 if (line[0].equalsIgnoreCase("[xpShop]")) {
                     if (!plugin.Blacklistcode.startsWith("1", 11)) {
                         if (this.blockIsValid(line, "Interact", p)) {
-                            if (plugin.Permission.checkpermissions(p, "xpShop.use")) {
+                            if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.use")) {
                                 if (line[1].equalsIgnoreCase("AdminShop")) {
                                     if (plugin.getTOTALXP(p) >= Integer.parseInt(line[2])) {
                                         if (getPrice(s, p, false) > 0) {
                                             double price = getPrice(s, p, false);
-                                            plugin.Geldsystem.addmoney(price, p);
+                                            plugin.MoneyHandler.addmoney(price, p);
                                             if (plugin.config.usedbtomanageXP) {
                                                 plugin.SQL.UpdateXP(p.getName(), (int) (plugin.getTOTALXP(player) - Integer.parseInt(line[2])));
                                             }
@@ -663,9 +598,9 @@ public class xpShopListener implements Listener {
                                                 if (plugin.SQL.getXP(playername) >= Integer.parseInt(line[2])) {
                                                     if (getPrice(s, p, false) > 0) {
                                                         double price = getPrice(s, p, false);
-                                                        if ((plugin.Geldsystem.getBalance(line[1]) - price) >= 0) {
-                                                            plugin.Geldsystem.substract(price, line[1]);
-                                                            plugin.Geldsystem.addmoney(price, p);
+                                                        if ((plugin.MoneyHandler.getBalance(line[1]) - price) >= 0) {
+                                                            plugin.MoneyHandler.substract(price, line[1]);
+                                                            plugin.MoneyHandler.addmoney(price, p);
                                                             plugin.UpdateXP(p, -(Integer.parseInt(line[2])), "Sign");
                                                             plugin.SQL.UpdateXP(playername, XPPlayer - Integer.parseInt(line[2]));
                                                             plugin.SQL.UpdateXP(line[1], plugin.SQL.getXP(line[1]) + Integer.parseInt(line[2]));
@@ -699,11 +634,11 @@ public class xpShopListener implements Listener {
                                                 if (plugin.getTOTALXP(p) >= Integer.parseInt(line[2])) {
                                                     if (getPrice(s, p, false) > 0) {
                                                         double price = getPrice(s, p, false);
-                                                        if ((plugin.Geldsystem.getBalance(empfaenger) - price) >= 0) {
-                                                            plugin.Geldsystem.substract(price, empfaenger);
+                                                        if ((plugin.MoneyHandler.getBalance(empfaenger) - price) >= 0) {
+                                                            plugin.MoneyHandler.substract(price, empfaenger);
                                                             plugin.UpdateXP(empfaenger, (Integer.parseInt(s.getLine(2))), "Sign");
                                                             plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerselled, s.getLine(2), p.getName(), split[1]), "");
-                                                            plugin.Geldsystem.addmoney(price, p);
+                                                            plugin.MoneyHandler.addmoney(price, p);
                                                             plugin.UpdateXP(p, -(Integer.parseInt(s.getLine(2))), "Sign");
                                                             empfaenger.saveData();
                                                             plugin.PlayerLogger(p, String.format(plugin.config.Shopsuccesssell, s.getLine(2), s.getLine(1), split[1]), "");
@@ -753,6 +688,68 @@ public class xpShopListener implements Listener {
         if (plugin.config.debug) {
             plugin.Logger("Checking if block is valid!", "Debug");
         }
+        String[] temp = null;
+        try {
+            temp = lines[3].split(":");
+            if (plugin.config.debug) {
+                plugin.Logger("Line 3 is: " + lines[3], "Debug");
+            }
+        } catch (Exception e) {
+            if (plugin.config.debug) {
+                plugin.Logger("Contains no : ", "Debug");
+            }
+        }
+        try {
+            if (Tools.isFloat(temp[0]) && Tools.isFloat(temp[1])) {
+                if (plugin.config.debug) {
+                    plugin.Logger("Buy and sell amount are ints: " + temp[0] + " und " + temp[1], "Debug");
+                }
+                if (Float.parseFloat(temp[0]) > 0 || Float.parseFloat(temp[1]) > 0) {
+                    if (plugin.config.debug) {
+                        plugin.Logger("One of them is greater than 0: " + temp[0] + " und " + temp[1], "Debug");
+                    }
+                    if (!(Float.parseFloat(temp[0]) < 0) && !(Float.parseFloat(temp[1]) < 0)) {
+                        if (plugin.config.debug) {
+                            plugin.Logger("None of them is smaller than 0: " + temp[0] + " und " + temp[1], "Debug");
+                        }
+                        if (Tools.isInteger(lines[2])) {
+                            if (Integer.parseInt(lines[2]) > 0) {
+                                if (plugin.config.debug) {
+                                    plugin.Logger("Line 2 is int", "Debug");
+                                }
+                                a = true;
+                                if (plugin.config.debug) {
+                                    plugin.Logger("block is valid!", "Debug");
+                                }
+                            }
+                        }
+                    } else {
+                        if (plugin.config.debug) {
+                            plugin.Logger("One of them is smaller than 0: " + temp[0] + " und " + temp[1], "Debug");
+                        }
+                    }
+                } else {
+                    if (plugin.config.debug) {
+                        plugin.Logger("None of them is greater than 0: " + temp[0] + " und " + temp[1], "Debug");
+                    }
+                }
+            } else {
+                if (plugin.config.debug) {
+                    plugin.Logger("!Tools.isFloat(temp[0]) || !Tools.isFloat(temp[1])", "Debug");
+                }
+            }
+        } catch (Exception ew) {
+        }
+
+        return a;
+    }
+
+    public boolean blockIsValid(Sign sign) {
+        boolean a = false;
+        if (plugin.config.debug) {
+            plugin.Logger("Checking if block is valid!", "Debug");
+        }
+        String[] lines = sign.getLines();
         String[] temp = null;
         try {
             temp = lines[3].split(":");
