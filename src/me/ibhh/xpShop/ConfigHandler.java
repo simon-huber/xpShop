@@ -69,8 +69,10 @@ public class ConfigHandler {
             safedestore,
             safenotenoughxptostore,
             safenotenoughinsafe,
-            safenotyoursafe;
-    public boolean autodownload, debug, firstRun, onlysendxptoonlineplayers, useMySQL, usedbtomanageXP, keepxpondeath, autoinstall;
+            safenotyoursafe,
+            safenoSafeonShop,
+            safenotenoughXPinShop;
+    public boolean autodownload, debug, firstRun, onlysendxptoonlineplayers, useMySQL, usedbtomanageXP, keepxpondeath, autoinstall, ConnectionofSafetoShop, Internet;
     public double moneytoxp, xptomoney, TaskRepeat, DelayTimeTask;
 
     public ConfigHandler(xpShop pl) {
@@ -82,10 +84,16 @@ public class ConfigHandler {
             plugin.getConfig().options().copyDefaults(true);
             plugin.saveConfig();
             plugin.reloadConfig();
+            reload();
             if (debug) {
                 plugin.Logger("Config file found!", "");
+                if(Internet){
+                    plugin.Logger("internet: true!", "");
+                } else {
+                    plugin.Logger("internet: false!", "");
+                }
             }
-            reload();
+            
         } catch (Exception e) {
             e.printStackTrace();
             plugin.onDisable();
@@ -310,6 +318,8 @@ public class ConfigHandler {
         usedbtomanageXP = plugin.getConfig().getBoolean("usedbtomanageXP");
         keepxpondeath = plugin.getConfig().getBoolean("keepxpondeath");
         autoinstall = plugin.getConfig().getBoolean("autoinstall");
+        ConnectionofSafetoShop = plugin.getConfig().getBoolean("ConnectionofSafetoShop");
+        Internet = plugin.getConfig().getBoolean("internet");
     }
 
     public void loadStrings() {
@@ -329,6 +339,8 @@ public class ConfigHandler {
         dbnotused = plugin.getConfig().getString("dbnotused." + language);
         safestore = plugin.getConfig().getString("safe.store." + language);
         safedestore = plugin.getConfig().getString("safe.destore." + language);
+        safenoSafeonShop = plugin.getConfig().getString("safe.noSafeonShop." + language);
+        safenotenoughXPinShop = plugin.getConfig().getString("safe.notenoughXPinShop." + language);
         safenotenoughinsafe = plugin.getConfig().getString("safe.notenoughinsafe." + language);
         safenotenoughxptostore = plugin.getConfig().getString("safe.notenoughxptostore." + language);
         safenotyoursafe = plugin.getConfig().getString("safe.notyoursafe." + language);
