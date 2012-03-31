@@ -20,17 +20,13 @@ public class iConomyHandler {
         plugin.aktuelleVersion();
         if (setupEconomy() == true) {
             iConomyversion = 2;
-            if (plugin.getConfig().getBoolean("debug")) {
-                plugin.Logger("hooked into Vault", "");
-            }
+            plugin.Logger("hooked into Vault", "Debug");
         }
         plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
 
             @Override
             public void run() {
-                if (plugin.getConfig().getBoolean("debug")) {
-                    plugin.Logger("checking MoneyPlugin!", "");
-                }
+                plugin.Logger("checking MoneyPlugin!", "Debug");
                 iConomyversion();
             }
         }, 1);
@@ -67,24 +63,16 @@ public class iConomyHandler {
             try {
                 if (packageExists(new String[]{"net.milkbowl.vault.economy.Economy"})) {
                     iConomyversion = 2;
-                    if (plugin.getConfig().getBoolean("debug")) {
-                        plugin.Logger("hooked into Vault", "");
-                    }
+                    plugin.Logger("hooked into Vault", "Debug");
                 } else if (packageExists(new String[]{"com.nijikokun.register.payment.Methods"})) {
                     iConomyversion = 1;
-                    if (plugin.getConfig().getBoolean("debug")) {
-                        plugin.Logger("hooked into Register", "");
-                    }
+                    plugin.Logger("hooked into Register", "Debug");
                 } else if (packageExists(new String[]{"com.iConomy.iConomy", "com.iConomy.system.Account", "com.iConomy.system.Holdings"})) {
                     iConomyversion = 5;
-                    if (plugin.getConfig().getBoolean("debug")) {
-                        plugin.Logger("hooked into iConomy5", "");
-                    }
+                    plugin.Logger("hooked into iConomy5", "Debug");
                 } else if (packageExists(new String[]{"com.iCo6.system.Accounts"})) {
                     iConomyversion = 6;
-                    if (plugin.getConfig().getBoolean("debug")) {
-                        plugin.Logger("hooked into iConomy6", "");
-                    }
+                    plugin.Logger("hooked into iConomy6", "Debug");
                 } else {
                     plugin.Logger("cant hook into iConomy5, iConomy6, Vault or Register. Downloading Vault!", "");
                     plugin.Logger(" ************ Please configure Vault!!!!! **********", "Warning");

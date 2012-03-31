@@ -23,23 +23,17 @@ public class SQLConnectionHandler {
     public void PrepareDB() {
         Statement st = null;
         long time = 0;
-        if (auTrade.config.debug) {
-            auTrade.Logger("Creaeting table!", "");
-            time = System.nanoTime();
-        }
+        auTrade.Logger("Creaeting table!", "Debug");
+        time = System.nanoTime();
         try {
             String sql = "CREATE TABLE IF NOT EXISTS xpShop (Name VARCHAR(30) PRIMARY KEY , XP INT);";
             st = cn.createStatement();
             if (auTrade.getConfig().getBoolean("SQL")) {
                 st.executeUpdate(sql);
-                if (auTrade.config.debug) {
-                    System.out.println("[xpShop] Table created!");
-                }
+                auTrade.Logger("[xpShop] Table created!", "Debug");
             } else {
                 st.executeUpdate("CREATE TABLE IF NOT EXISTS xpShop (Name VARCHAR PRIMARY KEY NOT NULL, XP INT)");
-                if (auTrade.config.debug) {
-                    System.out.println("[xpShop] Table created!");
-                }
+                auTrade.Logger("[xpShop] Table created!", "Debug");
             }
             cn.commit();
             st.close();
@@ -47,19 +41,15 @@ public class SQLConnectionHandler {
             System.out.println("[xpShop]: Error while creating tables! - " + e.getMessage());
             SQLErrorHandler(e);
         }
-        if (auTrade.config.debug) {
-            time = (System.nanoTime() - time) / 1000000;
-            auTrade.Logger("Created in " + time + " ms!", "Debug");
-        }
+        time = (System.nanoTime() - time) / 1000000;
+        auTrade.Logger("Created in " + time + " ms!", "Debug");
         //	    UpdateDB();
     }
 
     public boolean InsertAuction(String name, int xp) {
         long time = 0;
-        if (auTrade.config.debug) {
-            auTrade.Logger("Insert player into table!", "");
-            time = System.nanoTime();
-        }
+        auTrade.Logger("Insert player into table!", "Debug");
+        time = System.nanoTime();
         try {
             PreparedStatement ps = cn.prepareStatement("INSERT INTO xpShop (Name, XP) VALUES (?,?)");
             ps.setString(1, name);
@@ -72,19 +62,15 @@ public class SQLConnectionHandler {
             SQLErrorHandler(e);
             return false;
         }
-        if (auTrade.config.debug) {
-            time = (System.nanoTime() - time) / 1000000;
-            auTrade.Logger("Finished in " + time + " ms!", "Debug");
-        }
+        time = (System.nanoTime() - time) / 1000000;
+        auTrade.Logger("Finished in " + time + " ms!", "Debug");
         return true;
     }
 
     public boolean UpdateXP(String name, int xp) {
         long time = 0;
-        if (auTrade.config.debug) {
-            auTrade.Logger("Updating XP in DB!", "");
-            time = System.nanoTime();
-        }
+        auTrade.Logger("Updating XP in DB!", "Debug");
+        time = System.nanoTime();
         try {
             PreparedStatement ps = cn.prepareStatement("UPDATE xpShop SET XP='" + xp + "' WHERE Name='" + name + "';");
             ps.executeUpdate();
@@ -96,10 +82,8 @@ public class SQLConnectionHandler {
             SQLErrorHandler(e);
             return false;
         }
-        if (auTrade.config.debug) {
-            time = (System.nanoTime() - time) / 1000000;
-            auTrade.Logger("Finished in " + time + " ms!", "Debug");
-        }
+        time = (System.nanoTime() - time) / 1000000;
+        auTrade.Logger("Finished in " + time + " ms!", "Debug");
         return true;
     }
 
@@ -177,10 +161,8 @@ public class SQLConnectionHandler {
     public boolean isindb(String name) throws SQLException {
         boolean a = false;
         long time = 0;
-        if (auTrade.config.debug) {
-            auTrade.Logger("Checking if in table!", "");
-            time = System.nanoTime();
-        }
+        auTrade.Logger("Checking if in table!", "Debug");
+        time = System.nanoTime();
         Statement st = null;
         String sql;
         ResultSet result;
@@ -200,9 +182,7 @@ public class SQLConnectionHandler {
         try {
             result.next();
             int b = result.getInt(1);
-            if (auTrade.config.debug) {
-                auTrade.Logger("Lines: " + b, "Debug");
-            }
+            auTrade.Logger("Lines: " + b, "Debug");
             if (b > 0) {
                 a = true;
             }
@@ -213,19 +193,15 @@ public class SQLConnectionHandler {
         } catch (SQLException e2) {
             SQLErrorHandler(e2);
         }
-        if (auTrade.config.debug) {
-            time = (System.nanoTime() - time) / 1000000;
-            auTrade.Logger("Finished in " + time + " ms!", "Debug");
-        }
+        time = (System.nanoTime() - time) / 1000000;
+        auTrade.Logger("Finished in " + time + " ms!", "Debug");
         return a;
     }
 
     public int getXP(String name) throws SQLException {
         long time = 0;
-        if (auTrade.config.debug) {
-            auTrade.Logger("getting XP!", "");
-            time = System.nanoTime();
-        }
+        auTrade.Logger("getting XP!", "Debug");
+        time = System.nanoTime();
         Statement st = null;
         String sql;
         ResultSet result;
@@ -247,10 +223,8 @@ public class SQLConnectionHandler {
         } catch (SQLException e2) {
             SQLErrorHandler(e2);
         }
-        if (auTrade.config.debug) {
-            time = (System.nanoTime() - time) / 1000000;
-            auTrade.Logger("Finished in " + time + " ms!", "Debug");
-        }
+        time = (System.nanoTime() - time) / 1000000;
+        auTrade.Logger("Finished in " + time + " ms!", "Debug");
         return XP;
     }
 }

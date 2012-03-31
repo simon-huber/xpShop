@@ -72,7 +72,7 @@ public class ConfigHandler {
             safenotyoursafe,
             safenoSafeonShop,
             safenotenoughXPinShop;
-    public boolean autodownload, debug, firstRun, onlysendxptoonlineplayers, useMySQL, usedbtomanageXP, keepxpondeath, autoinstall, ConnectionofSafetoShop, Internet;
+    public boolean autodownload, debug, debugfile, firstRun, onlysendxptoonlineplayers, useMySQL, usedbtomanageXP, keepxpondeath, autoinstall, ConnectionofSafetoShop, Internet;
     public double moneytoxp, xptomoney, TaskRepeat, DelayTimeTask;
 
     public ConfigHandler(xpShop pl) {
@@ -85,15 +85,13 @@ public class ConfigHandler {
             plugin.saveConfig();
             plugin.reloadConfig();
             reload();
-            if (debug) {
-                plugin.Logger("Config file found!", "");
-                if(Internet){
-                    plugin.Logger("internet: true!", "");
-                } else {
-                    plugin.Logger("internet: false!", "");
-                }
+            plugin.Logger("Config file found!", "Debug");
+            if (Internet) {
+                plugin.Logger("internet: true!", "Debug");
+            } else {
+                plugin.Logger("internet: false!", "Debug");
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             plugin.onDisable();
@@ -275,13 +273,9 @@ public class ConfigHandler {
                 neu = neu.concat("0");
             }
         }
-        if (debug) {
             plugin.Logger("Codeneu: " + neu, "Debug");
-        }
         plugin.Blacklistcode = neu;
-        if (debug) {
             plugin.Logger("Code: " + plugin.Blacklistcode, "Debug");
-        }
     }
 
     public void loadDoubles() {
@@ -292,10 +286,8 @@ public class ConfigHandler {
     }
 
     public boolean getPlayerConfig(Player player, Player sender) {
-        if (debug) {
             plugin.Logger("Player is online: " + player.isOnline(), "Debug");
             plugin.Logger("Playeronlinemode: " + onlysendxptoonlineplayers, "Debug");
-        }
         if (player.isOnline()) {
             return true;
         } else if (!player.isOnline() && onlysendxptoonlineplayers) {
@@ -320,6 +312,7 @@ public class ConfigHandler {
         autoinstall = plugin.getConfig().getBoolean("autoinstall");
         ConnectionofSafetoShop = plugin.getConfig().getBoolean("ConnectionofSafetoShop");
         Internet = plugin.getConfig().getBoolean("internet");
+        debugfile = plugin.getConfig().getBoolean("debugfile");
     }
 
     public void loadStrings() {

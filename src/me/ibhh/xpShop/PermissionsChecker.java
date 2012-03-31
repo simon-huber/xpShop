@@ -30,9 +30,7 @@ public class PermissionsChecker {
                     groupManager = (GroupManager) GMplugin;
 
                 }
-                if (plugin.getConfig().getBoolean("debug")) {
-                    plugin.Logger("checking PermissionsPlugin!", "");
-                }
+                    plugin.Logger("checking PermissionsPlugin!", "Debug");
                 searchpermplugin();
             }
         }, 1);
@@ -41,24 +39,16 @@ public class PermissionsChecker {
     public void searchpermplugin() {
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("PermissionsEx")) {
             PermPlugin = 2;
-            if (plugin.getConfig().getBoolean("debug")) {
-                plugin.Logger("Permissions: Hooked into PermissionsEX!", "");
-            }
+                plugin.Logger("Permissions: Hooked into PermissionsEX!", "Debug");
         } else if (plugin.getServer().getPluginManager().isPluginEnabled("GroupManager")) {
             PermPlugin = 3;
-            if (plugin.getConfig().getBoolean("debug")) {
-                plugin.Logger("Permissions: Hooked into GroupManager!", "");
-            }
+                plugin.Logger("Permissions: Hooked into GroupManager!", "Debug");
         } else if (Bukkit.getServer().getPluginManager().isPluginEnabled("bPermissions")) {
             PermPlugin = 4;
-            if (plugin.getConfig().getBoolean("debug")) {
-                plugin.Logger("Permissions: Hooked into bPermissions!", "");
-            }
+                plugin.Logger("Permissions: Hooked into bPermissions!", "Debug");
         } else {
             PermPlugin = 1;
-            if (plugin.getConfig().getBoolean("debug")) {
-                plugin.Logger("Permissions: Hooked into BukkitPermissions!", "");
-            }
+                plugin.Logger("Permissions: Hooked into BukkitPermissions!", "Debug");
         }
     }
 
