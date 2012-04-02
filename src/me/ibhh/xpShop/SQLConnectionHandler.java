@@ -19,6 +19,36 @@ public class SQLConnectionHandler {
         auTrade = AuctTrade;
         cn = null;
     }
+    
+    public boolean deleteDB(){
+        Statement st = null;
+        boolean temp = false;
+        long time = 0;
+        auTrade.Logger("deleting table!", "Debug");
+        time = System.nanoTime();
+        try {
+            String sql = "drop table if exists xpShop;";
+            st = cn.createStatement();
+            if (auTrade.getConfig().getBoolean("SQL")) {
+                st.executeUpdate(sql);
+                auTrade.Logger("[xpShop] Table deleted!", "Debug");
+                temp = true;
+            } else {
+                st.executeUpdate("drop table if exists xpShop;");
+                auTrade.Logger("[xpShop] Table deleted!", "Debug");
+                temp = true;
+            }
+            cn.commit();
+            st.close();
+        } catch (SQLException e) {
+            System.out.println("[xpShop]: Error while creating tables! - " + e.getMessage());
+            SQLErrorHandler(e);
+        }
+        time = (System.nanoTime() - time) / 1000000;
+        auTrade.Logger("DELETED in " + time + " ms!", "Debug");
+        //	    UpdateDB();
+        return temp;
+    }
 
     public void PrepareDB() {
         Statement st = null;

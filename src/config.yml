@@ -16,6 +16,7 @@ moneytoxp: 1.00
 xptomoney: 1.00
 keepxpondeath: false
 ConnectionofSafetoShop: false
+optionalconnectionofSafetoShop: true
 #Enable this if you have problems with sending XP to player which are offline.
 onlysendxptoonlineplayers: false
 usedbtomanageXP: false
@@ -234,3 +235,9 @@ safe:
   notenoughXPinShop:
     de: Es sind nicht genuegend XP im Shop.
     en: Not enough XP in the Shop.
+  pleaseaddSafe:
+    de: Bitte platziere ein Safe ueber, oder unter dem Shop!
+    en: Please add a Safe under or above to the Shop!
+  canaddSafe:
+    de: Du kannst optionial ein Safe ueber, oder unter dem Shop platzieren, um mehr funktionen nutzen zu koennen!
+    en: You cann add a Safe under or above to the Shop to use more funktions!

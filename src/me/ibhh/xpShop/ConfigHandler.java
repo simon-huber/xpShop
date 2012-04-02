@@ -71,8 +71,10 @@ public class ConfigHandler {
             safenotenoughinsafe,
             safenotyoursafe,
             safenoSafeonShop,
-            safenotenoughXPinShop;
-    public boolean autodownload, debug, debugfile, firstRun, onlysendxptoonlineplayers, useMySQL, usedbtomanageXP, keepxpondeath, autoinstall, ConnectionofSafetoShop, Internet;
+            safenotenoughXPinShop,
+            safepleaseaddSafe,
+            safecanaddSafe;
+    public boolean autodownload, debug, debugfile, firstRun, onlysendxptoonlineplayers, useMySQL, usedbtomanageXP, keepxpondeath, autoinstall, ConnectionofSafetoShop, optionalconnectionofSafetoShop, Internet;
     public double moneytoxp, xptomoney, TaskRepeat, DelayTimeTask;
 
     public ConfigHandler(xpShop pl) {
@@ -311,6 +313,7 @@ public class ConfigHandler {
         keepxpondeath = plugin.getConfig().getBoolean("keepxpondeath");
         autoinstall = plugin.getConfig().getBoolean("autoinstall");
         ConnectionofSafetoShop = plugin.getConfig().getBoolean("ConnectionofSafetoShop");
+        optionalconnectionofSafetoShop = plugin.getConfig().getBoolean("optionalconnectionofSafetoShop");
         Internet = plugin.getConfig().getBoolean("internet");
         debugfile = plugin.getConfig().getBoolean("debugfile");
     }
@@ -336,6 +339,8 @@ public class ConfigHandler {
         safenotenoughXPinShop = plugin.getConfig().getString("safe.notenoughXPinShop." + language);
         safenotenoughinsafe = plugin.getConfig().getString("safe.notenoughinsafe." + language);
         safenotenoughxptostore = plugin.getConfig().getString("safe.notenoughxptostore." + language);
+        safepleaseaddSafe = plugin.getConfig().getString("safe.pleaseaddSafe." + language);
+        safecanaddSafe = plugin.getConfig().getString("safe.canaddSafe." + language);
         safenotyoursafe = plugin.getConfig().getString("safe.notyoursafe." + language);
         Shoperrornotenoughmoneyconsumer = plugin.getConfig().getString("Shop.error.notenoughmoneyconsumer." + language);
         Shoperrornotenoughmoneyseller = plugin.getConfig().getString("Shop.error.notenoughmoneyseller." + language);
