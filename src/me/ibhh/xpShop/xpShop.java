@@ -1,6 +1,7 @@
 package me.ibhh.xpShop;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import me.ibhh.xpShopupdatehelper.xpShopupdatehelper;
@@ -516,6 +517,15 @@ public class xpShop extends JavaPlugin {
                                         config.reload();
                                         return true;
                                     }
+                                }if (args[0].equalsIgnoreCase("internet")) {
+                                    if (PermissionsHandler.checkpermissions(player, "xpShop.admin")) {
+                                        getConfig().set("internet", !getConfig().getBoolean("internet"));
+                                        PlayerLogger(player, "internet: " + getConfig().getBoolean("internet"), "");
+                                        saveConfig();
+                                        reloadConfig();
+                                        config.reload();
+                                        return true;
+                                    }
                                 } else if (ActionxpShop.equalsIgnoreCase("infoxp")) {
                                     if (PermissionsHandler.checkpermissions(player, "xpShop.infoxp.own")) {
                                         infoxp(sender, args);
@@ -536,6 +546,32 @@ public class xpShop extends JavaPlugin {
                                         autoUpdate("http://ibhh.de/xpShop.jar", path, "xpShop.jar", "forceupdate");
                                         PlayerLogger(player, "Downloaded new Version!", "Warning");
                                         PlayerLogger(player, "xpShop will be updated on the next restart!", "Warning");
+                                        return true;
+                                    }
+                                } else if (ActionxpShop.equalsIgnoreCase("deletedebug")) {
+                                    if (PermissionsHandler.checkpermissions(player, "xpShop.admin")) {
+                                        File file = new File("plugins" + File.separator + "xpShop" + File.separator + "debug.txt");
+                                        if (file.exists()) {
+                                            if (file.delete()) {
+                                                PlayerLogger(player, "file deleted!", "Warning");
+                                                try {
+                                                    file.createNewFile();
+                                                } catch (IOException ex) {
+                                                    java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+                                                }
+                                            } else {
+                                                PlayerLogger(player, "Error on deleting file!", "Error");
+                                            }
+                                        }
+                                        return true;
+                                    }
+                                } else if (ActionxpShop.equalsIgnoreCase("log")) {
+                                    if (PermissionsHandler.checkpermissions(player, "xpShop.admin")) {
+                                        File file = new File("plugins" + File.separator + "xpShop" + File.separator + "debug.txt");
+                                        if (file.exists()) {
+                                                PlayerLogger(player, "debug.txt is " + file.length() + " Byte big!", "Warning");
+                                                PlayerLogger(player, "Type /xpShop deletedebug to delete the debug.txt!", "Warning");
+                                        }
                                         return true;
                                     }
                                 } else if (ActionxpShop.equalsIgnoreCase("toggle")) {
@@ -612,6 +648,19 @@ public class xpShop extends JavaPlugin {
                                         }
                                         PlayerLogger(player, config.commanderrornoint, "Error");
                                         return false;
+                                    }
+                                } else if (args[0].equalsIgnoreCase("language")) {
+                                    if (PermissionsHandler.checkpermissions(player, "xpShop.admin")) {
+                                        getConfig().set("language", args[1]);
+                                        PlayerLogger(player, "language set to: " + args[1], "");
+                                        saveConfig();
+                                        Logger("Config saved!", "Debug");
+                                        reloadConfig();
+                                        Logger("Config reloaded!", "Debug");
+                                        Logger("debug reloaded!", "Debug");
+                                        config.reload();
+                                        Logger("Config reloaded!", "Debug");
+                                        return true;
                                     }
                                 } else if (ActionxpShop.equalsIgnoreCase("testsetxp")) {
                                     if (PermissionsHandler.checkpermissions(player, "xpShop.testsetxp")) {
@@ -771,17 +820,18 @@ public class xpShop extends JavaPlugin {
                                             if (empfaenger1.hasPlayedBefore()) {
                                                 if (config.getPlayerConfig(empfaenger1, player)) {
                                                     try {
-                                                        buy(empfaenger1, SubstractedXP, false, "grand"); //Gives other player XP wich were substracted.
+                                                        UpdateXP(sender, Integer.parseInt(args[2]), "grand");
                                                         empfaenger1.saveData();
                                                     } catch (Exception e1) {
                                                         PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                                                         return false;
                                                     }
                                                     try {
-                                                        PlayerLogger(player, (String.format(config.commandsuccesssentxp, SubstractedXP, args[2])), "");
+                                                        PlayerLogger(player, (String.format(config.commandsuccesssentxp, Integer.parseInt(args[2]), empfaenger1.getName())), "");
                                                     } catch (NullPointerException e) {
                                                         PlayerLogger(player, "Error!", "Error");
                                                     }
+                                                    return true;
                                                 }
                                             } else {
                                                 PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");

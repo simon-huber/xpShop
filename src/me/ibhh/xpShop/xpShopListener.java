@@ -1,5 +1,6 @@
 package me.ibhh.xpShop;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,12 +67,16 @@ public class xpShopListener implements Listener {
             }
             if (!plugin.Blacklistcode.startsWith("1")) {
                 if (plugin.PermissionsHandler.checkpermissionssilent(event.getPlayer(), "xpShop.admin")) {
-                    plugin.Logger("Player: " + event.getPlayer().getName() + " has permission: \"xpShop.admin\"", "Debug");
                     if (plugin.updateaviable) {
                         plugin.PlayerLogger(event.getPlayer(), "New xpShop update aviable: type \"xpShopupdate\" please!", "Warning");
                     }
-                } else {
-                    plugin.Logger("Player: " + event.getPlayer().getName() + " has no permission: \"xpShop.admin\"", "Debug");
+                    File file = new File("plugins" + File.separator + "xpShop" + File.separator + "debug.txt");
+                    if(file.exists()){
+                        if(file.length() > 1000000){
+                            plugin.PlayerLogger(event.getPlayer(), "debug.txt is " + file.length() + "Byte big!" , "Warning");
+                            plugin.PlayerLogger(event.getPlayer(), "Type /xpShop deletedebug to delete the debug.txt!" , "Warning");
+                        }
+                    }
                 }
             }
         }
