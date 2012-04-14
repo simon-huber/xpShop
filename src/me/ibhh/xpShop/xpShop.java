@@ -820,7 +820,7 @@ public class xpShop extends JavaPlugin {
                                             if (empfaenger1.hasPlayedBefore()) {
                                                 if (config.getPlayerConfig(empfaenger1, player)) {
                                                     try {
-                                                        UpdateXP(sender, Integer.parseInt(args[2]), "grand");
+                                                        UpdateXP(empfaenger1, Integer.parseInt(args[2]), "grand");
                                                         empfaenger1.saveData();
                                                     } catch (Exception e1) {
                                                         PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
@@ -1107,15 +1107,15 @@ public class xpShop extends JavaPlugin {
                         String playername = player.getName();
                         int XPempf = SQL.getXP(empfaenger);
                         int XPplayer = SQL.getXP(playername);
-                        sell(sender, giveamount, false, "sendxp"); //Trys to substract amount, else stop.
+                        int temp = sell(sender, giveamount, false, "sendxp"); //Trys to substract amount, else stop.
                         SQL.UpdateXP(empfaenger, XPempf + SubstractedXP);
                         SQL.UpdateXP(playername, (XPplayer - SubstractedXP));
                         try {
-                            PlayerLogger(player, (String.format(config.commandsuccesssentxp, SubstractedXP, args[1])), "");
+                            PlayerLogger(player, (String.format(config.commandsuccesssentxp, temp, args[1])), "");
                             if (getServer().getPlayer(empfaenger) != null) {
                                 empfaenger1 = getServer().getPlayer(empfaenger);
-                                buy(empfaenger1, SubstractedXP, false, "sendxp");
-                                PlayerLogger(empfaenger1, (String.format(config.commandsuccessrecievedxp, SubstractedXP, playername)), "");
+                                buy(empfaenger1, temp, false, "sendxp");
+                                PlayerLogger(empfaenger1, (String.format(config.commandsuccessrecievedxp, temp, playername)), "");
                             }
                         } catch (NullPointerException e) {
                             PlayerLogger(player, "Error!", "Error");
@@ -1136,18 +1136,18 @@ public class xpShop extends JavaPlugin {
                 if (empfaenger1 != null) {
                     if (empfaenger1.hasPlayedBefore()) {
                         if (config.getPlayerConfig(empfaenger1, player)) {
-                            sell(sender, giveamount, false, "sendxp"); //Trys to substract amount, else stop.
+                            int temp = sell(sender, giveamount, false, "sendxp"); //Trys to substract amount, else stop.
                             try {
-                                buy(empfaenger1, SubstractedXP, false, "sendxp"); //Gives other player XP wich were substracted.
+                                buy(empfaenger1, temp, false, "sendxp"); //Gives other player XP wich were substracted.
                                 empfaenger1.saveData();
                             } catch (Exception e1) {
-                                buy(player, giveamount, false, "sendxp");
+                                buy(player, temp, false, "sendxp");
                                 PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                                 return;
                             }
                             try {
-                                PlayerLogger(player, (String.format(config.commandsuccesssentxp, SubstractedXP, args[1])), "");
-                                PlayerLogger(empfaenger1, (String.format(config.commandsuccessrecievedxp, SubstractedXP, sender.getName())), "");
+                                PlayerLogger(player, (String.format(config.commandsuccesssentxp, temp, args[1])), "");
+                                PlayerLogger(empfaenger1, (String.format(config.commandsuccessrecievedxp, temp, sender.getName())), "");
                             } catch (NullPointerException e) {
                                 PlayerLogger(player, "Error!", "Error");
                             }
@@ -1345,7 +1345,7 @@ public class xpShop extends JavaPlugin {
     }
 
     public int sell(CommandSender sender, int sellamount, boolean moneyactive, String von) {
-
+        SubstractedXP = 0;
         Player player = (Player) sender;
         if (!Blacklistcode.startsWith("1", 2)) {
             if (sellamount <= 0) {
@@ -1355,7 +1355,6 @@ public class xpShop extends JavaPlugin {
                 return 0;
             }
             try {
-                SubstractedXP = 0;
                 double TOTAL = getTOTALXP(player);
                 int TOTALint = (int) TOTAL;
                 getmoney = config.xptomoney;
