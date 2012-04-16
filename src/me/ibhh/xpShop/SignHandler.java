@@ -130,6 +130,7 @@ public class SignHandler {
                 if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.use")) {
                     plugin.Logger("Player: " + p.getName() + " has the permission: xpShop.use", "Debug");
                     if (line[1].equalsIgnoreCase("AdminShop")) {
+                        xpShopSignBuyAdmin(player, line, s);
                     } else {
                         if (plugin.config.ConnectionofSafetoShop) {
                             Sign sign = plugin.ListenerShop.findSign(event.getClickedBlock());

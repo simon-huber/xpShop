@@ -110,9 +110,9 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void precommand(PlayerCommandPreprocessEvent event) {
         if (!plugin.toggle) {
-            if (event.getMessage().startsWith(("/xpshop").toLowerCase())) {
+            if (event.getMessage().toLowerCase().startsWith(("/xpshop".toLowerCase()))) {
                 if (plugin.config.debugfile) {
-                    plugin.Loggerclass.log("Playercommand: " + event.getMessage());
+                    plugin.Loggerclass.log("Player: " + event.getPlayer().getName() + " command: " + event.getMessage());
                 }
             }
         }
@@ -231,8 +231,10 @@ public class xpShopListener implements Listener {
                         double XP;
                         XP = plugin.getTOTALXP(player);
                         try {
-                            if (XP != plugin.SQL.getXP(playername)) {
+                            int temp = plugin.SQL.getXP(playername);
+                            if (XP != temp) {
                                 plugin.Logger("Updating XP after quit because some differences!", "Debug");
+                                plugin.Logger("Difference: Player: " + XP + " Player: " + temp, "Debug");
                                 plugin.SQL.UpdateXP(playername, (int) XP);
                             }
                         } catch (SQLException ex) {
