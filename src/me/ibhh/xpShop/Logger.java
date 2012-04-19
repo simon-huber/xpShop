@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package me.ibhh.xpShop;
 
 import java.io.File;
@@ -16,10 +12,18 @@ import java.util.Date;
  */
 public class Logger {
     private xpShop plugin;
+    /**
+     * Konstruktor of Logger class
+     * @param pl 
+     */
     public Logger(xpShop pl){
         plugin = pl;
     }
     
+    /**
+     * Logs string into file.
+     * @param in 
+     */
     public void log(String in){
         Date now = new Date();
         String Stream = now.toString();

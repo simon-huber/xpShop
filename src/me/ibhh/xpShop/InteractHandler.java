@@ -20,6 +20,10 @@ public class InteractHandler {
     private SignHandler signHandler;
     private SignConSafeHandler signConSafeHandler;
 
+    /**
+     * Konstruktor of InteractHandler
+     * @param pl 
+     */
     public InteractHandler(xpShop pl) {
         plugin = pl;
         safeHandler = new SafeHandler(pl);
@@ -27,6 +31,10 @@ public class InteractHandler {
         signConSafeHandler = new SignConSafeHandler(pl);
     }
 
+    /**
+     * Handles playerinteracts
+     * @param event 
+     */
     public void InteracteventHandler(PlayerInteractEvent event) {
         if (!plugin.toggle) {
             Player p = event.getPlayer();
@@ -41,6 +49,10 @@ public class InteractHandler {
         }
     }
 
+    /**
+     * Manages a rightklick on a block.
+     * @param event 
+     */
     public void RightInteract(PlayerInteractEvent event) {
         Player p = event.getPlayer();
         if ((event.hasBlock()) && ((event.getClickedBlock().getState() instanceof Sign)) && (!p.isSneaking())) { // && !(p.isSneaking())
@@ -58,6 +70,10 @@ public class InteractHandler {
         }
     }
 
+    /**
+     * Manages leftklickinteracts
+     * @param event 
+     */
     public void LeftInteract(PlayerInteractEvent event) {
         Player p = event.getPlayer();
         if (plugin.config.debug) {

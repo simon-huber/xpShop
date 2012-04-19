@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
  * @author Simon
  */
 public class ConfigHandler {
-
+    //define globale variables
     private xpShop plugin;
     public String language,
             commanderrorinfo,
@@ -77,10 +77,17 @@ public class ConfigHandler {
     public boolean autodownload, debug, debugfile, firstRun, onlysendxptoonlineplayers, useMySQL, usedbtomanageXP, keepxpondeath, autoinstall, ConnectionofSafetoShop, optionalconnectionofSafetoShop, Internet;
     public double moneytoxp, xptomoney, TaskRepeat, DelayTimeTask;
 
+    /**
+     * Konstruktor
+     * @param pl 
+     */
     public ConfigHandler(xpShop pl) {
         plugin = pl;
     }
 
+    /**
+     * creates config and updates it.
+     */
     public void loadConfigonStart() {
         try {
             plugin.getConfig().options().copyDefaults(true);
@@ -93,19 +100,25 @@ public class ConfigHandler {
             } else {
                 plugin.Logger("internet: false!", "Debug");
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             plugin.onDisable();
         }
     }
 
+    /**
+     * loadsConfig
+     */
     public void reload() {
         loadBooleans();
         loadStrings();
         loadDoubles();
     }
 
+    
+    /**
+     * Checks which parts disabled
+     */
     public void getBlacklistCode() {
         String temp = "";
         temp = temp.concat("0");
@@ -280,6 +293,9 @@ public class ConfigHandler {
             plugin.Logger("Code: " + plugin.Blacklistcode, "Debug");
     }
 
+    /**
+     * Loads doubles from config
+     */
     public void loadDoubles() {
         moneytoxp = plugin.getConfig().getDouble("moneytoxp");
         xptomoney = plugin.getConfig().getDouble("xptomoney");
@@ -287,6 +303,12 @@ public class ConfigHandler {
         DelayTimeTask = plugin.getConfig().getDouble("DelayTimeTask");
     }
 
+    /**
+     * Loads player config
+     * @param player
+     * @param sender
+     * @return Returns true if player is editable
+     */
     public boolean getPlayerConfig(Player player, Player sender) {
             plugin.Logger("Player is online: " + player.isOnline(), "Debug");
             plugin.Logger("Playeronlinemode: " + onlysendxptoonlineplayers, "Debug");
@@ -302,7 +324,10 @@ public class ConfigHandler {
             return false;
         }
     }
-
+    
+    /**
+     * loads booleans from config
+     */
     public void loadBooleans() {
         debug = plugin.getConfig().getBoolean("debug");
         autodownload = plugin.getConfig().getBoolean("autodownload");
@@ -318,6 +343,9 @@ public class ConfigHandler {
         debugfile = plugin.getConfig().getBoolean("debugfile");
     }
 
+    /**
+     * loads strings and language files from config
+      */
     public void loadStrings() {
         if (useMySQL) {
             dbPath = plugin.getConfig().getString("dbPath");

@@ -422,7 +422,7 @@ public class Metrics {
         /**
          * Gets the graph's name
          *
-         * @return
+         * @return name
          */
         public String getName() {
             return name;
@@ -449,7 +449,7 @@ public class Metrics {
         /**
          * Gets an <b>unmodifiable</b> set of the plotter objects in the graph
          *
-         * @return
+         * @return Plotter
          */
         public Set<Plotter> getPlotters() {
             return Collections.unmodifiableSet(plotters);
@@ -500,7 +500,7 @@ public class Metrics {
         /**
          * Get the current value for the plotted point
          *
-         * @return
+         * @return int
          */
         public abstract int getValue();
 

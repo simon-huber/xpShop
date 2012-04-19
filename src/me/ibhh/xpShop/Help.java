@@ -13,15 +13,18 @@ import org.bukkit.entity.Player;
  */
 public class Help {
     private xpShop plugin;
+    /**
+     * Konstruktor of help page
+     * @param pl 
+     */
     public Help(xpShop pl){
         plugin = pl;
     }
     
     /**
-     * Returns help.
-     *
-     * @param sender, action(String[])
-     * @return
+     * Returns help to player
+     * @param sender
+     * @param args 
      */
     public void help(CommandSender sender, String[] args) {
         Player player = (Player) sender;

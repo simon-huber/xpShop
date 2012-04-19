@@ -63,9 +63,6 @@ public class xpShop extends JavaPlugin {
 
     /**
      * Called by Bukkit on stopping the server
-     *
-     * @param
-     * @return
      */
     @Override
     public void onDisable() {
@@ -98,8 +95,11 @@ public class xpShop extends JavaPlugin {
     /**
      * Delete an download new version of xpShop in the Update folder.
      *
-     * @param
-     * @return
+     * @param url
+     * @param path
+     * @param name
+     * @param type
+     * @return true if successfully downloaded xpShop
      */
     public boolean autoUpdate(final String url, final String path, final String name, final String type) {
         if (config.Internet) {
@@ -117,6 +117,9 @@ public class xpShop extends JavaPlugin {
         return true;
     }
 
+    /**
+     * On disable checks if new version aviable and downloads if activatet
+     */
     public void forceUpdate() {
         if (config.Internet) {
             if (updateaviable) {
@@ -146,6 +149,9 @@ public class xpShop extends JavaPlugin {
 
     }
 
+    /**
+     * Checks if version is blacklisted
+     */
     public void blacklistcheck() {
         if (config.Internet) {
             String temp[] = upd.getBlacklisted("http://ibhh.de/BlacklistxpShop.html");
@@ -160,6 +166,9 @@ public class xpShop extends JavaPlugin {
 
     }
 
+    /**
+     * Executed if version is blacklisted (onDisable)
+     */
     public void blacklistUpdate() {
         if (config.Internet) {
             String temp[] = upd.getBlacklisted("http://ibhh.de/BlacklistxpShop.html");
@@ -193,7 +202,6 @@ public class xpShop extends JavaPlugin {
     /**
      * Gets version.
      *
-     * @param
      * @return float: Version of the installed plugin.
      */
     public float aktuelleVersion() {
@@ -209,7 +217,6 @@ public class xpShop extends JavaPlugin {
      * Compares Version to newVersion
      *
      * @param url from newVersion file + currentVersion
-     * @return true if newVersion recommend.
      */
     public void UpdateAvailable(final String url, final float currVersion) {
         if (config.Internet) {
@@ -225,6 +232,13 @@ public class xpShop extends JavaPlugin {
 
     }
 
+    /**
+     * Return player
+     *
+     * @param args
+     * @param index which field is playername
+     * @return player objekt (do player.saveData() after editing players data)
+     */
     public Player getmyOfflinePlayer(String[] args, int index) {
         String playername = args[index];
         Logger("Empfaenger: " + playername, "Debug");
@@ -261,40 +275,11 @@ public class xpShop extends JavaPlugin {
         }
         return player;
     }
-//        public Player getmyOfflinePlayer(String[] args, int index) {
-//        String playername = args[index];
-//        Player player = getServer().getPlayerExact(playername);
-//        if (player == null) {
-//            player = getServer().getPlayer(playername);
-//        }
-//        if (player == null) {
-//            for (OfflinePlayer p : Bukkit.getServer().getOfflinePlayers()) {
-//                OfflinePlayer offp = p;
-//                if (offp.getName().toLowerCase().equals(playername.toLowerCase())) {
-//                    if (p != null) {
-//                        if (offp.hasPlayedBefore()) {
-//                            player = offp.getPlayer();
-//                            return player;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-////        if (player == null) {
-////            MinecraftServer server = ((CraftServer)this.getServer()).getServer();
-////            EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), args[index], new ItemInWorldManager(server.getWorldServer(0)));
-////            player = entity == null ? null : (Player) entity.getBukkitEntity();
-////            if (player != null) {
-////                player.loadData();
-////                return player;
-////            }
-////        }
-//        return player;
-//    }
-    //        Player player;
-//        player = (Player) getServer().getOfflinePlayer(name);
-//        return player;
 
+    /**
+     * Opens xpShop gui
+     *
+     */
     public void openGUI() {
         panel = new PanelControl(this);
         panel.setSize(400, 300);
@@ -305,8 +290,6 @@ public class xpShop extends JavaPlugin {
     /**
      * Called by Bukkit on starting the server
      *
-     * @param
-     * @return
      */
     @Override
     public void onEnable() {
@@ -374,6 +357,11 @@ public class xpShop extends JavaPlugin {
         Logger("Enabled in " + timetemp1 + "ms", "");
     }
 
+    /**
+     * Different start parts
+     *
+     * @param run
+     */
     public void Standartstart(int run) {
         if (run == 2) {
             aktuelleVersion();
@@ -432,27 +420,27 @@ public class xpShop extends JavaPlugin {
                         }
                     }
                 }, (long) (config.DelayTimeTask * 20), (long) (config.TaskRepeat) * 20);
-                this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        Logger("Searching update for xpShop!", "Debug");
-                        float newversion = upd.getNewVersion("http://ibhh.de:80/aktuelleversionxpShop.html");
-                        Logger("installed xpShop version: " + Version + ", latest version: " + newversion, "Debug");
-                        if (newversion > Version) {
-                            Logger("New version: " + newversion + " found!", "Warning");
-                            Logger("******************************************", "Warning");
-                            Logger("*********** Please update!!!! ************", "Warning");
-                            Logger("* http://ibhh.de/xpShop.jar *", "Warning");
-                            Logger("******************************************", "Warning");
-                            xpShop.updateaviable = true;
-                        } else {
-                            Logger("No update found!", "Debug");
-                        }
-
-                    }
-                }, 400L, 50000L);
             }
+            this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+
+                @Override
+                public void run() {
+                    Logger("Searching update for xpShop!", "Debug");
+                    float newversion = upd.getNewVersion("http://ibhh.de:80/aktuelleversionxpShop.html");
+                    Logger("installed xpShop version: " + Version + ", latest version: " + newversion, "Debug");
+                    if (newversion > Version) {
+                        Logger("New version: " + newversion + " found!", "Warning");
+                        Logger("******************************************", "Warning");
+                        Logger("*********** Please update!!!! ************", "Warning");
+                        Logger("* http://ibhh.de/xpShop.jar *", "Warning");
+                        Logger("******************************************", "Warning");
+                        xpShop.updateaviable = true;
+                    } else {
+                        Logger("No update found!", "Debug");
+                    }
+
+                }
+            }, 400L, 50000L);
         } else if (run == 1) {
             try {
                 config = new ConfigHandler(this);
@@ -481,21 +469,21 @@ public class xpShop extends JavaPlugin {
     /**
      * Called by Bukkit on reloading the server
      *
-     * @param
-     * @return
      */
     public void onReload() {
         onDisable();
         onEnable();
     }
 
-    /**
-     * Called by Bukkit if player posts a command
-     *
-     * @param none, cause of Bukkit.
-     * @return true if no errors happened else return false to Bukkit, then
-     * Bukkit prints /xpShop buy <xp|money>.
+    /** Called by Bukkit if player posts a command
+     * 
+     * @param sender
+     * @param cmd
+     * @param label
+     * @param args
+     * @return true if no errors happened else return false to Bukkit, then Bukkit prints /xpShop buy <xp|money>
      */
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!toggle) {
@@ -517,7 +505,8 @@ public class xpShop extends JavaPlugin {
                                         config.reload();
                                         return true;
                                     }
-                                }if (args[0].equalsIgnoreCase("internet")) {
+                                }
+                                if (args[0].equalsIgnoreCase("internet")) {
                                     if (PermissionsHandler.checkpermissions(player, "xpShop.admin")) {
                                         getConfig().set("internet", !getConfig().getBoolean("internet"));
                                         PlayerLogger(player, "internet: " + getConfig().getBoolean("internet"), "");
@@ -569,8 +558,8 @@ public class xpShop extends JavaPlugin {
                                     if (PermissionsHandler.checkpermissions(player, "xpShop.admin")) {
                                         File file = new File("plugins" + File.separator + "xpShop" + File.separator + "debug.txt");
                                         if (file.exists()) {
-                                                PlayerLogger(player, "debug.txt is " + file.length() + " Byte big!", "Warning");
-                                                PlayerLogger(player, "Type /xpShop deletedebug to delete the debug.txt!", "Warning");
+                                            PlayerLogger(player, "debug.txt is " + file.length() + " Byte big!", "Warning");
+                                            PlayerLogger(player, "Type /xpShop deletedebug to delete the debug.txt!", "Warning");
                                         }
                                         return true;
                                     }
@@ -942,33 +931,40 @@ public class xpShop extends JavaPlugin {
                 blacklistLogger(sender);
                 return true;
             }
-        } else if (args[0].equalsIgnoreCase("toggle")) {
-            if (sender instanceof Player) {
-                Player p = (Player) sender;
-                if (PermissionsHandler.checkpermissions(p, "xpShop.admin")) {
+        } else if (args.length == 1) {
+            if (args[0].equalsIgnoreCase("toggle")) {
+                if (sender instanceof Player) {
+                    Player p = (Player) sender;
+                    if (PermissionsHandler.checkpermissions(p, "xpShop.admin")) {
+                        if (toggle) {
+                            toggle = false;
+                        } else {
+                            toggle = true;
+                        }
+                        PlayerLogger(p, "xpShop offline: " + toggle, "");
+                        return true;
+                    }
+                } else {
                     if (toggle) {
                         toggle = false;
                     } else {
                         toggle = true;
                     }
-                    PlayerLogger(p, "xpShop offline: " + toggle, "");
+                    Logger("xpShop offline: " + toggle, "");
                     return true;
                 }
             } else {
-                if (toggle) {
-                    toggle = false;
-                } else {
-                    toggle = true;
-                }
-                Logger("xpShop offline: " + toggle, "");
-                return true;
+                return false;
             }
-        } else {
-            return false;
         }
         return false;
     }
 
+    /**
+     * Intern logger to send player message if xpShop is blacklisted
+     *
+     * @param sender
+     */
     public void blacklistLogger(Player sender) {
         if (sender instanceof Player && sender != null) {
             Player player = (Player) sender;
@@ -982,6 +978,11 @@ public class xpShop extends JavaPlugin {
         }
     }
 
+    /**
+     * Intern logger to send player message if xpShop is blacklisted
+     *
+     * @param sender
+     */
     public void blacklistLogger(CommandSender sender) {
         if (sender instanceof Player && sender != null) {
             Player player = (Player) sender;
@@ -995,6 +996,12 @@ public class xpShop extends JavaPlugin {
         }
     }
 
+    /**
+     * Intern logger to send player messages and log it into file
+     *
+     * @param msg
+     * @param TYPE
+     */
     public void Logger(String msg, String TYPE) {
         if (TYPE.equalsIgnoreCase("Warning") || TYPE.equalsIgnoreCase("Error")) {
             System.err.println(PrefixConsole + TYPE + ": " + msg);
@@ -1017,6 +1024,13 @@ public class xpShop extends JavaPlugin {
         }
     }
 
+    /**
+     * Intern logger to send player messages and log it into file
+     *
+     * @param p
+     * @param msg
+     * @param TYPE
+     */
     public void PlayerLogger(Player p, String msg, String TYPE) {
         if (TYPE.equalsIgnoreCase("Error")) {
             p.sendMessage(ChatColor.DARK_BLUE + Prefix + ChatColor.RED + "Error: " + ChatColor.GOLD + msg);
@@ -1031,76 +1045,20 @@ public class xpShop extends JavaPlugin {
         }
     }
 
-//    protected Player getPlayer(CommandSender sender, String[] args, int index) {
-////        if (args.length > index) {
-////            OfflinePlayer players = sender.getServer().getOfflinePlayer(args[index]);
-////            return (Player) players.getPlayer();
-////        }
-//        Player newplayer = null;
-////        MinecraftServer server = ((CraftServer)this.getServer()).getServer();
-////        EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), args[index], new ItemInWorldManager(server.getWorldServer(0)));
-////        newplayer = entity == null ? null : (Player)entity.getBukkitEntity();
-//        if (args[index] != null) {
-//            Boolean exist = false;
-//            for (OfflinePlayer p : sender.getServer().getOfflinePlayers()) {
-//                if (p.getName().toLowerCase().equals(args[index].toLowerCase())) {
-//                    exist = true;
-//                    newplayer = (Player) p;
-//                    break;
-//                }
-//            }
-//            if (!exist) {
-//                return null;
-//            }
-//        }
-//        if(!(sender instanceof Player))
-//            return null;
-//        return (Player) newplayer;
-//    }
+    /**
+     * manages sending of XP to players
+     *
+     * @param sender
+     * @param giveamount
+     * @param empfaenger
+     * @param args
+     */
     public void sendxp(CommandSender sender, int giveamount, String empfaenger, String[] args) {
         Player player = (Player) sender;
         if (!(Blacklistcode.startsWith("1", 3))) {
             Player empfaenger1 = null;
             long time = 0;
             time = System.nanoTime();
-//            empfaenger1 = getServer().getPlayer(empfaenger);
-//            if (empfaenger1 != null) {
-//                sell(sender, giveamount, false, "sendxp"); //Trys to substract amount, else stop.
-//                try {
-//                    buy(empfaenger1, SubstractedXP, false, "sendxp"); //Gives other player XP wich were substracted.
-//                    empfaenger1.saveData();
-//                } catch (Exception e1) {
-//                    buy(player, giveamount, false, "sendxp");
-//                    PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
-//                    return;
-//                }
-//                try {
-//                    PlayerLogger(player, (String.format(config.commandsuccesssentxp, SubstractedXP, args[1])), "");
-//                    PlayerLogger(empfaenger1, (String.format(config.commandsuccessrecievedxp, SubstractedXP, sender.getName())), "");
-//                } catch (NullPointerException e) {
-//                    PlayerLogger(player, "Error!", "Error");
-//                }
-//            }
-//            if (empfaenger1 == null) {
-//                if (config.getPlayerConfig(empfaenger1, player)) {
-//                    empfaenger1 = getmyOfflinePlayer(args, 1);
-//                    sell(sender, giveamount, false, "sendxp"); //Trys to substract amount, else stop.
-//                    try {
-//                        buy(empfaenger1, SubstractedXP, false, "sendxp"); //Gives other player XP wich were substracted.
-//                        empfaenger1.saveData();
-//                    } catch (Exception e1) {
-//                        buy(player, giveamount, false, "sendxp");
-//                        PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
-//                        return;
-//                    }
-//                    try {
-//                        PlayerLogger(player, (String.format(config.commandsuccesssentxp, SubstractedXP, args[1])), "");
-//                        PlayerLogger(empfaenger1, (String.format(config.commandsuccessrecievedxp, SubstractedXP, sender.getName())), "");
-//                    } catch (NullPointerException e) {
-//                        PlayerLogger(player, "Error!", "Error");
-//                    }
-//                }
-//            }
             if (config.usedbtomanageXP) {
                 try {
                     if (SQL.isindb(empfaenger)) {
@@ -1167,10 +1125,22 @@ public class xpShop extends JavaPlugin {
         }
     }
 
+    /**
+     * Get the XP you have if you have this amount of levels
+     *
+     * @param level
+     * @return Total XP if someone have this level
+     */
     public double getLevelXP(int level) {
         return 3.5 * level * (level + 1);
     }
 
+    /**
+     * Get XP which a player has at this moment
+     *
+     * @param player
+     * @return value of XP of the player
+     */
     public double getTOTALXP(Player player) {
         int level = player.getLevel();
         float playerExpp = player.getExp();
@@ -1180,6 +1150,13 @@ public class xpShop extends JavaPlugin {
 
     }
 
+    /**
+     * Updates the players amount (grands)
+     *
+     * @param sender
+     * @param amount
+     * @param von
+     */
     public void UpdateXP(CommandSender sender, int amount, String von) {
         Player player = (Player) sender;
         double Expaktuell = getTOTALXP(player) + amount;
@@ -1201,6 +1178,12 @@ public class xpShop extends JavaPlugin {
         }
     }
 
+    /**
+     * Send message to player and says him how many level some have
+     *
+     * @param sender
+     * @param args
+     */
     public void infolevel(CommandSender sender, String[] args) {
         Player player = (Player) sender;
         if (!Blacklistcode.startsWith("1", 9)) {
@@ -1233,6 +1216,12 @@ public class xpShop extends JavaPlugin {
         }
     }
 
+    /**
+     * Send message to player and says him how many XP some have
+     *
+     * @param sender
+     * @param args
+     */
     public void infoxp(CommandSender sender, String[] args) {
         Player player = (Player) sender;
         if (!Blacklistcode.startsWith("1", 8)) {
@@ -1284,11 +1273,11 @@ public class xpShop extends JavaPlugin {
         }
     }
 
-    /**
-     * Called by onCommand and buylevel, buys XP.
-     *
-     * @param sender, amount, moneyactive = true if you want that player have to
-     * buy XP, false if there is an info what that would cost.
+    /** Called by onCommand and buylevel, buys XP.
+     * @param sender
+     * @param buyamount 
+     * @param moneyactive sets if player has to pay
+     * @param von changes the message if its equals buy or info
      * @return true if no error occurred.
      */
     public boolean buy(CommandSender sender, int buyamount, boolean moneyactive, String von) {
@@ -1344,6 +1333,14 @@ public class xpShop extends JavaPlugin {
         return true;
     }
 
+    /**
+     * Called by onCommand and selllevel, sells XP.
+     * @param sender
+     * @param sellamount
+     * @param moneyactive sets if the player has to pay
+     * @param von changes the message if its equals buy or info
+     * @return true if no error occurred.
+     */
     public int sell(CommandSender sender, int sellamount, boolean moneyactive, String von) {
         SubstractedXP = 0;
         Player player = (Player) sender;
@@ -1394,7 +1391,6 @@ public class xpShop extends JavaPlugin {
      *
      * @param sender, amount, moneyactive = true if you want that player have to
      * buy XP, false if there is an info what that would cost.
-     * @return
      */
     public void buylevel(CommandSender sender, int levelamontbuy, boolean moneyactive) {
         Player player = (Player) sender;
@@ -1429,12 +1425,12 @@ public class xpShop extends JavaPlugin {
         }
     }
 
-    /**
-     * Sells level from a player.
+    /** Sells level from a player.
      *
-     * @param sender, amount, moneyactive = true if you want that player have to
+     * @param sender
+     * @param levelamountsell 
+     * @param moneyactive moneyactive = true if you want that player have to
      * buy XP, false if there is an info what that would cost.
-     * @return
      */
     public void selllevel(CommandSender sender, int levelamountsell, boolean moneyactive) {
         Player player = (Player) sender;
@@ -1470,11 +1466,10 @@ public class xpShop extends JavaPlugin {
         }
     }
 
-    /**
-     * Shows a player how much a action would cost.
-     *
-     * @param sender, action, amount.
-     * @return
+    /** Shows a player how much a action would cost.
+     * 
+     * @param sender
+     * @param args 
      */
     public void info(CommandSender sender, String[] args) {
         if (!Blacklistcode.startsWith("1", 6)) {

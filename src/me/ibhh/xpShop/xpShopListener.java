@@ -71,10 +71,10 @@ public class xpShopListener implements Listener {
                         plugin.PlayerLogger(event.getPlayer(), "New xpShop update aviable: type \"xpShopupdate\" please!", "Warning");
                     }
                     File file = new File("plugins" + File.separator + "xpShop" + File.separator + "debug.txt");
-                    if(file.exists()){
-                        if(file.length() > 1000000){
-                            plugin.PlayerLogger(event.getPlayer(), "debug.txt is " + file.length() + "Byte big!" , "Warning");
-                            plugin.PlayerLogger(event.getPlayer(), "Type /xpShop deletedebug to delete the debug.txt!" , "Warning");
+                    if (file.exists()) {
+                        if (file.length() > 1000000) {
+                            plugin.PlayerLogger(event.getPlayer(), "debug.txt is " + file.length() + "Byte big!", "Warning");
+                            plugin.PlayerLogger(event.getPlayer(), "Type /xpShop deletedebug to delete the debug.txt!", "Warning");
                         }
                     }
                 }
@@ -85,6 +85,7 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void Verzaubern(PlayerLevelChangeEvent event) {
         if (!plugin.toggle) {
+            plugin.Logger("Player wizards: " + event.getPlayer(), "Debug");
             if (plugin.config.usedbtomanageXP) {
                 final Player player = event.getPlayer();
                 final String playername = player.getName();
@@ -121,6 +122,7 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void change(PlayerExpChangeEvent event) {
         if (!plugin.toggle) {
+            plugin.Logger("Players XP changed: " + event.getPlayer(), "Debug");
             if (plugin.config.usedbtomanageXP) {
 
                 final Player player = event.getPlayer();
@@ -147,16 +149,25 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void resp(PlayerDeathEvent event) {
         if (!plugin.toggle) {
+            Player player = (Player) event.getEntity();
+            plugin.Logger("Player: " + player.getName() + " respawned!", "Debug");
             if (plugin.config.keepxpondeath) {
-                Player player = (Player) event.getEntity();
-                if (player != null) {
-                    player.setExp(0);
-                    player.setLevel(0);
-                    try {
-                        plugin.UpdateXP(player, plugin.SQL.getXP(player.getName()), "respawn");
-                    } catch (SQLException ex) {
-                        Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                plugin.Logger("Keeping XP!", "Debug");
+                if (plugin.config.usedbtomanageXP) {
+                    plugin.Logger("db used!", "Debug");
+                    if (player != null) {
+                        player.setExp(0);
+                        player.setLevel(0);
+                        try {
+                            plugin.UpdateXP(player, plugin.SQL.getXP(player.getName()), "respawn");
+                            plugin.Logger("Successfully saved XP in db!", "Debug");
+                        } catch (SQLException ex) {
+                            Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
+                } else {
+                    plugin.Logger("Not using db!", "Debug");
+                    event.setKeepLevel(true);
                 }
             }
         }
@@ -165,15 +176,19 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void death(PlayerDeathEvent event) {
         if (!plugin.toggle) {
+            Player player = (Player) event.getEntity();
+            plugin.Logger("Player: " + player.getName() + " died!", "Debug");
             if (plugin.config.usedbtomanageXP) {
+                plugin.Logger("using db!", "Debug");
                 if (plugin.config.keepxpondeath) {
+                    plugin.Logger("Keeping Levels!", "Debug");
                     double XP;
-                    Player player = (Player) event.getEntity();
                     event.setKeepLevel(true);
                     XP = plugin.getTOTALXP(player);
                     plugin.SQL.UpdateXP(player.getName(), (int) XP);
                 } else {
-                    Player player = (Player) event.getEntity();
+                    plugin.Logger("Not keeping XP!", "Debug");
+                    plugin.Logger("saving new XP in db!", "Debug");
                     double XP = plugin.getTOTALXP(player);
                     plugin.UpdateXP(player, -((int) XP), "death");
                     plugin.SQL.UpdateXP(player.getName(), (int) 0);
@@ -182,10 +197,11 @@ public class xpShopListener implements Listener {
                     } catch (SQLException ex) {
                         Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
                     }
-
                 }
             } else {
+                plugin.Logger("Not using db!", "Debug");
                 if (plugin.config.keepxpondeath) {
+                    plugin.Logger("keeping XP!", "Debug");
                     event.setKeepLevel(true);
                 }
             }
@@ -196,6 +212,8 @@ public class xpShopListener implements Listener {
     public void kick(PlayerKickEvent event) {
         if (!plugin.toggle) {
             if (plugin.config.usedbtomanageXP) {
+                plugin.Logger("Player " + event.getPlayer().getName() + " kicked!", "Debug");
+                plugin.Logger("Using DB!", "Debug");
                 final Player player = event.getPlayer();
                 final String playername = player.getName();
                 plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
@@ -378,7 +396,9 @@ public class xpShopListener implements Listener {
         if (!plugin.toggle) {
             Player p = event.getPlayer();
             if (!(event.getBlock().getState() instanceof Sign)) {
-                plugin.Logger("Block dedected", "Debug");
+                if (plugin.config.debug) {
+                    plugin.Logger("Block dedected", "Debug");
+                }
                 org.bukkit.block.Sign sign = findSignxp(event.getBlock(), p.getName());
                 if (isCorrectSign(sign, event.getBlock())) {
                     if (sign.getLine(0).equalsIgnoreCase("[xpShop]")) {

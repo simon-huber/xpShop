@@ -11,12 +11,17 @@ import org.bukkit.event.block.SignChangeEvent;
  * @author Simon
  */
 public class CreateHandler {
-
+    
+    //define variable
     private xpShop plugin;
     private SafeHandler safeHandler;
     private SignHandler signHandler;
     private SignConSafeHandler signConSafeHandler;
 
+    /**
+     * Konstruktor
+     * @param pl 
+     */
     public CreateHandler(xpShop pl) {
         plugin = pl;
         safeHandler = new SafeHandler(pl);
@@ -24,6 +29,10 @@ public class CreateHandler {
         signConSafeHandler = new SignConSafeHandler(pl);
     }
 
+    /**
+     * Manages the creation of shops
+     * @param event 
+     */
     public void CreatexpShop(SignChangeEvent event) {
         if (plugin.config.optionalconnectionofSafetoShop) {
             plugin.Logger("Creating xpShop with opt con!", "Debug");
