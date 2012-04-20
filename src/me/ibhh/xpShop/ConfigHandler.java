@@ -4,6 +4,7 @@
  */
 package me.ibhh.xpShop;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 /**
@@ -12,6 +13,7 @@ import org.bukkit.entity.Player;
  */
 public class ConfigHandler {
     //define globale variables
+
     private xpShop plugin;
     public String language,
             commanderrorinfo,
@@ -74,12 +76,26 @@ public class ConfigHandler {
             safenotenoughXPinShop,
             safepleaseaddSafe,
             safecanaddSafe;
-    public boolean autodownload, debug, debugfile, firstRun, onlysendxptoonlineplayers, useMySQL, usedbtomanageXP, keepxpondeath, autoinstall, ConnectionofSafetoShop, optionalconnectionofSafetoShop, Internet;
+    public boolean autodownload,
+            debug,
+            debugfile,
+            firstRun,
+            onlysendxptoonlineplayers,
+            useMySQL,
+            usedbtomanageXP,
+            keepxpondeath,
+            autoinstall,
+            ConnectionofSafetoShop,
+            optionalconnectionofSafetoShop,
+            Internet,
+            UsePrefix;
     public double moneytoxp, xptomoney, TaskRepeat, DelayTimeTask;
+    public ChatColor Prefix, Text;
 
     /**
      * Konstruktor
-     * @param pl 
+     *
+     * @param pl
      */
     public ConfigHandler(xpShop pl) {
         plugin = pl;
@@ -103,6 +119,7 @@ public class ConfigHandler {
         } catch (Exception e) {
             e.printStackTrace();
             plugin.onDisable();
+            plugin.Logger("Cannot create config!", "Error");
         }
     }
 
@@ -113,9 +130,19 @@ public class ConfigHandler {
         loadBooleans();
         loadStrings();
         loadDoubles();
+        loadcolors();
     }
 
-    
+    public void loadcolors() {
+        if (debug) {
+            for(ChatColor ch : ChatColor.values()){
+                plugin.Logger("Color: " + ch.name() + " Char: " + ch.getChar() + " String: " + ch.toString(), "Debug");
+            }
+        }
+        Prefix = ChatColor.getByChar(plugin.getConfig().getString("PrefixColor"));
+        Text = ChatColor.getByChar(plugin.getConfig().getString("TextColor"));
+    }
+
     /**
      * Checks which parts disabled
      */
@@ -288,9 +315,9 @@ public class ConfigHandler {
                 neu = neu.concat("0");
             }
         }
-            plugin.Logger("Codeneu: " + neu, "Debug");
+        plugin.Logger("Codeneu: " + neu, "Debug");
         plugin.Blacklistcode = neu;
-            plugin.Logger("Code: " + plugin.Blacklistcode, "Debug");
+        plugin.Logger("Code: " + plugin.Blacklistcode, "Debug");
     }
 
     /**
@@ -305,13 +332,14 @@ public class ConfigHandler {
 
     /**
      * Loads player config
+     *
      * @param player
      * @param sender
      * @return Returns true if player is editable
      */
     public boolean getPlayerConfig(Player player, Player sender) {
-            plugin.Logger("Player is online: " + player.isOnline(), "Debug");
-            plugin.Logger("Playeronlinemode: " + onlysendxptoonlineplayers, "Debug");
+        plugin.Logger("Player is online: " + player.isOnline(), "Debug");
+        plugin.Logger("Playeronlinemode: " + onlysendxptoonlineplayers, "Debug");
         if (player.isOnline()) {
             return true;
         } else if (!player.isOnline() && onlysendxptoonlineplayers) {
@@ -324,13 +352,14 @@ public class ConfigHandler {
             return false;
         }
     }
-    
+
     /**
      * loads booleans from config
      */
     public void loadBooleans() {
         debug = plugin.getConfig().getBoolean("debug");
         autodownload = plugin.getConfig().getBoolean("autodownload");
+        UsePrefix = plugin.getConfig().getBoolean("UsePrefix");
         firstRun = plugin.getConfig().getBoolean("firstRun");
         onlysendxptoonlineplayers = plugin.getConfig().getBoolean("onlysendxptoonlineplayers");
         useMySQL = plugin.getConfig().getBoolean("SQL");
@@ -345,7 +374,7 @@ public class ConfigHandler {
 
     /**
      * loads strings and language files from config
-      */
+     */
     public void loadStrings() {
         if (useMySQL) {
             dbPath = plugin.getConfig().getString("dbPath");

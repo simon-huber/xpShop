@@ -475,15 +475,16 @@ public class xpShop extends JavaPlugin {
         onEnable();
     }
 
-    /** Called by Bukkit if player posts a command
-     * 
+    /**
+     * Called by Bukkit if player posts a command
+     *
      * @param sender
      * @param cmd
      * @param label
      * @param args
-     * @return true if no errors happened else return false to Bukkit, then Bukkit prints /xpShop buy <xp|money>
+     * @return true if no errors happened else return false to Bukkit, then
+     * Bukkit prints /xpShop buy <xp|money>
      */
-
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!toggle) {
@@ -924,6 +925,19 @@ public class xpShop extends JavaPlugin {
                             Logger("Config reloaded!", "Debug");
                             return true;
                         }
+                    } else if (args.length == 2) {
+                        if (args[0].equalsIgnoreCase("language")) {
+                            getConfig().set("language", args[1]);
+                            Logger("language set to: " + args[1], "");
+                            saveConfig();
+                            Logger("Config saved!", "Debug");
+                            reloadConfig();
+                            Logger("Config reloaded!", "Debug");
+                            Logger("debug reloaded!", "Debug");
+                            config.reload();
+                            Logger("Config reloaded!", "Debug");
+                            return true;
+                        }
                     }
                 }
                 return false;
@@ -1033,14 +1047,28 @@ public class xpShop extends JavaPlugin {
      */
     public void PlayerLogger(Player p, String msg, String TYPE) {
         if (TYPE.equalsIgnoreCase("Error")) {
-            p.sendMessage(ChatColor.DARK_BLUE + Prefix + ChatColor.RED + "Error: " + ChatColor.GOLD + msg);
-            if (config.debugfile) {
-                Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
+            if (config.UsePrefix) {
+                p.sendMessage(config.Prefix + Prefix + ChatColor.RED + "Error: " + config.Text + msg);
+                if (config.debugfile) {
+                    Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
+                }
+            } else {
+                p.sendMessage(ChatColor.RED + "Error: " + config.Text + msg);
+                if (config.debugfile) {
+                    Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
+                }
             }
         } else {
-            p.sendMessage(ChatColor.DARK_BLUE + Prefix + ChatColor.GOLD + msg);
-            if (config.debugfile) {
-                Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
+            if (config.UsePrefix) {
+                p.sendMessage(config.Prefix + Prefix + config.Text + msg);
+                if (config.debugfile) {
+                    Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
+                }
+            } else {
+                p.sendMessage(config.Text + msg);
+                if (config.debugfile) {
+                    Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
+                }
             }
         }
     }
@@ -1273,9 +1301,11 @@ public class xpShop extends JavaPlugin {
         }
     }
 
-    /** Called by onCommand and buylevel, buys XP.
+    /**
+     * Called by onCommand and buylevel, buys XP.
+     *
      * @param sender
-     * @param buyamount 
+     * @param buyamount
      * @param moneyactive sets if player has to pay
      * @param von changes the message if its equals buy or info
      * @return true if no error occurred.
@@ -1335,6 +1365,7 @@ public class xpShop extends JavaPlugin {
 
     /**
      * Called by onCommand and selllevel, sells XP.
+     *
      * @param sender
      * @param sellamount
      * @param moneyactive sets if the player has to pay
@@ -1425,12 +1456,13 @@ public class xpShop extends JavaPlugin {
         }
     }
 
-    /** Sells level from a player.
+    /**
+     * Sells level from a player.
      *
      * @param sender
-     * @param levelamountsell 
-     * @param moneyactive moneyactive = true if you want that player have to
-     * buy XP, false if there is an info what that would cost.
+     * @param levelamountsell
+     * @param moneyactive moneyactive = true if you want that player have to buy
+     * XP, false if there is an info what that would cost.
      */
     public void selllevel(CommandSender sender, int levelamountsell, boolean moneyactive) {
         Player player = (Player) sender;
@@ -1466,10 +1498,11 @@ public class xpShop extends JavaPlugin {
         }
     }
 
-    /** Shows a player how much a action would cost.
-     * 
+    /**
+     * Shows a player how much a action would cost.
+     *
      * @param sender
-     * @param args 
+     * @param args
      */
     public void info(CommandSender sender, String[] args) {
         if (!Blacklistcode.startsWith("1", 6)) {

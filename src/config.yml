@@ -8,6 +8,9 @@ internet: true
 #Enable this if you want debug info of a command or if you have an error and want to post it to the Developer (ibhh)
 debug: false
 debugfile: true
+UsePrefix: true
+PrefixColor: b
+TextColor: 6
 #This neednt be edited (does the plugin by itself)
 firstRun: true
 #This is the money you have to pay for one XP.

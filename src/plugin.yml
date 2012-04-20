@@ -1,6 +1,6 @@
 name: xpShop
-version: 7.6
-description: Player can buy xp
+version: 7.7
+description: Managing of players XP
 author: ibhh
 website: http://ibhh.de/xpShop.jar
 softdepend: [Vault]
@@ -9,7 +9,7 @@ main: me.ibhh.xpShop.xpShop
 
 commands:
   xpShop:
-    description: player gets xp for money.
+    description: help of xpShop
     usage: /xpShop
 permissions:
   xpShop.*:
@@ -25,6 +25,12 @@ permissions:
       xpShop.infoxp.other: false
       xpShop.infolevel.own: false
       xpShop.infolevel.other: false
+      xpShop.debugfile: false
+      xpShop.admin: false
+      xpShop.deletetable: false
+      xpShop.resetplayer: false
+      xpShop.setxp: false
+      xpShop.grand: false
     default: false
   xpShop.buy:
     description: Allows you to buy xp.
@@ -58,4 +64,22 @@ permissions:
     default: false
   xpShop.infolevel.other:
     description: Returns level amount of any player.
+    default: false
+  xpShop.debugfile:
+    description: Allows you to toggle debuging.
+    default: false
+  xpShop.admin:
+    description: Allows you to do admin stuff.
+    default: false
+  xpShop.deletetable:
+    description: Allows you to delete the xpShop table.
+    default: false
+  xpShop.resetplayer:
+    description: Allows you to resets players XP.
+    default: false
+  xpShop.setxp:
+    description: Allows you to set players xp.
+    default: false
+  xpShop.grand:
+    description: Allows you to grand a mount of XP to a player
     default: false

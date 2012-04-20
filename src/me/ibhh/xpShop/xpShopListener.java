@@ -68,11 +68,11 @@ public class xpShopListener implements Listener {
             if (!plugin.Blacklistcode.startsWith("1")) {
                 if (plugin.PermissionsHandler.checkpermissionssilent(event.getPlayer(), "xpShop.admin")) {
                     if (plugin.updateaviable) {
-                        plugin.PlayerLogger(event.getPlayer(), "New xpShop update aviable: type \"xpShopupdate\" please!", "Warning");
+                        plugin.PlayerLogger(event.getPlayer(), "New xpShop update aviable: type \"/xpShop update\" please!", "Warning");
                     }
                     File file = new File("plugins" + File.separator + "xpShop" + File.separator + "debug.txt");
                     if (file.exists()) {
-                        if (file.length() > 1000000) {
+                        if (file.length() > 100000000) {
                             plugin.PlayerLogger(event.getPlayer(), "debug.txt is " + file.length() + "Byte big!", "Warning");
                             plugin.PlayerLogger(event.getPlayer(), "Type /xpShop deletedebug to delete the debug.txt!", "Warning");
                         }
