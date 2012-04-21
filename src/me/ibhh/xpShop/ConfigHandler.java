@@ -4,7 +4,14 @@
  */
 package me.ibhh.xpShop;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 /**
@@ -101,6 +108,31 @@ public class ConfigHandler {
         plugin = pl;
     }
 
+    public void updatetonew77() {
+        if (plugin.getConfig().contains("help.buy.de")) {
+            plugin.Logger("Converting config.yml!", "Warning");
+            plugin.Logger("Please delete marked rows!", "Warning");
+            plugin.getConfig().set("help.buy.de", "Please delete this row!");
+            plugin.getConfig().set("help.buy.en", "Please delete this row!");
+            plugin.getConfig().set("help.buylevel.de", "Please delete this row!");
+            plugin.getConfig().set("help.buylevel.en", "Please delete this row!");
+            plugin.getConfig().set("help.sell.de", "Please delete this row!");
+            plugin.getConfig().set("help.sell.en", "Please delete this row!");
+            plugin.getConfig().set("help.selllevel.de", "Please delete this row!");
+            plugin.getConfig().set("help.selllevel.en", "Please delete this row!");
+            plugin.getConfig().set("help.info.de", "Please delete this row!");
+            plugin.getConfig().set("help.info.en", "Please delete this row!");
+            plugin.getConfig().set("help.send.de", "Please delete this row!");
+            plugin.getConfig().set("help.send.en", "Please delete this row!");
+            plugin.getConfig().set("help.infoxp.de", "Please delete this row!");
+            plugin.getConfig().set("help.infoxp.en", "Please delete this row!");
+            plugin.getConfig().set("help.infolevel.de", "Please delete this row!");
+            plugin.getConfig().set("help.infolevel.en", "Please delete this row!");
+            plugin.saveConfig();
+            plugin.reloadConfig();
+        }
+    }
+
     /**
      * creates config and updates it.
      */
@@ -109,6 +141,7 @@ public class ConfigHandler {
             plugin.getConfig().options().copyDefaults(true);
             plugin.saveConfig();
             plugin.reloadConfig();
+            updatetonew77();
             reload();
             plugin.Logger("Config file found!", "Debug");
             if (Internet) {
@@ -135,7 +168,7 @@ public class ConfigHandler {
 
     public void loadcolors() {
         if (debug) {
-            for(ChatColor ch : ChatColor.values()){
+            for (ChatColor ch : ChatColor.values()) {
                 plugin.Logger("Color: " + ch.name() + " Char: " + ch.getChar() + " String: " + ch.toString(), "Debug");
             }
         }

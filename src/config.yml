@@ -118,31 +118,6 @@ iConomy:
   error:
     de: Kein iConomy5 oder 6 oder Register gefunden!
     en: No iConomy5 or 6 or Register found!
-help: 
-  buy:
-    de: Wandelt Geld in XP um.
-    en: Changes money into XP.
-  buylevel:
-    de: Wandelt Geld in Level um.
-    en: Changes money into level.
-  sell:
-    de: Wandelt XP in Geld um.
-    en: Changes XP into money.
-  selllevel:
-    de: Wandelt Level in Geld um.
-    en: Changes level into money.
-  info:
-    de: Zeigt infos zu einer Action, die nicht ausgefuehrt wurde.
-    en: Shows infos to an action, which is not performed.
-  send:
-    de: Sendet XP zu anderen Playern.
-    en: Send XP to other players.
-  infoxp:
-    de: Zeigt aktuelle XP.
-    en: Shows XP which a player have.
-  infolevel:
-    de: Zeigt aktuelle XP.
-    en: Shows XP which a player have.
 info:
   ownXP:
     de: Du hast %1$d XP.
@@ -244,3 +219,166 @@ safe:
   canaddSafe:
     de: Du kannst optionial ein Safe ueber, oder unter dem Shop platzieren, um mehr funktionen nutzen zu koennen!
     en: You cann add a Safe under or above to the Shop to use more funktions!
+help:
+  commands:
+    buy:
+      name: buy
+      permission: xpShop.buy
+      description: 
+        de: Wandelt Geld in XP um.
+        en: Changes money into XP.
+      usage: /xpShop buy <amount of xp>
+    sell:
+      name: sell
+      permission: xpShop.sell
+      description:
+        de: Wandelt XP in Geld um.
+        en: Changes XP into money.
+      usage: /xpShop sell <amount of xp>
+    buylevel:
+      name: buylevel
+      permission: xpShop.buylevel
+      description:
+        de: Wandelt Geld in Level um.
+        en: Changes money into level.
+      usage: /xpShop buylevel <levels>
+    selllevel:
+      name: selllevel
+      permission: xpShop.selllevel
+      description:
+        de: Wandelt Level in Geld um.
+        en: Changes level into money.
+      usage: /xpShop selllevel <levels>
+    info:
+      name: info
+      permission: xpShop.info
+      description:
+        de: Zeigt infos zu einer Action, die nicht ausgefuehrt wurde.
+        en: Shows infos to an action, which is not performed.
+      usage: /xpShop info <action>
+    send:
+      name: send
+      permission: xpShop.send
+      description:
+        de: Sendet XP zu anderen Playern.
+        en: Send XP to other players.
+      usage: /xpShop send <player> <xp>
+    infoxpown:
+      name: infoxp
+      permission: xpShop.infoxp.own
+      description:
+        de: Zeigt aktuelle XP von Dir an.
+        en: Shows XP which you have.
+      usage: /xpShop infoxp
+    infoxpother:
+      name: infoxpother
+      permission: xpShop.infoxp.other
+      description:
+        de: Zeigt aktuelle XP von einem Player an.
+        en: Shows XP which a player have.
+      usage: /xpShop infoxp <player>
+    infolevelown:
+      name: infolevel
+      permission: xpShop.infolevel.own
+      description:
+        de: Zeigt aktuelle Level von Dir an.
+        en: Shows how many xp you have.
+      usage: /xpShop infoxp
+    infolevelother:
+      name: infolevelother
+      permission: xpShop.infolevel.other
+      description:
+        de: Zeigt aktuelle Level von einem Player an.
+        en: Shows how many level a player have.
+      usage: /xpShop infoxp <player>
+    debugfile:
+      name: debugfile
+      permission: xpShop.debugfile
+      description:
+        de: Schaltet den debugfile aus und ein.
+        en: turns debugfile on and off.
+      usage: /xpShop debugfile
+    internet:
+      name: internet
+      permission: xpShop.internet
+      description:
+        de: Schaltet die erlaubnis sich mit Internet verbinden zu duerfen ein und aus.
+        en: Toggles permission to connect to the internet
+      usage: /xpShop internet
+    version:
+      name: version
+      permission: xpShop.version
+      description:
+        de: Gibt die aktuelle Version zurueck.
+        en: returns installed version.
+      usage: /xpShop version
+    update:
+      name: update
+      permission: xpShop.admin
+      description:
+        de: Updated das plugin.
+        en: Updates the plugin.
+      usage: /xpShop update
+    deletedebug:
+      name: deletedebug
+      permission: xpShop.admin
+      description:
+        de: Loescht den debuglog des plugins.
+        en: deletes the debuglog of the plugin.
+      usage: /xpShop deletedebug
+    log:
+      name: log
+      permission: xpShop.admin
+      description:
+        de: zeigt die aktuelle Groesse des debuglogs an.
+        en: returns the debuglog size.
+      usage: /xpShop log
+    toggle:
+      name: toggle
+      permission: xpShop.admin
+      description:
+        de: Schalted xpShop an und aus.
+        en: Turns xpShop on and off.
+      usage: /xpShop toggle
+    deletetable:
+      name: deletetable
+      permission: xpShop.admin
+      description:
+        de: Loescht die Datenbank, falls aktiviert.
+        en: deletes the db if exist.
+      usage: /xpShop deletetable
+    language:
+      name: language
+      permission: xpShop.admin
+      description:
+        de: Setzt die Sprache des Plugins
+        en: sets the language of the plugin
+      usage: /xpShop language <language>
+    resetplayer:
+      name: resetplayer
+      permission: xpShop.admin
+      description:
+        de: Setzt die XP von einem Spieler auf 0
+        en: Sets the XP of a player to 0
+      usage: /xpShop resetplayer <player>
+    setXP:
+      name: setXP
+      permission: xpShop.admin
+      description:
+        de: Setzt die XP von einem Player
+        en: Sets the XP amount of a player.
+      usage: /xpShop setXP <player> <XP>
+    grand:
+      name: grand
+      permission: xpShop.grand
+      description:
+        de: Erhoeht oder erniedrigt die XP des players.
+        en: Encrease or decrease the amount of XP of a player.
+      usage: /xpShop grand <player> <XP>
+    help:
+      name: help
+      permission: xpShop.help
+      description:
+        de: Hilfe
+        en: Help
+      usage: /xpShop help
