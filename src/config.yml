@@ -11,6 +11,7 @@ debugfile: true
 UsePrefix: true
 PrefixColor: b
 TextColor: 6
+Cooldownoftp: 15
 #This neednt be edited (does the plugin by itself)
 firstRun: true
 #This is the money you have to pay for one XP.
@@ -54,6 +55,65 @@ Signscreatedeactivated: false
 Signsusedeactivated: false
 #This deactivate the destroing of xpShops.
 Signsdestroydeactivated: false
+teleport:
+  xpperblock: 1
+  teleportstopped:
+    de: Teleport gestoppt.
+    en: Teleport stopped.
+  teleportrequest1:
+    de: Du willst bereits zu einem Player geportet werden!
+    en: You already wanted to teleport to a player!
+  teleportmustbeaccepted:
+    de: Der Teleport von %1$s muss innerhalb von %2$d Sekunden akzeptiert werden.
+    en: The teleport of %1$s must be accepted within %2$d sec.
+  teleportrequesttome:
+    de: Bitte bestaetige den Teleport von Dir zu %1$s in %2$d Sekunden.
+    en: Please accept the teleport of you to %1$s within %2$d sec.
+  teleportrequesttoplayer:
+    de: Bitte bestaetige den Teleport von %1$s zu Dir in %2$d Sekunden.
+    en: Please accept the teleport of %1$s to you within %2$d sec.
+  teleportrequest:
+    de: .%1$s wurde nun geportet.
+    en: .%1$s have been successfully ported.
+  teleportrequesttimeoutaccept:
+    de: Du hast den Teleport nicht in %1$d Sekunden bestaetigt.
+    en: You havent accepted the teleport within %1$d sec.
+  teleportrequesttimeout:
+    de: Der andere Player hat den Teleport nicht in %1$d Sekunden bestaetigt.
+    en: The other player hasnt accepted the teleport within %1$d sec.
+  teleportdenied:
+    de: Teleport wurde abgelehnt.
+    en: Teleport denied.
+  noteleport:
+    de: Kein Teleport vorhanden.
+    en: No teleport exist.
+  infoconfirmto:
+    de: Teleport von %1$s zu Dir in Auftrag gegeben.
+    en: Teleport of %1$s sent to the plugin.
+  infoconfirmme:
+    de: Teleport von %1$s zu Dir in Auftrag gegeben.
+    en: Teleport of %1$s sent to the plugin.
+  acceptconfirmdeny:
+    de: Bitte tippe /xpShop deny zum Ablehnen des Teleports.
+    en: Please execute the command /xpShop deny to deny the teleport.
+  tpconfirmdeny:
+    de: Bitte tippe /xpShop no um abzubrechen.
+    en: Please execute the command /xpShop yes to cancel the command.
+  acceptconfirm:
+    de: Bitte tippe /xpShop accept zum Annehmen des Teleports.
+    en: Please execute the command /xpShop accept to accept the teleport.
+  tpconfirm:
+    de: Bitte tippe /xpShop yes zum betaetigen.
+    en: Please execute the command /xpShop yes to confirm the teleport.
+  info1:
+    de: Du brauchst %1$d XP um Dich %2$d Bloecke zu teleportieren. 
+    en: You need %1$d XP to teleport %2$d blocks. 
+  info:
+    de: Du brauchst %1$d XP um dich %2$d Bloecke zu teleportieren. %2$d
+    en: You need %1$d XP to teleport %2$d blocks. %2$d
+  notenoughxp:
+    de: Du hast nicht genuegend XP um dich %1$d Bloecke zu teleportieren, Du braeuchtest %2$d XP.
+    en: You havent got enoug XP to teleport %1$d blocks, you would need %2$d XP.
 #This is the language config: edit these if you add an new language, or you want other sentences, but never delete parts beginning with "%"!
 command:
   error:
@@ -382,3 +442,42 @@ help:
         de: Hilfe
         en: Help
       usage: /xpShop help
+    tpto:
+      name: tpto
+      permission: xpShop.tpto
+      description:
+        de: Teleported Dich zu einem player fuer XP.
+        en: Teleports you to a player for XP.
+      usage: /xpShop tpto <player>
+    tpme:
+      name: tpme
+      permission: xpShop.tpme
+      description:
+        de: Teleported einen player zu Dir fuer XP.
+        en: Teleports a player to you for XP.
+      usage: /xpShop tpme <player>
+    yes:
+      name: yes
+      permission: xpShop.tp
+      description:
+        de: Fuehrt den Teleportauftrag aus.
+        en: Execute a teleport request.
+    no:
+      name: no
+      permission: xpShop.tp
+      description:
+        de: Stoppt den Teleportauftrag.
+        en: Stops the teleport request.
+    accept:
+      name: accept
+      permission: xpShop.tp
+      description:
+        de: Aktzeptiert einen Teleport.
+        en: Accepts a teleport.
+    deny:
+      name: deny
+      permission: xpShop.tp
+      description:
+        de: verhindert einen Teleport.
+        en: denies a teleport.
+    

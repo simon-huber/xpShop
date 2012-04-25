@@ -3,13 +3,14 @@ package me.ibhh.xpShop;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.logging.Level;
-import me.ibhh.xpShopupdatehelper.xpShopupdatehelper;
 import net.minecraft.server.EntityPlayer;
 import net.minecraft.server.ItemInWorldManager;
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -47,6 +48,9 @@ public class xpShop extends JavaPlugin {
     public iConomyHandler MoneyHandler;
     public Logger Loggerclass;
     public boolean toggle = false;
+    public Metrics metrics;
+    private HashMap<Player, Player> requested = new HashMap<Player, Player>();
+    public HashMap<Player, Boolean> commandexec = new HashMap<Player, Boolean>();
     public String[] commands = {
         "help",
         "buy",
@@ -70,14 +74,22 @@ public class xpShop extends JavaPlugin {
         "language",
         "resetplayer",
         "setXP",
-        "grand"};
+        "grand",
+        "tpto",
+        "tpme",
+        "yes",
+        "no",
+        "accept",
+        "deny"};
+    public TeleportManager TP;
 
     public xpShop() {
     }
 
     private void startStatistics() {
         try {
-            new Metrics().beginMeasuringPlugin(this);
+            metrics = new Metrics(this);
+            metrics.start();
         } catch (Exception ex) {
             Logger("There was an error while submitting statistics.", "Error");
         }
@@ -251,7 +263,18 @@ public class xpShop extends JavaPlugin {
                 updateaviable = false;
             }
         }
+    }
 
+    public int getEntfernung(Location loc1, Location loc2) {
+        int entfernung = 0;
+        int x1 = loc1.getBlockX();
+        int z1 = loc1.getBlockZ();
+        int x2 = loc2.getBlockX();
+        int z2 = loc2.getBlockZ();
+        int temp = (x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2);
+        temp = (int) Math.sqrt(temp);
+        entfernung = Math.round(temp);
+        return entfernung;
     }
 
     /**
@@ -351,23 +374,13 @@ public class xpShop extends JavaPlugin {
             Help = new Help(this);
             MoneyHandler = new iConomyHandler(this);
             PermissionsHandler = new PermissionsChecker(this, "xpShop");
+            TP = new TeleportManager(this);
             Standartstart(3);
             if (config.usedbtomanageXP) {
                 SQL = new SQLConnectionHandler(this);
                 SQL.createConnection();
                 SQL.PrepareDB();
             }
-//            Stats = new StatsHandler(this);
-//            this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-//
-//                @Override
-//                public void run() {
-//                    
-//                    Stats.createConnection();
-//                    Stats.PrepareDB();
-//                }
-//            }, 1);
-
 
         } else {
             Logger(this.getDescription().getName() + " version " + Version + " is blacklisted because of bugs, after restart an bugfix will be installed!", "Warning");
@@ -417,10 +430,6 @@ public class xpShop extends JavaPlugin {
                                 XP = (int) xpShop.this.getTOTALXP(p);
                                 try {
                                     neu = xpShop.this.SQL.getXP(p.getName());
-
-
-
-
                                 } catch (SQLException ex) {
                                     java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
                                 }
@@ -555,6 +564,54 @@ public class xpShop extends JavaPlugin {
                                     temptime = (System.nanoTime() - temptime) / 1000000;
                                     Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
                                     return true;
+                                } else if (ActionxpShop.equalsIgnoreCase("accept")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        TP.acceptteleport(player);
+                                        return true;
+                                    }
+                                } else if (ActionxpShop.equalsIgnoreCase("deny")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        TP.denyteleport(player);
+                                        return true;
+                                    }
+                                } else if (ActionxpShop.equalsIgnoreCase("no")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (commandexec.containsKey(player)) {
+                                            commandexec.remove(player);
+                                            requested.remove(player);
+                                            TP.stopteleport(player);
+                                        } else {
+                                            PlayerLogger(player, getConfig().getString("teleport.noteleport." + config.language), "Error");
+                                        }
+                                        return true;
+                                    }
+                                } else if (ActionxpShop.equalsIgnoreCase("yes")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (commandexec.containsKey(player)) {
+                                            if (commandexec.get(player)) {
+                                                TP.registerTeleport(requested.get(player), true, player);
+                                                PlayerLogger(player, String.format(getConfig().getString("teleport.teleportmustbeaccepted." + config.language), requested.get(player).getName(), (int) (getConfig().getDouble("Cooldownoftp"))), "Warning");
+                                                PlayerLogger(requested.get(player), String.format(getConfig().getString("teleport.teleportrequesttome." + config.language), player.getName(), (int) (getConfig().getDouble("Cooldownoftp"))), "Warning");
+                                                PlayerLogger(requested.get(player), getConfig().getString("teleport.acceptconfirm." + config.language), "Warning");
+                                                PlayerLogger(requested.get(player), getConfig().getString("teleport.tpconfirmdeny." + config.language), "Warning");
+                                                PlayerLogger(player, String.format(getConfig().getString("teleport.infoconfirmme." + config.language), requested.get(player).getName()), "");
+                                                requested.remove(player);
+                                                commandexec.remove(player);
+                                            } else {
+                                                TP.registerTeleport(requested.get(player), false, player);
+                                                PlayerLogger(player, String.format(getConfig().getString("teleport.teleportmustbeaccepted." + config.language), requested.get(player).getName(), (int) (getConfig().getDouble("Cooldownoftp"))), "Warning");
+                                                PlayerLogger(requested.get(player), String.format(getConfig().getString("teleport.teleportrequesttoplayer." + config.language), requested.get(player).getName(), (int) (getConfig().getDouble("Cooldownoftp"))), "Warning");
+                                                PlayerLogger(requested.get(player), getConfig().getString("teleport.acceptconfirm." + config.language), "Warning");
+                                                PlayerLogger(requested.get(player), getConfig().getString("teleport.tpconfirmdeny." + config.language), "Warning");
+                                                PlayerLogger(player, String.format(getConfig().getString("teleport.infoconfirmto." + config.language), requested.get(player).getName()), "");
+                                                requested.remove(player);
+                                                commandexec.remove(player);
+                                            }
+                                        } else {
+                                            PlayerLogger(player, getConfig().getString("teleport.noteleport." + config.language), "Error");
+                                        }
+                                        return true;
+                                    }
                                 } else if (ActionxpShop.equalsIgnoreCase("update")) {
                                     if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
                                         String path = "plugins" + File.separator;
@@ -647,6 +704,80 @@ public class xpShop extends JavaPlugin {
                                         }
                                         PlayerLogger(player, config.commanderrornoint, "Error");
                                         return false;
+                                    }
+                                } else if (args[0].equalsIgnoreCase("tpme")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        Player teler = (Player) getServer().getPlayer(args[1]);
+                                        if (teler != null) {
+                                            int entfernung = getEntfernung(player.getLocation(), teler.getLocation());
+                                            int xpneeded = (int) (getEntfernung(player.getLocation(), teler.getLocation()) * getConfig().getDouble("teleport.xpperblock"));
+                                            if (getTOTALXP(player) >= xpneeded) {
+                                                if (commandexec.containsKey(player)) {
+                                                    PlayerLogger(player, getConfig().getString("teleport.teleportrequest1." + config.language), "Error");
+                                                } else {
+                                                    final Player player1 = player;
+                                                    getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+
+                                                        @Override
+                                                        public void run() {
+                                                            if (commandexec.containsKey(player1)) {
+                                                                Player dest = requested.get(player1);
+                                                                requested.remove(player1);
+                                                                commandexec.remove(player1);
+                                                                PlayerLogger(dest, String.format(getConfig().getString("teleport.teleportrequesttimeoutaccept." + config.language), getConfig().getInt("Cooldownoftp")), "Warning");
+                                                                PlayerLogger(player1, String.format(getConfig().getString("teleport.teleportrequesttimeout." + config.language), getConfig().getInt("Cooldownoftp")), "Warning");
+                                                            }
+                                                        }
+                                                    }, getConfig().getInt("Cooldownoftp") * 20);
+                                                    commandexec.put(player, true);
+                                                    requested.put(player, teler);
+                                                    PlayerLogger(player, String.format(getConfig().getString("teleport.info1." + config.language), xpneeded, entfernung), "Warning");
+                                                    PlayerLogger(player, getConfig().getString("teleport.tpconfirm." + config.language), "Warning");
+                                                    PlayerLogger(player, getConfig().getString("teleport.tpconfirmdeny." + config.language), "Warning");
+                                                }
+                                            } else {
+                                                PlayerLogger(player, String.format(getConfig().getString("teleport.notenoughxp." + config.language), entfernung, xpneeded), "Error");
+                                            }
+                                        }
+
+                                        return true;
+                                    }
+                                } else if (args[0].equalsIgnoreCase("tpto")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        Player teler = (Player) getServer().getPlayer(args[1]);
+                                        if (teler != null) {
+                                            int entfernung = getEntfernung(player.getLocation(), teler.getLocation());
+                                            int xpneeded = (int) (getEntfernung(player.getLocation(), teler.getLocation()) * getConfig().getDouble("teleport.xpperblock"));
+                                            if (getTOTALXP(player) >= xpneeded) {
+                                                if (commandexec.containsKey(player)) {
+                                                    PlayerLogger(player, getConfig().getString("teleport.teleportrequest1." + config.language), "Error");
+                                                } else {
+                                                    final Player player1 = player;
+                                                    getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+
+                                                        @Override
+                                                        public void run() {
+                                                            if (commandexec.containsKey(player1)) {
+                                                                Player dest = requested.get(player1);
+                                                                requested.remove(player1);
+                                                                commandexec.remove(player1);
+                                                                PlayerLogger(dest, String.format(getConfig().getString("teleport.teleportrequesttimeoutaccept." + config.language), getConfig().getInt("Cooldownoftp")), "Warning");
+                                                                PlayerLogger(player1, String.format(getConfig().getString("teleport.teleportrequesttimeout." + config.language), getConfig().getInt("Cooldownoftp")), "Warning");
+                                                            }
+                                                        }
+                                                    }, getConfig().getInt("Cooldownoftp") * 20);
+                                                    commandexec.put(player, false);
+                                                    requested.put(player, teler);
+                                                    PlayerLogger(player, String.format(getConfig().getString("teleport.info1." + config.language), xpneeded, entfernung), "Warning");
+                                                    PlayerLogger(player, getConfig().getString("teleport.tpconfirm." + config.language), "Warning");
+                                                    PlayerLogger(player, getConfig().getString("teleport.tpconfirmdeny." + config.language), "Warning");
+                                                }
+                                            } else {
+                                                PlayerLogger(player, String.format(getConfig().getString("teleport.notenoughxp." + config.language), entfernung, xpneeded), "Error");
+                                            }
+                                        }
+
+                                        return true;
                                     }
                                 } else if (args[0].equalsIgnoreCase("language")) {
                                     if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
