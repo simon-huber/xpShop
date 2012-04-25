@@ -121,11 +121,6 @@ public class xpShop extends JavaPlugin {
         Logger("disabled in " + timetemp + "ms", "");
     }
 
-    public File getLocation() {
-        File location = xpShop.getFile();
-        return location;
-    }
-
     /**
      * Delete an download new version of xpShop in the Update folder.
      *
@@ -140,11 +135,13 @@ public class xpShop extends JavaPlugin {
             try {
                 upd.autoDownload(url, path, name, type);
             } catch (Exception e) {
-                Logger(e.getMessage(), "Error");
+                Logger("Error on doing blacklist update! Message: " + e.getMessage(), "Error");
+                Logger("may the mainserver is down!", "Error");
                 try {
                     upd.autoDownload(url, path + "xpShop" + File.separator, name, type);
                 } catch (Exception ex) {
-                    Logger(ex.getMessage(), "Error");
+                    Logger("Error on doing update! Message: " + ex.getMessage(), "Error");
+                    Logger("may the mainserver is down!", "Error");
                 }
             }
         }
@@ -156,28 +153,33 @@ public class xpShop extends JavaPlugin {
      */
     public void forceUpdate() {
         if (config.Internet) {
-            if (updateaviable) {
-                Logger("New version: " + upd.getNewVersion(versionsfile) + " found!", "Warning");
-                Logger("******************************************", "Warning");
-                Logger("*********** Please update!!!! ************", "Warning");
-                Logger("* http://ibhh.de/xpShop.jar *", "Warning");
-                Logger("******************************************", "Warning");
-                if (getConfig().getBoolean("autodownload")) {
-                    try {
-                        String path = "plugins" + File.separator;
-                        if (autoUpdate("http://ibhh.de/xpShop.jar", path, "xpShop.jar", "forceupdate")) {
-                            Logger("Downloaded new Version!", "Warning");
-                            Logger("xpShop will be updated on the next restart!", "Warning");
-                        } else {
-                            Logger(" Cant download new Version!", "Warning");
+            try {
+                if (updateaviable) {
+                    Logger("New version: " + upd.getNewVersion(versionsfile) + " found!", "Warning");
+                    Logger("******************************************", "Warning");
+                    Logger("*********** Please update!!!! ************", "Warning");
+                    Logger("* http://ibhh.de/xpShop.jar *", "Warning");
+                    Logger("******************************************", "Warning");
+                    if (getConfig().getBoolean("autodownload")) {
+                        try {
+                            String path = "plugins" + File.separator;
+                            if (autoUpdate("http://ibhh.de/xpShop.jar", path, "xpShop.jar", "forceupdate")) {
+                                Logger("Downloaded new Version!", "Warning");
+                                Logger("xpShop will be updated on the next restart!", "Warning");
+                            } else {
+                                Logger(" Cant download new Version!", "Warning");
+                            }
+                        } catch (Exception e) {
+                            Logger("Error on donwloading new Version!", "Error");
+                            e.printStackTrace();
                         }
-                    } catch (Exception e) {
-                        Logger("Error on donwloading new Version!", "Error");
-                        e.printStackTrace();
+                    } else {
+                        Logger("Please type [xpShop download] to download manual! ", "Warning");
                     }
-                } else {
-                    Logger("Please type [xpShop download] to download manual! ", "Warning");
                 }
+            } catch (Exception e) {
+                Logger("Error on doing update check or update! Message: " + e.getMessage(), "Error");
+                Logger("may the mainserver is down!", "Error");
             }
         }
 
@@ -188,14 +190,19 @@ public class xpShop extends JavaPlugin {
      */
     public void blacklistcheck() {
         if (config.Internet) {
-            String temp[] = upd.getBlacklisted("http://ibhh.de/BlacklistxpShop.html");
-            if (temp != null) {
-                Blacklistcode = temp[1];
-                Blacklistmsg = temp[2];
-                Logger("Your version is blacklisted because of bugs, after restart an bugfix will be installed!", "Warning");
-                Logger("Reason: " + Blacklistmsg, "Warning");
+            try {
+                String temp[] = upd.getBlacklisted("http://ibhh.de/BlacklistxpShop.html");
+                if (temp != null) {
+                    Blacklistcode = temp[1];
+                    Blacklistmsg = temp[2];
+                    Logger("Your version is blacklisted because of bugs, after restart an bugfix will be installed!", "Warning");
+                    Logger("Reason: " + Blacklistmsg, "Warning");
+                }
+                config.getBlacklistCode();
+            } catch (Exception e) {
+                Logger("Error on doing blacklistcheck! Message: " + e.getMessage(), "Error");
+                Logger("may the mainserver is down!", "Error");
             }
-            config.getBlacklistCode();
         }
 
     }
@@ -205,30 +212,35 @@ public class xpShop extends JavaPlugin {
      */
     public void blacklistUpdate() {
         if (config.Internet) {
-            String temp[] = upd.getBlacklisted("http://ibhh.de/BlacklistxpShop.html");
-            if (temp != null) {
-                Blacklistcode = temp[1];
-                Blacklistmsg = temp[2];
-                Logger("Your version is blacklisted because of bugs, after restart an bugfix will be installed!", "Warning");
-                Logger("Reason: " + Blacklistmsg, "Warning");
-                String URL = "http://ibhh.de:80/aktuelleversion" + xpShop.this.getDescription().getName() + ".html";
-                UpdateAvailable(URL, Version);
-                if (updateaviable) {
-                    try {
-                        String path = "plugins" + File.separator;
-                        if (autoUpdate("http://ibhh.de/xpShop.jar", path, "xpShop.jar", "forceupdate")) {
-                            Logger("Downloaded new Version!", "Warning");
-                            Logger("xpShop will be updated on the next restart!", "Warning");
-                        } else {
-                            Logger(" Cant download new Version!", "Warning");
+            try {
+                String temp[] = upd.getBlacklisted("http://ibhh.de/BlacklistxpShop.html");
+                if (temp != null) {
+                    Blacklistcode = temp[1];
+                    Blacklistmsg = temp[2];
+                    Logger("Your version is blacklisted because of bugs, after restart an bugfix will be installed!", "Warning");
+                    Logger("Reason: " + Blacklistmsg, "Warning");
+                    String URL = "http://ibhh.de:80/aktuelleversion" + xpShop.this.getDescription().getName() + ".html";
+                    UpdateAvailable(URL, Version);
+                    if (updateaviable) {
+                        try {
+                            String path = "plugins" + File.separator;
+                            if (autoUpdate("http://ibhh.de/xpShop.jar", path, "xpShop.jar", "forceupdate")) {
+                                Logger("Downloaded new Version!", "Warning");
+                                Logger("xpShop will be updated on the next restart!", "Warning");
+                            } else {
+                                Logger(" Cant download new Version!", "Warning");
+                            }
+                        } catch (Exception e) {
+                            Logger("Error on donwloading new Version!", "Error");
+                            e.printStackTrace();
                         }
-                    } catch (Exception e) {
-                        Logger("Error on donwloading new Version!", "Error");
-                        e.printStackTrace();
+                    } else {
+                        Logger("No Bugfix aviable yet!!", "Error");
                     }
-                } else {
-                    Logger("No Bugfix aviable yet!!", "Error");
                 }
+            } catch (Exception e) {
+                Logger("Error on doing blacklist update! Message: " + e.getMessage(), "Error");
+                Logger("May the mainserver is down!", "Error");
             }
         }
     }
@@ -243,6 +255,7 @@ public class xpShop extends JavaPlugin {
             Version = Float.parseFloat(getDescription().getVersion());
         } catch (Exception e) {
             Logger("Could not parse version in float", "");
+            Logger("Error getting version of xpShop! Message: " + e.getMessage(), "Error");
         }
         return Version;
     }
@@ -254,13 +267,18 @@ public class xpShop extends JavaPlugin {
      */
     public void UpdateAvailable(final String url, final float currVersion) {
         if (config.Internet) {
-            if (upd.getNewVersion(versionsfile) > currVersion) {
-                xpShop.updateaviable = true;
-            }
-            if (updateaviable) {
-                updateaviable = true;
-            } else {
-                updateaviable = false;
+            try {
+                if (upd.getNewVersion(versionsfile) > currVersion) {
+                    xpShop.updateaviable = true;
+                }
+                if (updateaviable) {
+                    updateaviable = true;
+                } else {
+                    updateaviable = false;
+                }
+            } catch (Exception e) {
+                Logger("Error checking for new version! Message: " + e.getMessage(), "Error");
+                Logger("May the mainserver is down!", "Error");
             }
         }
     }
@@ -268,10 +286,12 @@ public class xpShop extends JavaPlugin {
     public int getEntfernung(Location loc1, Location loc2) {
         int entfernung = 0;
         int x1 = loc1.getBlockX();
+        int y1 = loc1.getBlockY();
         int z1 = loc1.getBlockZ();
         int x2 = loc2.getBlockX();
+        int y2 = loc2.getBlockY();
         int z2 = loc2.getBlockZ();
-        int temp = (x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2);
+        int temp = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2);
         temp = (int) Math.sqrt(temp);
         entfernung = Math.round(temp);
         return entfernung;
@@ -484,14 +504,19 @@ public class xpShop extends JavaPlugin {
                 onDisable();
             }
         } else if (run == 3) {
-            String URL = "http://ibhh.de:80/aktuelleversion" + this.getDescription().getName() + ".html";
-            UpdateAvailable(URL, Version);
-            if (updateaviable) {
-                Logger("New version: " + upd.getNewVersion(URL) + " found!", "Warning");
-                Logger("******************************************", "Warning");
-                Logger("*********** Please update!!!! ************", "Warning");
-                Logger("* http://ibhh.de/xpShop.jar *", "Warning");
-                Logger("******************************************", "Warning");
+            try {
+                String URL = "http://ibhh.de:80/aktuelleversion" + this.getDescription().getName() + ".html";
+                UpdateAvailable(URL, Version);
+                if (updateaviable) {
+                    Logger("New version: " + upd.getNewVersion(URL) + " found!", "Warning");
+                    Logger("******************************************", "Warning");
+                    Logger("*********** Please update!!!! ************", "Warning");
+                    Logger("* http://ibhh.de/xpShop.jar *", "Warning");
+                    Logger("******************************************", "Warning");
+                }
+            } catch (Exception e) {
+                Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
+                Logger("may the mainserver is down!", "Error");
             }
         }
 
