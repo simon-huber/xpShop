@@ -52,7 +52,7 @@ public class SignConSafeHandler {
                                 }
                             }
                         } else {
-                            plugin.Logger("Player " + p.getName() + " has no permission: xpShop.create", "Debug");
+                            plugin.Logger("Player " + p.getName() + " has no permission: xpShop.create.own", "Debug");
                             plugin.PlayerLogger(event.getPlayer(), "xpShop creation failed!", "Error");
                             event.setCancelled(true);
                         }

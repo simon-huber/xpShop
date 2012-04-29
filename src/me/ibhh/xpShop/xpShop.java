@@ -89,6 +89,7 @@ public class xpShop extends JavaPlugin {
     private void startStatistics() {
         try {
             metrics = new Metrics(this);
+            metrics.enable();
             metrics.start();
         } catch (Exception ex) {
             Logger("There was an error while submitting statistics.", "Error");
@@ -426,12 +427,14 @@ public class xpShop extends JavaPlugin {
 
                 @Override
                 public void run() {
-                    Logger("checking Blacklist!", "Debug");
-                    blacklistcheck();
-                    if (Blacklistcode.equals("0000000000000")) {
-                        Logger("Result: false", "Debug");
-                    } else {
-                        Logger("Result: true", "Debug");
+                    if (config.Internet) {
+                        Logger("checking Blacklist!", "Debug");
+                        blacklistcheck();
+                        if (Blacklistcode.equals("0000000000000")) {
+                            Logger("Result: false", "Debug");
+                        } else {
+                            Logger("Result: true", "Debug");
+                        }
                     }
                 }
             }, 200L, 50000L);
@@ -476,20 +479,21 @@ public class xpShop extends JavaPlugin {
 
                 @Override
                 public void run() {
-                    Logger("Searching update for xpShop!", "Debug");
-                    float newversion = upd.getNewVersion("http://ibhh.de:80/aktuelleversionxpShop.html");
-                    Logger("installed xpShop version: " + Version + ", latest version: " + newversion, "Debug");
-                    if (newversion > Version) {
-                        Logger("New version: " + newversion + " found!", "Warning");
-                        Logger("******************************************", "Warning");
-                        Logger("*********** Please update!!!! ************", "Warning");
-                        Logger("* http://ibhh.de/xpShop.jar *", "Warning");
-                        Logger("******************************************", "Warning");
-                        xpShop.updateaviable = true;
-                    } else {
-                        Logger("No update found!", "Debug");
+                    if (config.Internet) {
+                        Logger("Searching update for xpShop!", "Debug");
+                        float newversion = upd.getNewVersion("http://ibhh.de:80/aktuelleversionxpShop.html");
+                        Logger("installed xpShop version: " + Version + ", latest version: " + newversion, "Debug");
+                        if (newversion > Version) {
+                            Logger("New version: " + newversion + " found!", "Warning");
+                            Logger("******************************************", "Warning");
+                            Logger("*********** Please update!!!! ************", "Warning");
+                            Logger("* http://ibhh.de/xpShop.jar *", "Warning");
+                            Logger("******************************************", "Warning");
+                            xpShop.updateaviable = true;
+                        } else {
+                            Logger("No update found!", "Debug");
+                        }
                     }
-
                 }
             }, 400L, 50000L);
         } else if (run == 1) {
@@ -504,19 +508,21 @@ public class xpShop extends JavaPlugin {
                 onDisable();
             }
         } else if (run == 3) {
-            try {
-                String URL = "http://ibhh.de:80/aktuelleversion" + this.getDescription().getName() + ".html";
-                UpdateAvailable(URL, Version);
-                if (updateaviable) {
-                    Logger("New version: " + upd.getNewVersion(URL) + " found!", "Warning");
-                    Logger("******************************************", "Warning");
-                    Logger("*********** Please update!!!! ************", "Warning");
-                    Logger("* http://ibhh.de/xpShop.jar *", "Warning");
-                    Logger("******************************************", "Warning");
+            if (config.Internet) {
+                try {
+                    String URL = "http://ibhh.de:80/aktuelleversion" + this.getDescription().getName() + ".html";
+                    UpdateAvailable(URL, Version);
+                    if (updateaviable) {
+                        Logger("New version: " + upd.getNewVersion(URL) + " found!", "Warning");
+                        Logger("******************************************", "Warning");
+                        Logger("*********** Please update!!!! ************", "Warning");
+                        Logger("* http://ibhh.de/xpShop.jar *", "Warning");
+                        Logger("******************************************", "Warning");
+                    }
+                } catch (Exception e) {
+                    Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
+                    Logger("may the mainserver is down!", "Error");
                 }
-            } catch (Exception e) {
-                Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
-                Logger("may the mainserver is down!", "Error");
             }
         }
 

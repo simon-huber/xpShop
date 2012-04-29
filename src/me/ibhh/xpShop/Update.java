@@ -25,26 +25,30 @@ class Update implements Serializable {
      * @return float: latest recommend build.
      */
     public float getNewVersion(String url) {
-        float rt2 = 0;
-        String zeile;
-        try {
-            URL myConnection = new URL(url);
-            URLConnection connectMe = myConnection.openConnection();
+        if (plugin.config.Internet) {
+            float rt2 = 0;
+            String zeile;
+            try {
+                URL myConnection = new URL(url);
+                URLConnection connectMe = myConnection.openConnection();
 
-            InputStreamReader lineReader = new InputStreamReader(connectMe.getInputStream());
-            BufferedReader br = new BufferedReader(new BufferedReader(lineReader));
-            zeile = br.readLine();
-            rt2 = Float.parseFloat(zeile);
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            plugin.Logger("Exception: IOException!", "Error");
-            return -1;
-        } catch (Exception e) {
-            e.printStackTrace();
-            plugin.Logger("Exception: Exception!", "");
-            return 0;
+                InputStreamReader lineReader = new InputStreamReader(connectMe.getInputStream());
+                BufferedReader br = new BufferedReader(new BufferedReader(lineReader));
+                zeile = br.readLine();
+                rt2 = Float.parseFloat(zeile);
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                plugin.Logger("Exception: IOException!", "Error");
+                return -1;
+            } catch (Exception e) {
+                e.printStackTrace();
+                plugin.Logger("Exception: Exception!", "");
+                return 0;
+            }
+            return rt2;
+        } else {
+            return plugin.aktuelleVersion();
         }
-        return rt2;
     }
 
     /**
@@ -54,27 +58,27 @@ class Update implements Serializable {
      * @return float: latest recommend build.
      */
     public String[] getBlacklisted(String url) {
-        try {
-            URL myConnection = new URL(url);
-            URLConnection connectMe = myConnection.openConnection();
+            try {
+                URL myConnection = new URL(url);
+                URLConnection connectMe = myConnection.openConnection();
 
-            InputStreamReader lineReader = new InputStreamReader(connectMe.getInputStream());
-            BufferedReader br = new BufferedReader(new BufferedReader(lineReader));
-            String Zeile;
-            String[] rt;
-            for (i = 0; ((Zeile = br.readLine()) != null) && i < 101; i++) {
-                rt = Zeile.split(":");
-                if (rt[0].equalsIgnoreCase(Float.toString(plugin.Version))) {
-                    return rt;
+                InputStreamReader lineReader = new InputStreamReader(connectMe.getInputStream());
+                BufferedReader br = new BufferedReader(new BufferedReader(lineReader));
+                String Zeile;
+                String[] rt;
+                for (i = 0; ((Zeile = br.readLine()) != null) && i < 101; i++) {
+                    rt = Zeile.split(":");
+                    if (rt[0].equalsIgnoreCase(Float.toString(plugin.Version))) {
+                        return rt;
+                    }
                 }
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                plugin.Logger("Exception: IOException!", "Error");
+            } catch (Exception e) {
+                e.printStackTrace();
+                plugin.Logger("Exception: Exception!", "");
             }
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            plugin.Logger("Exception: IOException!", "Error");
-        } catch (Exception e) {
-            e.printStackTrace();
-            plugin.Logger("Exception: Exception!", "");
-        }
         return null;
     }
 
