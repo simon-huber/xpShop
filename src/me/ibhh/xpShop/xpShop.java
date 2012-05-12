@@ -77,8 +77,8 @@ public class xpShop extends JavaPlugin {
         "grand",
         "tpto",
         "tpme",
-        "yes",
-        "no",
+        "yestp",
+        "notp",
         "accept",
         "deny"};
     public TeleportManager TP;
@@ -500,6 +500,19 @@ public class xpShop extends JavaPlugin {
             try {
                 config = new ConfigHandler(this);
                 config.loadConfigonStart();
+                Logger("Version: " + aktuelleVersion(), "Debug");
+                if (getConfig().getString("teleport.tpconfirm.de").equalsIgnoreCase("Bitte tippe /xpShop yes zum betaetigen.")) {
+                    Logger("Version == 8.1", "Debug");
+//                    getConfig().set("teleport.acceptconfirmdeny.de", "Bitte tippe /xpShop deny zum Ablehnen des Teleports.");
+                    getConfig().set("teleport.tpconfirm.de", "Bitte tippe /xpShop yestp zum betaetigen.");
+                    getConfig().set("teleport.tpconfirm.en", "Please execute the command /xpShop yestp to confirm the teleport.");
+                    getConfig().set("teleport.tpconfirmdeny.de", "Bitte tippe /xpShop notp um abzubrechen.");
+                    getConfig().set("teleport.tpconfirmdeny.en", "Please execute the command /xpShop notp to cancel the command.");
+                    saveConfig();
+                    reloadConfig();
+                    config.loadConfigonStart();
+                    config.reload();
+                }
 
             } catch (Exception e1) {
                 Logger("Error on loading config: " + e1.getMessage(), "Error");
@@ -605,7 +618,7 @@ public class xpShop extends JavaPlugin {
                                         TP.denyteleport(player);
                                         return true;
                                     }
-                                } else if (ActionxpShop.equalsIgnoreCase("no")) {
+                                } else if (ActionxpShop.equalsIgnoreCase("notp")) {
                                     if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
                                         if (commandexec.containsKey(player)) {
                                             commandexec.remove(player);
@@ -616,7 +629,7 @@ public class xpShop extends JavaPlugin {
                                         }
                                         return true;
                                     }
-                                } else if (ActionxpShop.equalsIgnoreCase("yes")) {
+                                } else if (ActionxpShop.equalsIgnoreCase("yestp")) {
                                     if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
                                         if (commandexec.containsKey(player)) {
                                             if (commandexec.get(player)) {

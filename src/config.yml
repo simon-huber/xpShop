@@ -97,14 +97,14 @@ teleport:
     de: Bitte tippe /xpShop deny zum Ablehnen des Teleports.
     en: Please execute the command /xpShop deny to deny the teleport.
   tpconfirmdeny:
-    de: Bitte tippe /xpShop no um abzubrechen.
-    en: Please execute the command /xpShop yes to cancel the command.
+    de: Bitte tippe /xpShop notp um abzubrechen.
+    en: Please execute the command /xpShop notp to cancel the command.
   acceptconfirm:
     de: Bitte tippe /xpShop accept zum Annehmen des Teleports.
     en: Please execute the command /xpShop accept to accept the teleport.
   tpconfirm:
-    de: Bitte tippe /xpShop yes zum betaetigen.
-    en: Please execute the command /xpShop yes to confirm the teleport.
+    de: Bitte tippe /xpShop yestp zum betaetigen.
+    en: Please execute the command /xpShop yestp to confirm the teleport.
   info1:
     de: Du brauchst %1$d XP um Dich %2$d Bloecke zu teleportieren. 
     en: You need %1$d XP to teleport %2$d blocks. 
@@ -281,6 +281,13 @@ safe:
     en: You cann add a Safe under or above to the Shop to use more funktions!
 help:
   commands:
+    reload:
+      name: reload
+      permission: xpShop.reload
+      description: 
+        de: Reloaded das Plugin
+        en: Reloads plugin
+      usage: /xpShop reload
     buy:
       name: buy
       permission: xpShop.buy
@@ -456,28 +463,31 @@ help:
         de: Teleported einen player zu Dir fuer XP.
         en: Teleports a player to you for XP.
       usage: /xpShop tpme <player>
-    yes:
-      name: yes
+    yestp:
+      name: yestp
       permission: xpShop.tp
       description:
         de: Fuehrt den Teleportauftrag aus.
         en: Execute a teleport request.
-    no:
-      name: no
+      usage: /xpShop yestp
+    notp:
+      name: notp
       permission: xpShop.tp
       description:
         de: Stoppt den Teleportauftrag.
         en: Stops the teleport request.
+      usage: /xpShop notp
     accept:
       name: accept
       permission: xpShop.tp
       description:
         de: Aktzeptiert einen Teleport.
         en: Accepts a teleport.
+      usage: /xpShop accept
     deny:
       name: deny
       permission: xpShop.tp
       description:
         de: verhindert einen Teleport.
         en: denies a teleport.
-    
+      usage: /xpShop deny
