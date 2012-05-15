@@ -284,7 +284,6 @@ public class SignHandler {
                                 plugin.UpdateXP(player, (Integer.parseInt(s.getLine(2))), "Sign");
                                 plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
                                 plugin.UpdateXP(empfaenger, -(Integer.parseInt(s.getLine(2))), "Sign");
-
                                 empfaenger.saveData();
                                 plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), playername, price), "");
                             } else {

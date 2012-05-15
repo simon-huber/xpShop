@@ -46,6 +46,7 @@ public class xpShop extends JavaPlugin {
     public static boolean updateaviable = false;
     public PermissionsChecker PermissionsHandler;
     public iConomyHandler MoneyHandler;
+    public BottleManager bottle;
     public Logger Loggerclass;
     public boolean toggle = false;
     public Metrics metrics;
@@ -53,6 +54,9 @@ public class xpShop extends JavaPlugin {
     public HashMap<Player, Boolean> commandexec = new HashMap<Player, Boolean>();
     public String[] commands = {
         "help",
+        "bottle",
+        "bottleconfirm",
+        "bottlecancel",
         "buy",
         "sell",
         "buylevel",
@@ -395,6 +399,7 @@ public class xpShop extends JavaPlugin {
             Help = new Help(this);
             MoneyHandler = new iConomyHandler(this);
             PermissionsHandler = new PermissionsChecker(this, "xpShop");
+            bottle = new BottleManager(this);
             TP = new TeleportManager(this);
             Standartstart(3);
             if (config.usedbtomanageXP) {
@@ -608,6 +613,16 @@ public class xpShop extends JavaPlugin {
                                     temptime = (System.nanoTime() - temptime) / 1000000;
                                     Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
                                     return true;
+                                } else if (ActionxpShop.equalsIgnoreCase("bottleconfirm")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        bottle.confirmChange(player);
+                                        return true;
+                                    }
+                                } else if (ActionxpShop.equalsIgnoreCase("bottlecancel")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        bottle.cancelChange(player);
+                                        return true;
+                                    }
                                 } else if (ActionxpShop.equalsIgnoreCase("accept")) {
                                     if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
                                         TP.acceptteleport(player);
@@ -744,6 +759,15 @@ public class xpShop extends JavaPlugin {
                                             selllevel(player, this.selllevel, true);
                                             temptime = (System.nanoTime() - temptime) / 1000000;
                                             Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                            return true;
+                                        }
+                                        PlayerLogger(player, config.commanderrornoint, "Error");
+                                        return false;
+                                    }
+                                } if (ActionxpShop.equals("bottle")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (Tools.isInteger(args[1])) {
+                                            bottle.registerCommandXPBottles(player, Integer.parseInt(args[1]));
                                             return true;
                                         }
                                         PlayerLogger(player, config.commanderrornoint, "Error");
@@ -1285,6 +1309,7 @@ public class xpShop extends JavaPlugin {
                             if (getServer().getPlayer(empfaenger) != null) {
                                 empfaenger1 = getServer().getPlayer(empfaenger);
                                 buy(empfaenger1, temp, false, "sendxp");
+                                empfaenger1.setTotalExperience((int) getTOTALXP(empfaenger1));
                                 PlayerLogger(empfaenger1, (String.format(config.commandsuccessrecievedxp, temp, playername)), "");
                             }
                         } catch (NullPointerException e) {
@@ -1315,6 +1340,8 @@ public class xpShop extends JavaPlugin {
                                 PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                                 return;
                             }
+                            
+                            empfaenger1.setTotalExperience((int) getTOTALXP(empfaenger1));
                             try {
                                 PlayerLogger(player, (String.format(config.commandsuccesssentxp, temp, args[1])), "");
                                 PlayerLogger(empfaenger1, (String.format(config.commandsuccessrecievedxp, temp, sender.getName())), "");
@@ -1371,6 +1398,8 @@ public class xpShop extends JavaPlugin {
      */
     public void UpdateXP(CommandSender sender, int amount, String von) {
         Player player = (Player) sender;
+        Logger("Old TOTALXP of " + player.getName() + ": " + getTOTALXP(player), "Debug");
+        Logger("Old TOTALXP of (Bukkit) " + player.getName() + ": " + player.getTotalExperience(), "Debug");
         double Expaktuell = getTOTALXP(player) + amount;
         double neuesLevel;
         int neuesLevelx;
@@ -1388,6 +1417,9 @@ public class xpShop extends JavaPlugin {
         } catch (NumberFormatException ex) {
             PlayerLogger(player, "Invalid exp count: " + amount, "Error");
         }
+        player.setTotalExperience((int) getTOTALXP(player));
+        Logger("New TOTALXP of " + player.getName() + ": " + getTOTALXP(player), "Debug");
+        Logger("New TOTALXP (Bukkit) of " + player.getName() + ": " + player.getTotalExperience(), "Debug");
     }
 
     /**
@@ -1575,6 +1607,7 @@ public class xpShop extends JavaPlugin {
                         SQL.UpdateXP(player.getName(), ((int) TOTALint - sellamount));
                     }
                     UpdateXP(sender, -sellamount, "sell");
+                    
                     if (moneyactive) {
                         MoneyHandler.addmoney(sellamount * getmoney, player);
                     }
@@ -1666,6 +1699,7 @@ public class xpShop extends JavaPlugin {
                 if (XP2Sell >= 0) {
                     if (moneyactive) {
                         sell(sender, (int) XP2Sell, true, "selllevel");
+                        
                     }
                 } else {
                     PlayerLogger(player, "Invalid exp count: " + levelamountsell, "Error");

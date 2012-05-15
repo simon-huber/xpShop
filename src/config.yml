@@ -11,6 +11,8 @@ debugfile: true
 UsePrefix: true
 PrefixColor: b
 TextColor: 6
+XPperBottle: 14
+CooldownofBottleFilling: 15
 Cooldownoftp: 15
 #This neednt be edited (does the plugin by itself)
 firstRun: true
@@ -55,6 +57,37 @@ Signscreatedeactivated: false
 Signsusedeactivated: false
 #This deactivate the destroing of xpShops.
 Signsdestroydeactivated: false
+BottleFilling:
+  ConfirmTimeOut:
+    de: Du hast den Befehl nicht innerhalb von %1$s Sekunden bestaetigt.
+    en: You havent confirmed the command within %1$s sec.
+  Info:
+    de: Willst Du %1$d XP in %2$d Flaschen mit je %3$d XP fuellen? Es koennen beim ausschuetten weniger XP herauskommen!
+    en: Do you want to fill %1$d XP into %2$d bottles with %3$d XP each? You may get fewer XP if you trow the bottle.
+  NotEnoughXP:
+    de: Du hast keine %1$d XP um %2$d Flaschen mit je %3$d XP zu fuellen.
+    en: You havent got %1$d XP to fill %2$d bottles with %3$d XP each.
+  PleaseConfirm1:
+    de: Bitte bestaetige deine Eingabe mit /xpShop bottleconfirm
+    en: Please confirm your command with /xpShop bottleconfirm
+  PleaseConfirm2:
+    de: Um deine Eingabe abzubrechen tippe /xpShop bottlecancel
+    en: To cancel your command do /xpShop bottlecancel
+  canceled:
+    de: Erfolgreich abgebrochen.
+    en: Successfully canceled command.
+  confirmed:
+    de: Bestaetigt.
+    en: Confirmed.
+  executed:
+    de: Du hast %1$d XP in %2$d Flaschen mit je %3$d XP gefuellt.
+    en: You filled %1$d XP in %2$d bottles with %3$d XP each.
+  nocommand:
+    de: Kein Auftrag gefunden.
+    en: nothing to confirm.
+  notenoughbottles:
+    de: Du hast keine %1$d Flaschen!
+    en: You havent got %1$d bottles!
 teleport:
   xpperblock: 1
   teleportstopped:
@@ -281,6 +314,27 @@ safe:
     en: You cann add a Safe under or above to the Shop to use more funktions!
 help:
   commands:
+    bottlecancel:
+      name: bottlecancel
+      permission: xpShop.bottle
+      description: 
+        de: Bricht das Abfuellen von XP ab.
+        en: Cancels filling of bottles
+      usage: /xpShop bootlecancel
+    bottleconfirm:
+      name: bottleconfirm
+      permission: xpShop.bottle
+      description: 
+        de: Bestaetigt abfuellen
+        en: Confirms filling of bottles
+      usage: /xpShop bootleconfirm
+    bottle:
+      name: bottle
+      permission: xpShop.bottle
+      description: 
+        de: Fuellt Flaschen mit XP
+        en: Fills bottles with XP
+      usage: /xpShop bootle <amount of bottles>
     reload:
       name: reload
       permission: xpShop.reload
