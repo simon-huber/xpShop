@@ -120,7 +120,10 @@ public class BottleManager {
         int anzahl = Playermap.get(player);
         if (plugin.getTOTALXP(player) >= anzahl * plugin.getConfig().getInt("XPperBottle")) {
             if (hasEnoughBottles(player, anzahl)) {
-                plugin.UpdateXP(player, anzahl * plugin.getConfig().getInt("XPperBottle"), "Bottle");
+                plugin.UpdateXP(player, -anzahl * plugin.getConfig().getInt("XPperBottle"), "Bottle");
+                if (plugin.config.usedbtomanageXP) {
+                    plugin.SQL.UpdateXP(player.getName(), ((int) (plugin.getTOTALXP(player) - anzahl * plugin.getConfig().getInt("XPperBottle"))));
+                }
                 executeCommandXPBottles(player, anzahl);
                 if (Playermap.containsKey(player)) {
                     Playermap.remove(player);

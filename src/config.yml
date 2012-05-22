@@ -314,6 +314,20 @@ safe:
     en: You cann add a Safe under or above to the Shop to use more funktions!
 help:
   commands:
+    configconfirm:
+      name: configconfirm
+      permission: xpShop.config
+      description: 
+        de: Bestaetigt das editieren der config.yml
+        en: Confirms the editing of the config.yml
+      usage: /xpShop configcancel
+    configcancel:
+      name: configcancel
+      permission: xpShop.config
+      description: 
+        de: Bricht das Aendern der config ab.
+        en: Cancels the editing of the configfile.
+      usage: /xpShop configcancel
     bottlecancel:
       name: bottlecancel
       permission: xpShop.bottle

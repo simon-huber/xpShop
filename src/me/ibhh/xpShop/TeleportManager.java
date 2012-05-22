@@ -86,6 +86,9 @@ public class TeleportManager {
         int xpneeded = (int) (entfernung * plugin.getConfig().getDouble("teleport.xpperblock"));
         if (plugin.getTOTALXP(teleporter) >= xpneeded) {
             plugin.UpdateXP(teleporter, -xpneeded, "teleport");
+            if (plugin.config.usedbtomanageXP) {
+                plugin.SQL.UpdateXP(teleporter.getName(), ((int) (plugin.getTOTALXP(teleporter) - xpneeded)));
+            }
             requested.remove(accepter.getName());
             requestedname.remove(accepter.getName());
             exec.remove(teleporter.getName());

@@ -52,6 +52,8 @@ public class xpShop extends JavaPlugin {
     public Metrics metrics;
     private HashMap<Player, Player> requested = new HashMap<Player, Player>();
     public HashMap<Player, Boolean> commandexec = new HashMap<Player, Boolean>();
+    private HashMap<Player, String> Config = new HashMap<Player, String>();
+    private HashMap<Player, String> Set = new HashMap<Player, String>();
     public String[] commands = {
         "help",
         "bottle",
@@ -93,7 +95,6 @@ public class xpShop extends JavaPlugin {
     private void startStatistics() {
         try {
             metrics = new Metrics(this);
-            metrics.enable();
             metrics.start();
         } catch (Exception ex) {
             Logger("There was an error while submitting statistics.", "Error");
@@ -746,6 +747,51 @@ public class xpShop extends JavaPlugin {
                                         Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
                                         return true;
                                     }
+                                } else if (args[0].equalsIgnoreCase("configconfirm")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (Config.containsKey(player)) {
+                                            String temp = getConfig().getString(Config.get(player));
+                                            Logger("Temp: " + temp, "Debug");
+                                            boolean isboolean = false;
+                                            if (temp.equalsIgnoreCase("true") || temp.equalsIgnoreCase("false")) {
+                                                isboolean = true;
+                                                Logger("Config is boolean!", "Debug");
+                                            }
+                                            boolean istTrue = false;
+                                            if (isboolean) {
+                                                if (Set.get(player).equalsIgnoreCase("true")) {
+                                                    istTrue = true;
+                                                    Logger("Config is true!", "Debug");
+                                                }
+                                            }
+                                            if (!isboolean) {
+                                                getConfig().set(Config.get(player), Set.get(player));
+                                            } else {
+                                                getConfig().set(Config.get(player), istTrue);
+                                                Logger("Set boolean", "Debug");
+                                            }
+                                            saveConfig();
+                                            reloadConfig();
+                                            config.reload();
+                                            PlayerLogger(player, "You set  " + Config.get(player) + " from " + temp + " to " + getConfig().getString(Config.get(player)) + " !", "Warning");
+                                            Set.remove(player);
+                                            Config.remove(player);
+                                        } else {
+                                            PlayerLogger(player, "Please enter a command first!", "Error");
+                                        }
+                                        return true;
+                                    }
+                                } else if (args[0].equalsIgnoreCase("configcancel")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (Config.containsKey(player)) {
+                                            PlayerLogger(player, "Command canceled!", "Warning");
+                                            Set.remove(player);
+                                            Config.remove(player);
+                                        } else {
+                                            PlayerLogger(player, "Please enter a command first!", "Error");
+                                        }
+                                        return true;
+                                    }
                                 } else {
                                     Help.help(sender, args);
                                 }
@@ -764,7 +810,8 @@ public class xpShop extends JavaPlugin {
                                         PlayerLogger(player, config.commanderrornoint, "Error");
                                         return false;
                                     }
-                                } if (ActionxpShop.equals("bottle")) {
+                                }
+                                if (ActionxpShop.equals("bottle")) {
                                     if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
                                         if (Tools.isInteger(args[1])) {
                                             bottle.registerCommandXPBottles(player, Integer.parseInt(args[1]));
@@ -1039,15 +1086,76 @@ public class xpShop extends JavaPlugin {
                                         }
                                     }
                                     return false;
+                                } else if (args[0].equalsIgnoreCase("config")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (!Config.containsKey(player)) {
+                                            Config.put(player, args[1]);
+                                            String Configtext = args[2];
+                                            for (int i = 3; i < args.length; i++) {
+                                                Configtext.concat(args[i]);
+                                            }
+                                            Set.put(player, Configtext);
+                                            PlayerLogger(player, "Do you want to edit " + args[1] + " from " + getConfig().getString(args[1]) + " to " + Configtext + " ?", "Warning");
+                                            PlayerLogger(player, String.format("Please confirm within %1$d sec!", getConfig().getInt("Cooldownoftp")), "Warning");
+                                            PlayerLogger(player, "Please confirm with \"/xpShop configconfirm\" !", "Warning");
+                                            PlayerLogger(player, "Please cancel with \"/xpShop configcancel\" !", "Warning");
+                                            final Player player1 = player;
+                                            getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+
+                                                @Override
+                                                public void run() {
+                                                    if (Config.containsKey(player1)) {
+                                                        Config.remove(player1);
+                                                        Set.remove(player1);
+                                                        PlayerLogger(player1, String.format("You havent confirmed within %1$d sec!", getConfig().getInt("Cooldownoftp")), "Warning");
+                                                    }
+                                                }
+                                            }, getConfig().getInt("Cooldownoftp") * 20);
+                                            return true;
+                                        } else {
+                                            PlayerLogger(player, "Please confirm or cancel your last command first!", "Error");
+                                            return true;
+                                        }
+                                    }
                                 } else {
                                     Help.help(sender, args);
                                 }
                                 break;
-
-
-
-
                             default:
+                                if (args.length > 3) {
+                                    if (args[0].equalsIgnoreCase("config")) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                            if (!Config.containsKey(player)) {
+                                                Config.put(player, args[1]);
+                                                String Configtext = args[2];
+                                                for (int i = 3; i < args.length; i++) {
+                                                    Configtext.concat(args[i]);
+                                                }
+                                                Set.put(player, Configtext);
+                                                PlayerLogger(player, "Do you want to edit " + args[1] + " from " + getConfig().getString(args[1]) + " to " + Configtext + " ?", "Warning");
+                                                PlayerLogger(player, String.format("Please confirm within %1$d sec!", getConfig().getInt("Cooldownoftp")), "Warning");
+                                                PlayerLogger(player, "Please confirm with \"/xpShop configconfirm\" !", "Warning");
+                                                PlayerLogger(player, "Please cancel with \"/xpShop configcancel\" !", "Warning");
+                                                final Player player1 = player;
+                                                getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+
+                                                    @Override
+                                                    public void run() {
+                                                        if (Config.containsKey(player1)) {
+                                                            Config.remove(player1);
+                                                            Set.remove(player1);
+                                                            PlayerLogger(player1, String.format("You havent confirmed within %1$d sec!", getConfig().getInt("Cooldownoftp")), "Warning");
+                                                        }
+                                                    }
+                                                }, getConfig().getInt("Cooldownoftp") * 20);
+                                                return true;
+                                            } else {
+                                                PlayerLogger(player, "Please confirm or cancel your last command first!", "Error");
+                                                return true;
+                                            }
+                                        }
+                                    }
+                                }
                                 Help.help(player, args);
                                 return false;
                         }
@@ -1340,7 +1448,7 @@ public class xpShop extends JavaPlugin {
                                 PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                                 return;
                             }
-                            
+
                             empfaenger1.setTotalExperience((int) getTOTALXP(empfaenger1));
                             try {
                                 PlayerLogger(player, (String.format(config.commandsuccesssentxp, temp, args[1])), "");
@@ -1607,7 +1715,7 @@ public class xpShop extends JavaPlugin {
                         SQL.UpdateXP(player.getName(), ((int) TOTALint - sellamount));
                     }
                     UpdateXP(sender, -sellamount, "sell");
-                    
+
                     if (moneyactive) {
                         MoneyHandler.addmoney(sellamount * getmoney, player);
                     }
@@ -1699,7 +1807,7 @@ public class xpShop extends JavaPlugin {
                 if (XP2Sell >= 0) {
                     if (moneyactive) {
                         sell(sender, (int) XP2Sell, true, "selllevel");
-                        
+
                     }
                 } else {
                     PlayerLogger(player, "Invalid exp count: " + levelamountsell, "Error");
