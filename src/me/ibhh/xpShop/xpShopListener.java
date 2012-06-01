@@ -124,7 +124,9 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void change(PlayerExpChangeEvent event) {
         if (!plugin.toggle) {
-            plugin.Logger("Players XP changed: " + event.getPlayer().getName(), "Debug");
+            if (plugin.config.debug) {
+                plugin.Logger("Players XP changed: " + event.getPlayer().getName(), "Debug");
+            }
             if (plugin.config.usedbtomanageXP) {
 
                 final Player player = event.getPlayer();

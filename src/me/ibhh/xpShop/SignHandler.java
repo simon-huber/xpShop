@@ -30,6 +30,11 @@ public class SignHandler {
             plugin.Logger(plugin.Blacklistcode, "Debug");
             try {
                 if (plugin.ListenerShop.blockIsValid(line, "create", p)) {
+                    plugin.Logger("Createing Shop: ", "Debug");
+                    plugin.Logger("Line 1: " + line[0], "Debug");
+                    plugin.Logger("Line 2: " + line[1], "Debug");
+                    plugin.Logger("Line 3: " + line[2], "Debug");
+                    plugin.Logger("Line 4: " + line[3], "Debug");
                     plugin.Logger("Sign is valid", "Debug");
                     if (!line[1].equalsIgnoreCase("AdminShop") && line[1].length() < 16) {
                         if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
@@ -124,6 +129,11 @@ public class SignHandler {
         if (!plugin.Blacklistcode.startsWith("1", 11)) {
             plugin.Logger(" not blacklisted!", "Debug");
             if (plugin.ListenerShop.blockIsValid(line, "Interact", p)) {
+                plugin.Logger("LinksShop: ", "Debug");
+                plugin.Logger("Line 1: " + line[0], "Debug");
+                plugin.Logger("Line 2: " + line[1], "Debug");
+                plugin.Logger("Line 3: " + line[2], "Debug");
+                plugin.Logger("Line 4: " + line[3], "Debug");
                 plugin.Logger(" Block is valid!", "Debug");
                 String playername = p.getName();
                 Player player = event.getPlayer();
@@ -166,6 +176,11 @@ public class SignHandler {
 
     public void xpShopSignBuyCon(Player player, String[] line, Sign s, Sign sign) {
         String playername = player.getName();
+        plugin.Logger("BuyShopCon: ", "Debug");
+        plugin.Logger("Line 1: " + line[0], "Debug");
+        plugin.Logger("Line 2: " + line[1], "Debug");
+        plugin.Logger("Line 3: " + line[2], "Debug");
+        plugin.Logger("Line 4: " + line[3], "Debug");
         if (!playername.equalsIgnoreCase(line[1])) {
             Player empfaenger = plugin.getmyOfflinePlayer(line, 1);
             if (empfaenger != null) {
@@ -208,6 +223,11 @@ public class SignHandler {
     public void xpShopSignBuyConDB(Player player, String[] line, Sign s, Sign sign) {
         String playername = player.getName();
         try {
+            plugin.Logger("ShopBuyConDB: ", "Debug");
+            plugin.Logger("Line 1: " + line[0], "Debug");
+            plugin.Logger("Line 2: " + line[1], "Debug");
+            plugin.Logger("Line 3: " + line[2], "Debug");
+            plugin.Logger("Line 4: " + line[3], "Debug");
             if (!playername.equalsIgnoreCase(line[1])) {
                 if (plugin.SQL.isindb(line[1])) {
                     int XPPlayer = plugin.SQL.getXP(playername);
@@ -252,6 +272,11 @@ public class SignHandler {
     }
 
     public void xpShopSignBuyAdmin(Player player, String[] line, Sign s) {
+        plugin.Logger("ShopAdmin: ", "Debug");
+        plugin.Logger("Line 1: " + line[0], "Debug");
+        plugin.Logger("Line 2: " + line[1], "Debug");
+        plugin.Logger("Line 3: " + line[2], "Debug");
+        plugin.Logger("Line 4: " + line[3], "Debug");
         double price = plugin.ListenerShop.getPrice(s, player, true);
         if (price > 0) {
             if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
@@ -271,6 +296,11 @@ public class SignHandler {
 
     public void xpShopSignBuy(Player player, String[] line, Sign s) {
         String playername = player.getName();
+        plugin.Logger("ShopBuy: ", "Debug");
+        plugin.Logger("Line 1: " + line[0], "Debug");
+        plugin.Logger("Line 2: " + line[1], "Debug");
+        plugin.Logger("Line 3: " + line[2], "Debug");
+        plugin.Logger("Line 4: " + line[3], "Debug");
         if (!playername.equalsIgnoreCase(line[1])) {
             Player empfaenger = plugin.getmyOfflinePlayer(line, 1);
             if (empfaenger != null) {
@@ -306,6 +336,11 @@ public class SignHandler {
 
     public void xpShopSignBuyDB(Player player, String[] line, Sign s) {
         String playername = player.getName();
+        plugin.Logger("ShopBuyDB: ", "Debug");
+        plugin.Logger("Line 1: " + line[0], "Debug");
+        plugin.Logger("Line 2: " + line[1], "Debug");
+        plugin.Logger("Line 3: " + line[2], "Debug");
+        plugin.Logger("Line 4: " + line[3], "Debug");
         try {
             if (!playername.equalsIgnoreCase(line[1])) {
                 if (plugin.SQL.isindb(line[1])) {
@@ -357,6 +392,11 @@ public class SignHandler {
         if (!plugin.Blacklistcode.startsWith("1", 11)) {
             Player player = p;
             String playername = p.getName();
+            plugin.Logger("Shop rechts: ", "Debug");
+            plugin.Logger("Line 1: " + line[0], "Debug");
+            plugin.Logger("Line 2: " + line[1], "Debug");
+            plugin.Logger("Line 3: " + line[2], "Debug");
+            plugin.Logger("Line 4: " + line[3], "Debug");
             if (plugin.ListenerShop.blockIsValid(line, "Interact", p)) {
                 if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.use")) {
                     if (line[1].equalsIgnoreCase("AdminShop")) {
@@ -399,6 +439,11 @@ public class SignHandler {
 
     public void xpShopSignSellCon(Player player, String[] line, Sign s, Sign sign) {
         String playername = player.getName();
+        plugin.Logger("ShopSellCon: ", "Debug");
+        plugin.Logger("Line 1: " + line[0], "Debug");
+        plugin.Logger("Line 2: " + line[1], "Debug");
+        plugin.Logger("Line 3: " + line[2], "Debug");
+        plugin.Logger("Line 4: " + line[3], "Debug");
         if (!playername.equalsIgnoreCase(line[1])) {
             Player empfaenger = plugin.getmyOfflinePlayer(line, 1);
             if (empfaenger != null) {
@@ -440,6 +485,11 @@ public class SignHandler {
 
     public void xpShopSignSellConDB(Player player, String[] line, Sign s, Sign sign) {
         String playername = player.getName();
+        plugin.Logger("ShopSellConDB: ", "Debug");
+        plugin.Logger("Line 1: " + line[0], "Debug");
+        plugin.Logger("Line 2: " + line[1], "Debug");
+        plugin.Logger("Line 3: " + line[2], "Debug");
+        plugin.Logger("Line 4: " + line[3], "Debug");
         try {
             if (!playername.equalsIgnoreCase(line[1])) {
                 int XPPlayer = plugin.SQL.getXP(playername);
@@ -481,6 +531,11 @@ public class SignHandler {
     }
 
     public void xpShopSignSellAdmin(Player player, String[] line, Sign s) {
+        plugin.Logger("AdminShopSell: ", "Debug");
+        plugin.Logger("Line 1: " + line[0], "Debug");
+        plugin.Logger("Line 2: " + line[1], "Debug");
+        plugin.Logger("Line 3: " + line[2], "Debug");
+        plugin.Logger("Line 4: " + line[3], "Debug");
         if (plugin.getTOTALXP(player) >= Integer.parseInt(line[2])) {
             if (plugin.ListenerShop.getPrice(s, player, false) > 0) {
                 double price = plugin.ListenerShop.getPrice(s, player, false);
@@ -500,6 +555,11 @@ public class SignHandler {
 
     public void xpShopSignSell(Player player, String[] line, Sign s) {
         String playername = player.getName();
+        plugin.Logger("ShopSell: ", "Debug");
+        plugin.Logger("Line 1: " + line[0], "Debug");
+        plugin.Logger("Line 2: " + line[1], "Debug");
+        plugin.Logger("Line 3: " + line[2], "Debug");
+        plugin.Logger("Line 4: " + line[3], "Debug");
         if (!playername.equalsIgnoreCase(line[1])) {
             Player empfaenger = plugin.getmyOfflinePlayer(line, 1);
             if (empfaenger != null) {
@@ -535,6 +595,11 @@ public class SignHandler {
 
     public void xpShopSignSellDB(Player player, String[] line, Sign s) {
         String playername = player.getName();
+        plugin.Logger("ShopSellDB: ", "Debug");
+        plugin.Logger("Line 1: " + line[0], "Debug");
+        plugin.Logger("Line 2: " + line[1], "Debug");
+        plugin.Logger("Line 3: " + line[2], "Debug");
+        plugin.Logger("Line 4: " + line[3], "Debug");
         try {
             if (!playername.equalsIgnoreCase(line[1])) {
                 if (plugin.SQL.isindb(line[1])) {

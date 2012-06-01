@@ -50,8 +50,10 @@ public class xpShop extends JavaPlugin {
     public Logger Loggerclass;
     public boolean toggle = false;
     public Metrics metrics;
+    public PlayerManager playerManager;
     private HashMap<Player, Player> requested = new HashMap<Player, Player>();
     public HashMap<Player, Boolean> commandexec = new HashMap<Player, Boolean>();
+    public HashMap<String, Boolean> DebugMsg = new HashMap<String, Boolean>();
     private HashMap<Player, String> Config = new HashMap<Player, String>();
     private HashMap<Player, String> Set = new HashMap<Player, String>();
     public String[] commands = {
@@ -86,7 +88,9 @@ public class xpShop extends JavaPlugin {
         "yestp",
         "notp",
         "accept",
-        "deny"};
+        "deny",
+        "showdebug"
+    };
     public TeleportManager TP;
 
     public xpShop() {
@@ -402,6 +406,7 @@ public class xpShop extends JavaPlugin {
             PermissionsHandler = new PermissionsChecker(this, "xpShop");
             bottle = new BottleManager(this);
             TP = new TeleportManager(this);
+            playerManager = new PlayerManager(this);
             Standartstart(3);
             if (config.usedbtomanageXP) {
                 SQL = new SQLConnectionHandler(this);
@@ -581,6 +586,15 @@ public class xpShop extends JavaPlugin {
                                 if (args[0].equalsIgnoreCase("help")) {
                                     if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
                                         Help.help(sender, args);
+                                    }
+                                } else if (args[0].equalsIgnoreCase("showdebug")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (DebugMsg.containsKey(player.getName())) {
+                                            DebugMsg.remove(player.getName());
+                                        } else {
+                                            DebugMsg.put(player.getName(), true);
+                                        }
+                                        return true;
                                     }
                                 } else if (args[0].equalsIgnoreCase("debugfile")) {
                                     if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
@@ -1338,6 +1352,9 @@ public class xpShop extends JavaPlugin {
             if (config.debugfile) {
                 Loggerclass.log("Error: " + msg);
             }
+            if (playerManager != null) {
+                playerManager.BroadcastconsoleMsg("xpShop.consolemsg", " Warning: " + msg);
+            }
         } else if (TYPE.equalsIgnoreCase("Debug")) {
             if (config.debug) {
                 System.out.println(PrefixConsole + "Debug: " + msg);
@@ -1345,8 +1362,13 @@ public class xpShop extends JavaPlugin {
             if (config.debugfile) {
                 Loggerclass.log("Debug: " + msg);
             }
+            if (playerManager != null) {
+                playerManager.BroadcastconsoleMsg("xpShop.consolemsg", " Debug: " + msg);
+            }
         } else {
-
+            if (playerManager != null) {
+                playerManager.BroadcastconsoleMsg("xpShop.consolemsg", msg);
+            }
             System.out.println(PrefixConsole + msg);
             if (config.debugfile) {
                 Loggerclass.log(msg);
@@ -1374,6 +1396,9 @@ public class xpShop extends JavaPlugin {
                     Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
                 }
             }
+            if (playerManager != null) {
+                playerManager.BroadcastMsg("xpShop.gamemsg", "Player: " + p.getName() + " Error: " + msg);
+            }
         } else {
             if (config.UsePrefix) {
                 p.sendMessage(config.Prefix + Prefix + config.Text + msg);
@@ -1385,6 +1410,9 @@ public class xpShop extends JavaPlugin {
                 if (config.debugfile) {
                     Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
                 }
+            }
+            if (playerManager != null) {
+                playerManager.BroadcastMsg("xpShop.gamemsg", "Player: " + p.getName() + " " + msg);
             }
         }
     }

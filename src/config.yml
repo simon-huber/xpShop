@@ -559,3 +559,10 @@ help:
         de: verhindert einen Teleport.
         en: denies a teleport.
       usage: /xpShop deny
+    showdebug:
+      name: showdebug
+      permission: xpShop.showdebug
+      description:
+        de: Zeigt alle xpShop meldungen
+        en: Shows every message.
+      usage: /xpShop showdebug

@@ -32,6 +32,11 @@ public class SafeHandler {
             plugin.Logger(plugin.Blacklistcode, "Debug");
             if (plugin.ListenerShop.SafeIsValid(line)) {
                 plugin.Logger("Safe is valid", "Debug");
+                plugin.Logger("Createing Safe: ", "Debug");
+                plugin.Logger("Line 1: " + line[0], "Debug");
+                plugin.Logger("Line 2: " + line[1], "Debug");
+                plugin.Logger("Line 3: " + line[2], "Debug");
+                plugin.Logger("Line 4: " + line[3], "Debug");
                 if (line[1].equalsIgnoreCase(p.getName()) && line[1].length() < 16) {
                     if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.create")) {
                         plugin.PlayerLogger(event.getPlayer(), "Successfully created xpShopSafe!", "");
@@ -71,10 +76,20 @@ public class SafeHandler {
 
     public void RechtsKlick(PlayerInteractEvent event, String[] line, Player p, Sign s) {
         xpShopSafeSignRechts(event, line, p, s);
+        plugin.Logger("Rechtsklick Safe: ", "Debug");
+        plugin.Logger("Line 1: " + line[0], "Debug");
+        plugin.Logger("Line 2: " + line[1], "Debug");
+        plugin.Logger("Line 3: " + line[2], "Debug");
+        plugin.Logger("Line 4: " + line[3], "Debug");
     }
 
     public void LinksKlick(PlayerInteractEvent event, String[] line, Player p, Sign s) {
         xpShopSafeSignLinks(event, line, p, s);
+        plugin.Logger("LinksKlick Safe: ", "Debug");
+        plugin.Logger("Line 1: " + line[0], "Debug");
+        plugin.Logger("Line 2: " + line[1], "Debug");
+        plugin.Logger("Line 3: " + line[2], "Debug");
+        plugin.Logger("Line 4: " + line[3], "Debug");
     }
 
     public void xpShopSafeSignGetDB(String[] line, Player p, Sign s) {
@@ -160,7 +175,7 @@ public class SafeHandler {
                     s.update();
                     plugin.PlayerLogger(p, String.format(plugin.config.safestore, Integer.parseInt(s.getLine(3))), "");
                 } else {
-                    plugin.PlayerLogger(p, String.format(plugin.config.safenotenoughxptostore, plugin.getTOTALXP(p)), "Error");
+                    plugin.PlayerLogger(p, String.format(plugin.config.safenotenoughxptostore, (int) plugin.getTOTALXP(p)), "Error");
                 }
             } else {
                 plugin.PlayerLogger(p, line[1] + " " + plugin.config.playerwasntonline, "Error");
@@ -183,7 +198,7 @@ public class SafeHandler {
             s.update();
             plugin.PlayerLogger(p, String.format(plugin.config.safestore, Integer.parseInt(s.getLine(3))), "");
         } else {
-            plugin.PlayerLogger(p, String.format(plugin.config.safenotenoughxptostore, plugin.getTOTALXP(p)), "Error");
+            plugin.PlayerLogger(p, String.format(plugin.config.safenotenoughxptostore, (int) plugin.getTOTALXP(p)), "Error");
         }
     }
 

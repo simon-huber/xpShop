@@ -31,6 +31,11 @@ public class SignConSafeHandler {
         if (!plugin.Blacklistcode.startsWith("1", 10)) {
             plugin.Logger(plugin.Blacklistcode, "Debug");
             try {
+                plugin.Logger("Createing Shop: ", "Debug");
+                plugin.Logger("Line 1: "+ line[0], "Debug");
+                plugin.Logger("Line 2: "+ line[1], "Debug");
+                plugin.Logger("Line 3: "+ line[2], "Debug");
+                plugin.Logger("Line 4: "+ line[3], "Debug");
                 if (plugin.ListenerShop.blockIsValid(line, "create", p)) {
                     plugin.Logger("Sign is valid", "Debug");
                     if (!line[1].equalsIgnoreCase("AdminShop") && line[1].length() < 16) {
@@ -113,6 +118,11 @@ public class SignConSafeHandler {
         if (!plugin.Blacklistcode.startsWith("1", 11)) {
             Player player = p;
             if (plugin.ListenerShop.blockIsValid(line, "Interact", p)) {
+                plugin.Logger("RechtsShop: ", "Debug");
+                plugin.Logger("Line 1: "+ line[0], "Debug");
+                plugin.Logger("Line 2: "+ line[1], "Debug");
+                plugin.Logger("Line 3: "+ line[2], "Debug");
+                plugin.Logger("Line 4: "+ line[3], "Debug");
                 if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.use")) {
                     if (line[1].equalsIgnoreCase("AdminShop")) {
                         signHandler.xpShopSignSellAdmin(player, line, s);
@@ -156,6 +166,11 @@ public class SignConSafeHandler {
         if (!plugin.Blacklistcode.startsWith("1", 11)) {
             plugin.Logger(" not blacklisted!", "Debug");
             if (plugin.ListenerShop.blockIsValid(line, "Interact", p)) {
+                plugin.Logger("Shop Links:: ", "Debug");
+                plugin.Logger("Line 1: "+ line[0], "Debug");
+                plugin.Logger("Line 2: "+ line[1], "Debug");
+                plugin.Logger("Line 3: "+ line[2], "Debug");
+                plugin.Logger("Line 4: "+ line[3], "Debug");
                 plugin.Logger(" Block is valid!", "Debug");
                 Player player = event.getPlayer();
                 if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.use")) {
