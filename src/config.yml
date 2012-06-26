@@ -4,11 +4,13 @@
 language: en
 #Disable this if you dont want that the plugin updates itself.
 autodownload: true
+installondownload: false
 internet: true
 #Enable this if you want debug info of a command or if you have an error and want to post it to the Developer (ibhh)
 debug: false
 debugfile: true
 UsePrefix: true
+newXPSystemof13: false
 PrefixColor: b
 TextColor: 6
 XPperBottle: 14

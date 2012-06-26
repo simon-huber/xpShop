@@ -22,10 +22,12 @@ public class PlayerManager {
         int BroadcastedPlayers = 0;
         try {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                if (plugin.PermissionsHandler.checkpermissionssilent(player, Permission)) {
-                    if (plugin.DebugMsg.containsKey(player.getName())) {
-                        player.sendMessage(plugin.config.Prefix + plugin.Prefix + plugin.config.Text + msg);
-                        BroadcastedPlayers++;
+                if (plugin.PermissionsHandler != null) {
+                    if (plugin.PermissionsHandler.checkpermissionssilent(player, Permission)) {
+                        if (plugin.DebugMsg.containsKey(player.getName())) {
+                            player.sendMessage(plugin.config.Prefix + plugin.Prefix + plugin.config.Text + msg);
+                            BroadcastedPlayers++;
+                        }
                     }
                 }
             }
@@ -39,11 +41,13 @@ public class PlayerManager {
         int BroadcastedPlayers = 0;
         try {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
-                if (plugin.PermissionsHandler.checkpermissionssilent(player, Permission)) {
-                    if (plugin.DebugMsg.containsKey(player.getName())) {
-                        if (plugin.DebugMsg.get(player.getName())) {
-                            player.sendMessage(plugin.config.Prefix + plugin.Prefix + plugin.config.Text + msg);
-                            BroadcastedPlayers++;
+                if (plugin.PermissionsHandler != null) {
+                    if (plugin.PermissionsHandler.checkpermissionssilent(player, Permission)) {
+                        if (plugin.DebugMsg.containsKey(player.getName())) {
+                            if (plugin.DebugMsg.get(player.getName())) {
+                                player.sendMessage(plugin.config.Prefix + plugin.Prefix + plugin.config.Text + msg);
+                                BroadcastedPlayers++;
+                            }
                         }
                     }
                 }
