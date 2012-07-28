@@ -1,3 +1,30 @@
+/*
+ * Copyright 2012 ibhh. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are
+ * permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list
+ * of conditions and the following disclaimer in the documentation and/or other materials
+ * provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ''AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The views and conclusions contained in the software and documentation are those of the
+ * authors and contributors and should not be interpreted as representing official policies,
+ * either expressed or implied, of anybody else.
+ */
 package me.ibhh.xpShop;
 
 import java.io.File;
@@ -16,6 +43,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.InvalidDescriptionException;
+import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class xpShop extends JavaPlugin {
@@ -30,13 +59,14 @@ public class xpShop extends JavaPlugin {
     public float Version = 0;
     int rounds1 = 0;
     int rounds = 0;
+    public Utilities plugman;
     private Help Help;
     public static String PrefixConsole = "[xpShop] ";
     public static String Prefix = "[xpShop] ";
     private PanelControl panel;
     public ConfigHandler config;
     public xpShopListener ListenerShop;
-    public Update upd;
+    private Update upd;
     public xpShop xpShop = this;
     public String Blacklistcode = "0000000000000";
     public String Blacklistmsg;
@@ -184,7 +214,8 @@ public class xpShop extends JavaPlugin {
                                 Logger("Error on donwloading new Version!", "Error");
                                 e.printStackTrace();
                             }
-                        } else if (getConfig().getBoolean("installondownload")) {
+                        }
+                        if (getConfig().getBoolean("installondownload")) {
                             try {
                                 String path = "plugins" + File.separator;
                                 if (autoUpdate("http://ibhh.de/xpShop.jar", path, "xpShop.jar", "forceupdate")) {
@@ -208,6 +239,15 @@ public class xpShop extends JavaPlugin {
             }
         }
 
+    }
+
+    public void downloadVault() {
+        try {
+            String path = "plugins/";
+            upd.autoDownload("http://ibhh.de/Vault.jar", path, "Vault.jar", "forceupdate");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -422,6 +462,7 @@ public class xpShop extends JavaPlugin {
             bottle = new BottleManager(this);
             TP = new TeleportManager(this);
             playerManager = new PlayerManager(this);
+            plugman = new Utilities(this);
             Standartstart(3);
             if (config.usedbtomanageXP) {
                 SQL = new SQLConnectionHandler(this);
@@ -454,8 +495,21 @@ public class xpShop extends JavaPlugin {
     public void Standartstart(int run) {
         if (run == 2) {
             aktuelleVersion();
-            upd = new Update(this);
-            blacklistcheck();
+            try {
+                upd = new Update(this);
+            } catch (IllegalAccessError e) {
+                Logger("Cant access Class \"Update\": " + e.getMessage(), "Error");
+                e.printStackTrace();
+                upd = new Update(this);
+            }
+            try {
+                blacklistcheck();
+            } catch (IllegalAccessError e) {
+                Logger("Cant access Class \"Update\": " + e.getMessage(), "Error");
+                e.printStackTrace();
+                upd = new Update(this);
+                blacklistcheck();
+            }
             this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
 
                 @Override
@@ -523,6 +577,37 @@ public class xpShop extends JavaPlugin {
                             Logger("* http://ibhh.de/xpShop.jar *", "Warning");
                             Logger("******************************************", "Warning");
                             xpShop.updateaviable = true;
+                            if (getConfig().getBoolean("installondownload")) {
+                                if (config.Internet) {
+                                    forceUpdate();
+                                }
+                                Logger("Found Update! Installing now because of 'installondownload = true', please wait!", "Warning");
+                                playerManager.BroadcastMsg("xpShop.admin", "Found Update! Installing now because of 'installondownload = true', please wait!");
+                                try {
+                                    plugman.unloadPlugin("xpShop");
+                                } catch (NoSuchFieldException ex) {
+                                    Logger("Error on installing! Please check the log!", "Error");
+                                    playerManager.BroadcastMsg("xpShop.admin", "Error on installing! Please check the log!");
+                                    java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (IllegalAccessException ex) {
+                                    Logger("Error on installing! Please check the log!", "Error");
+                                    playerManager.BroadcastMsg("xpShop.admin", "Error on installing! Please check the log!");
+                                    java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                try {
+                                    plugman.loadPlugin("xpShop");
+                                } catch (InvalidPluginException ex) {
+                                    Logger("Error on loading after installing! Please check the log!", "Error");
+                                    playerManager.BroadcastMsg("xpShop.admin", "Error on loading after installing! Please check the log!");
+                                    java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+                                } catch (InvalidDescriptionException ex) {
+                                    Logger("Error on loading after installing! Please check the log!", "Error");
+                                    playerManager.BroadcastMsg("xpShop.admin", "Error on loading after installing! Please check the log!");
+                                    java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                Logger("Installing finished!", "");
+                                playerManager.BroadcastMsg("xpShop.admin", "Installing finished!");
+                            }
                         } else {
                             Logger("No update found!", "Debug");
                         }
@@ -609,6 +694,13 @@ public class xpShop extends JavaPlugin {
                                     if (args[0].equalsIgnoreCase("help")) {
                                         if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
                                             Help.help(sender, args);
+                                        }
+                                    } else if (args[0].equalsIgnoreCase("reload")) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                            PlayerLogger(player, "Please wait: Reloading this plugin!", "Warning");
+                                            plugman.unloadPlugin("xpShop");
+                                            plugman.loadPlugin("xpShop");
+                                            PlayerLogger(player, "Reloaded!", "");
                                         }
                                     } else if (args[0].equalsIgnoreCase("showdebug")) {
                                         if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {

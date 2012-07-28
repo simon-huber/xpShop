@@ -76,12 +76,7 @@ public class iConomyHandler {
                 } else {
                     plugin.Logger("cant hook into iConomy5, iConomy6, Vault or Register. Downloading Vault!", "");
                     plugin.Logger(" ************ Please configure Vault!!!!! **********", "Warning");
-                    try {
-                        String path = "plugins/";
-                        plugin.upd.autoDownload("http://ibhh.de/Vault.jar", path, "Vault.jar", "forceupdate");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    plugin.downloadVault();
                 }
             } catch (Exception E) {
                 E.printStackTrace();

@@ -316,6 +316,13 @@ safe:
     en: You cann add a Safe under or above to the Shop to use more funktions!
 help:
   commands:
+    reload:
+      name: reload
+      permission: xpShop.reload
+      description: 
+        de: Lädt das Plugin neu.
+        en: Reloads plugin.
+      usage: /xpShop reload
     configconfirm:
       name: configconfirm
       permission: xpShop.config

@@ -4,15 +4,15 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 
-class Update implements Serializable {
+class Update {
 
     /**
      *
      */
-    private static final long serialVersionUID = 1L;
-    String s; // stored
+    public static final long serialVersionUID = 1L;
+    public String s; // stored
     transient int i; // transient: not stored
-    private xpShop plugin;
+    public xpShop plugin;
 
     public Update(xpShop up) {
         plugin = up;
