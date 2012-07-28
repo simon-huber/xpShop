@@ -57,6 +57,7 @@ public class xpShop extends JavaPlugin {
     public double getmoney;
     public int SubstractedXP;
     public float Version = 0;
+    public float newversion = 0;
     int rounds1 = 0;
     int rounds = 0;
     public Utilities plugman;
@@ -568,7 +569,7 @@ public class xpShop extends JavaPlugin {
                 public void run() {
                     if (config.Internet) {
                         Logger("Searching update for xpShop!", "Debug");
-                        float newversion = upd.getNewVersion("http://ibhh.de:80/aktuelleversionxpShop.html");
+                        newversion = upd.getNewVersion("http://ibhh.de:80/aktuelleversionxpShop.html");
                         Logger("installed xpShop version: " + Version + ", latest version: " + newversion, "Debug");
                         if (newversion > Version) {
                             Logger("New version: " + newversion + " found!", "Warning");
@@ -578,35 +579,7 @@ public class xpShop extends JavaPlugin {
                             Logger("******************************************", "Warning");
                             xpShop.updateaviable = true;
                             if (getConfig().getBoolean("installondownload")) {
-                                if (config.Internet) {
-                                    forceUpdate();
-                                }
-                                Logger("Found Update! Installing now because of 'installondownload = true', please wait!", "Warning");
-                                playerManager.BroadcastMsg("xpShop.admin", "Found Update! Installing now because of 'installondownload = true', please wait!");
-                                try {
-                                    plugman.unloadPlugin("xpShop");
-                                } catch (NoSuchFieldException ex) {
-                                    Logger("Error on installing! Please check the log!", "Error");
-                                    playerManager.BroadcastMsg("xpShop.admin", "Error on installing! Please check the log!");
-                                    java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
-                                } catch (IllegalAccessException ex) {
-                                    Logger("Error on installing! Please check the log!", "Error");
-                                    playerManager.BroadcastMsg("xpShop.admin", "Error on installing! Please check the log!");
-                                    java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                                try {
-                                    plugman.loadPlugin("xpShop");
-                                } catch (InvalidPluginException ex) {
-                                    Logger("Error on loading after installing! Please check the log!", "Error");
-                                    playerManager.BroadcastMsg("xpShop.admin", "Error on loading after installing! Please check the log!");
-                                    java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
-                                } catch (InvalidDescriptionException ex) {
-                                    Logger("Error on loading after installing! Please check the log!", "Error");
-                                    playerManager.BroadcastMsg("xpShop.admin", "Error on loading after installing! Please check the log!");
-                                    java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                                Logger("Installing finished!", "");
-                                playerManager.BroadcastMsg("xpShop.admin", "Installing finished!");
+                                install();
                             }
                         } else {
                             Logger("No update found!", "Debug");
@@ -657,6 +630,38 @@ public class xpShop extends JavaPlugin {
             }
         }
 
+    }
+
+    public void install() {
+        if (config.Internet) {
+            forceUpdate();
+        }
+        Logger("Found Update! Installing now because of 'installondownload = true', please wait!", "Warning");
+        playerManager.BroadcastMsg("xpShop.update", "Found Update! Installing now because of 'installondownload = true', please wait!");
+        try {
+            plugman.unloadPlugin("xpShop");
+        } catch (NoSuchFieldException ex) {
+            Logger("Error on installing! Please check the log!", "Error");
+            playerManager.BroadcastMsg("xpShop.update", "Error on installing! Please check the log!");
+            java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            Logger("Error on installing! Please check the log!", "Error");
+            playerManager.BroadcastMsg("xpShop.update", "Error on installing! Please check the log!");
+            java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
+            plugman.loadPlugin("xpShop");
+        } catch (InvalidPluginException ex) {
+            Logger("Error on loading after installing! Please check the log!", "Error");
+            playerManager.BroadcastMsg("xpShop.update", "Error on loading after installing! Please check the log!");
+            java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidDescriptionException ex) {
+            Logger("Error on loading after installing! Please check the log!", "Error");
+            playerManager.BroadcastMsg("xpShop.update", "Error on loading after installing! Please check the log!");
+            java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Logger("Installing finished!", "");
+        playerManager.BroadcastMsg("xpShop.update", "Installing finished!");
     }
 
     /**
@@ -803,10 +808,7 @@ public class xpShop extends JavaPlugin {
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("update")) {
                                         if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
-                                            String path = "plugins" + File.separator;
-                                            autoUpdate("http://ibhh.de/xpShop.jar", path, "xpShop.jar", "forceupdate");
-                                            PlayerLogger(player, "Downloaded new Version!", "Warning");
-                                            PlayerLogger(player, "xpShop will be updated on the next restart!", "Warning");
+                                            install();
                                             return true;
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("deletedebug")) {

@@ -69,7 +69,11 @@ public class xpShopListener implements Listener {
             if (!plugin.Blacklistcode.startsWith("1")) {
                 if (plugin.PermissionsHandler.checkpermissionssilent(event.getPlayer(), "xpShop.admin")) {
                     if (plugin.updateaviable) {
-                        plugin.PlayerLogger(event.getPlayer(), "New xpShop update aviable: type \"/xpShop update\" please!", "Warning");
+                        plugin.PlayerLogger(event.getPlayer(), "installed xpShop version: " + plugin.Version + ", latest version: " + plugin.newversion, "Warning");
+                        plugin.PlayerLogger(event.getPlayer(), "New xpShop update aviable: type \"/xpShop update\" to install!", "Warning");
+                        if(!plugin.getConfig().getBoolean("installondownload")){
+                            plugin.PlayerLogger(event.getPlayer(), "Please edit the config.yml if you wish that the plugin updates itself atomatically!", "Warning");
+                        }
                     }
                     File file = new File("plugins" + File.separator + "xpShop" + File.separator + "debug.txt");
                     if (file.exists()) {

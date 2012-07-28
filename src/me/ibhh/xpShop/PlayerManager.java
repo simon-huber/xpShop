@@ -24,10 +24,8 @@ public class PlayerManager {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 if (plugin.PermissionsHandler != null) {
                     if (plugin.PermissionsHandler.checkpermissionssilent(player, Permission)) {
-                        if (plugin.DebugMsg.containsKey(player.getName())) {
                             player.sendMessage(plugin.config.Prefix + plugin.Prefix + plugin.config.Text + msg);
                             BroadcastedPlayers++;
-                        }
                     }
                 }
             }
