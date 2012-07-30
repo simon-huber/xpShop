@@ -73,9 +73,6 @@ public class Help {
             } else if (args.length == 1) {
                 boolean found = false;
                 for (String command : plugin.commands) {
-                    if (plugin.config.debug) {
-                        plugin.Logger("CommandHelp: " + command, "Debug");
-                    }
                     if (plugin.getConfig().getString("help.commands." + command + ".name").equalsIgnoreCase(args[0])) {
                         if (plugin.PermissionsHandler.checkpermissions(player, plugin.getConfig().getString("help.commands." + command + ".permission"))) {
                             plugin.PlayerLogger(

@@ -82,6 +82,7 @@ public class xpShop extends JavaPlugin {
     public boolean toggle = true;
     public Metrics metrics;
     public PlayerManager playerManager;
+    public Repair repair;
     private HashMap<Player, Player> requested = new HashMap<Player, Player>();
     public HashMap<Player, Boolean> commandexec = new HashMap<Player, Boolean>();
     public HashMap<String, Boolean> DebugMsg = new HashMap<String, Boolean>();
@@ -120,7 +121,11 @@ public class xpShop extends JavaPlugin {
         "notp",
         "accept",
         "deny",
-        "showdebug"
+        "showdebug",
+        "repair",
+        "repaircancel",
+        "repairconfirm",
+        "toolinfo"
     };
     public TeleportManager TP;
 
@@ -151,16 +156,191 @@ public class xpShop extends JavaPlugin {
             SQL.CloseCon();
             SQL = null;
         }
-//        Stats.CloseCon();
-        try {
-            finalize();
-        } catch (Throwable ew) {
-            Logger("cant finalize!", "Error");
-        }
         forceUpdate();
         blacklistUpdate();
         timetemp = System.currentTimeMillis() - timetemp;
         Logger("disabled in " + timetemp + "ms", "");
+    }
+
+    /**
+     * Called by Bukkit on starting the server
+     *
+     */
+    @Override
+    public void onEnable() {
+        long timetemp1 = System.nanoTime();
+        Loggerclass = new Logger(this);
+        try {
+            config = new ConfigHandler(this);
+            config.loadConfigonStart();
+            Logger("Version: " + aktuelleVersion(), "Debug");
+            if (getConfig().getString("teleport.tpconfirm.de").equalsIgnoreCase("Bitte tippe /xpShop yes zum betaetigen.")) {
+                Logger("Version == 8.1", "Debug");
+                getConfig().set("teleport.tpconfirm.de", "Bitte tippe /xpShop yestp zum betaetigen.");
+                getConfig().set("teleport.tpconfirm.en", "Please execute the command /xpShop yestp to confirm the teleport.");
+                getConfig().set("teleport.tpconfirmdeny.de", "Bitte tippe /xpShop notp um abzubrechen.");
+                getConfig().set("teleport.tpconfirmdeny.en", "Please execute the command /xpShop notp to cancel the command.");
+                saveConfig();
+                reloadConfig();
+                config.loadConfigonStart();
+                config.reload();
+            }
+        } catch (Exception e1) {
+            Logger("Error on loading config: " + e1.getMessage(), "Error");
+            e1.printStackTrace();
+            Logger("Version: " + Version + " failed to enable!", "Error");
+            onDisable();
+        }
+        ListenerShop = new xpShopListener(this);
+        aktuelleVersion();
+        try {
+            upd = new Update(this);
+        } catch (IllegalAccessError e) {
+            Logger("Cant access Class \"Update\": " + e.getMessage(), "Error");
+            e.printStackTrace();
+            upd = new Update(this);
+        }
+        try {
+            blacklistcheck();
+        } catch (IllegalAccessError e) {
+            Logger("Cant access Class \"Update\": " + e.getMessage(), "Error");
+            e.printStackTrace();
+            upd = new Update(this);
+            blacklistcheck();
+        }
+        this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+
+            @Override
+            public void run() {
+                if (config.Internet) {
+                    Logger("checking Blacklist!", "Debug");
+                    blacklistcheck();
+                    if (Blacklistcode.equals("0000000000000")) {
+                        Logger("Result: false", "Debug");
+                    } else {
+                        Logger("Result: true", "Debug");
+                    }
+                }
+            }
+        }, 200L, 50000L);
+        if (config.usedbtomanageXP) {
+            this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+
+                @Override
+                public void run() {
+                    if (!toggle) {
+                        long time = 0;
+                        Logger("Setting Player XP!", "Debug");
+                        time = System.nanoTime();
+                        int XP = 0;
+                        int neu = 0;
+                        for (Player p : Bukkit.getServer().getOnlinePlayers()) {
+                            XP = (int) xpShop.this.getTOTALXP(p);
+                            try {
+                                neu = xpShop.this.SQL.getXP(p.getName());
+                            } catch (SQLException ex) {
+                                java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            Logger("Player " + p.getName() + "saved in db with " + XP + " XP!", "Debug");
+                            if (XP != neu) {
+                                p.setLevel(0);
+                                p.setExp(0);
+                                xpShop.this.UpdateXP(p, neu, "AutoUpdate");
+                                if (XP < neu) {
+                                    xpShop.this.PlayerLogger(p, String.format(config.addedxp, neu - XP), "");
+                                } else if (neu < XP) {
+                                    xpShop.this.PlayerLogger(p, String.format(config.substractedxp, XP - neu), "");
+                                }
+                            }
+                        }
+                        time = (System.nanoTime() - time) / 1000000;
+                        Logger("Synced XP with DB in " + time + " ms!", "Debug");
+
+                    }
+                }
+            }, (long) (config.DelayTimeTask * 20), (long) (config.TaskRepeat) * 20);
+        }
+        this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+
+            @Override
+            public void run() {
+                if (config.Internet) {
+                    Logger("Searching update for xpShop!", "Debug");
+                    newversion = upd.getNewVersion("http://ibhh.de:80/aktuelleversionxpShop.html");
+                    Logger("installed xpShop version: " + Version + ", latest version: " + newversion, "Debug");
+                    if (newversion > Version) {
+                        Logger("New version: " + newversion + " found!", "Warning");
+                        Logger("******************************************", "Warning");
+                        Logger("*********** Please update!!!! ************", "Warning");
+                        Logger("* http://ibhh.de/xpShop.jar *", "Warning");
+                        Logger("******************************************", "Warning");
+                        xpShop.updateaviable = true;
+                        if (getConfig().getBoolean("installondownload")) {
+                            install();
+                        }
+                    } else {
+                        Logger("No update found!", "Debug");
+                    }
+                }
+            }
+        }, 400L, 50000L);
+        if (!(Blacklistcode.startsWith("1"))) {
+            if (getConfig().getBoolean("firstRun")) {
+                try {
+                    openGUI();
+                } catch (Exception e) {
+                    Logger("You cant use the gui, notice that.", "Error");
+                    getConfig().set("firstRun", false);
+                    saveConfig();
+                    reloadConfig();
+                    config.reload();
+                }
+            }
+            Help = new Help(this);
+            MoneyHandler = new iConomyHandler(this);
+            PermissionsHandler = new PermissionsChecker(this, "xpShop");
+            bottle = new BottleManager(this);
+            TP = new TeleportManager(this);
+            playerManager = new PlayerManager(this);
+            plugman = new Utilities(this);
+            repair = new Repair(this);
+            if (config.Internet) {
+                try {
+                    String URL = "http://ibhh.de:80/aktuelleversion" + this.getDescription().getName() + ".html";
+                    UpdateAvailable(URL, Version);
+                    if (updateaviable) {
+                        Logger("New version: " + upd.getNewVersion(URL) + " found!", "Warning");
+                        Logger("******************************************", "Warning");
+                        Logger("*********** Please update!!!! ************", "Warning");
+                        Logger("* http://ibhh.de/xpShop.jar *", "Warning");
+                        Logger("******************************************", "Warning");
+                    }
+                } catch (Exception e) {
+                    Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
+                    Logger("may the mainserver is down!", "Error");
+                }
+            }
+            if (config.usedbtomanageXP) {
+                SQL = new SQLConnectionHandler(this);
+                SQL.createConnection();
+                SQL.PrepareDB();
+            }
+
+        } else {
+            Logger(this.getDescription().getName() + " version " + Version + " is blacklisted because of bugs, after restart an bugfix will be installed!", "Warning");
+            Logger("All funktions deactivated to prevent the server!", "Warning");
+        }
+        this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+
+            @Override
+            public void run() {
+                toggle = false;
+            }
+        }, 20);
+        startStatistics();
+        timetemp1 = (System.nanoTime() - timetemp1) / 1000000;
+
+        Logger("Enabled in " + timetemp1 + "ms", "");
     }
 
     /**
@@ -212,7 +392,7 @@ public class xpShop extends JavaPlugin {
                                     Logger(" Cant download new Version!", "Warning");
                                 }
                             } catch (Exception e) {
-                                Logger("Error on donwloading new Version!", "Error");
+                                Logger("Error on dowloading new Version!", "Error");
                                 e.printStackTrace();
                             }
                         }
@@ -418,220 +598,6 @@ public class xpShop extends JavaPlugin {
         panel.setVisible(true);
     }
 
-    /**
-     * Called by Bukkit on starting the server
-     *
-     */
-    @Override
-    public void onEnable() {
-        long timetemp1 = System.nanoTime();
-        Loggerclass = new Logger(this);
-        Standartstart(1);
-        ListenerShop = new xpShopListener(this);
-        Standartstart(2);
-//        if (xpShop.getServer().getPluginManager().getPlugin("xpShopupdatehelper") == null) {
-//            String path = "plugins" + File.separator;
-//            Logger("Download xpShophelper !", "Warning");
-//            try {
-//                upd.autoDownload("http://ibhh.de/xpShopupdatehelper.jar", path, "xpShopupdatehelper.jar", "forceupdate");
-//            } catch (Exception ex) {
-//                Logger("xpShop server currently not aviable!", "Error");
-//            }
-//            Logger("Downloaded xpShophelper successfully!", "Warning");
-//            Logger(".. Done!", "Warning");
-//        }
-        if (!(Blacklistcode.startsWith("1"))) {
-            if (getConfig().getBoolean("firstRun")) {
-//                try{
-//                upd.autoDownload("http://ibhh.de/xpShopconfigdefault.yml", getDataFolder().toString(), "xpShopconfigdefault.yml", "forceupdate");
-//                } catch(Exception w){
-//                    Logger("Cant save Default config!", "Error");
-//                }
-                try {
-                    openGUI();
-                } catch (Exception e) {
-                    Logger("You cant use the gui, notice that.", "Error");
-                    getConfig().set("firstRun", false);
-                    saveConfig();
-                    reloadConfig();
-                    config.reload();
-                }
-            }
-            Help = new Help(this);
-            MoneyHandler = new iConomyHandler(this);
-            PermissionsHandler = new PermissionsChecker(this, "xpShop");
-            bottle = new BottleManager(this);
-            TP = new TeleportManager(this);
-            playerManager = new PlayerManager(this);
-            plugman = new Utilities(this);
-            Standartstart(3);
-            if (config.usedbtomanageXP) {
-                SQL = new SQLConnectionHandler(this);
-                SQL.createConnection();
-                SQL.PrepareDB();
-            }
-
-        } else {
-            Logger(this.getDescription().getName() + " version " + Version + " is blacklisted because of bugs, after restart an bugfix will be installed!", "Warning");
-            Logger("All funktions deactivated to prevent the server!", "Warning");
-        }
-        this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-
-            @Override
-            public void run() {
-                toggle = false;
-            }
-        }, 20);
-        startStatistics();
-        timetemp1 = (System.nanoTime() - timetemp1) / 1000000;
-
-        Logger("Enabled in " + timetemp1 + "ms", "");
-    }
-
-    /**
-     * Different start parts
-     *
-     * @param run
-     */
-    public void Standartstart(int run) {
-        if (run == 2) {
-            aktuelleVersion();
-            try {
-                upd = new Update(this);
-            } catch (IllegalAccessError e) {
-                Logger("Cant access Class \"Update\": " + e.getMessage(), "Error");
-                e.printStackTrace();
-                upd = new Update(this);
-            }
-            try {
-                blacklistcheck();
-            } catch (IllegalAccessError e) {
-                Logger("Cant access Class \"Update\": " + e.getMessage(), "Error");
-                e.printStackTrace();
-                upd = new Update(this);
-                blacklistcheck();
-            }
-            this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
-
-                @Override
-                public void run() {
-                    if (config.Internet) {
-                        Logger("checking Blacklist!", "Debug");
-                        blacklistcheck();
-                        if (Blacklistcode.equals("0000000000000")) {
-                            Logger("Result: false", "Debug");
-                        } else {
-                            Logger("Result: true", "Debug");
-                        }
-                    }
-                }
-            }, 200L, 50000L);
-            if (config.usedbtomanageXP) {
-                this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        if (!toggle) {
-                            long time = 0;
-                            Logger("Setting Player XP!", "Debug");
-                            time = System.nanoTime();
-                            int XP = 0;
-                            int neu = 0;
-                            for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-                                XP = (int) xpShop.this.getTOTALXP(p);
-                                try {
-                                    neu = xpShop.this.SQL.getXP(p.getName());
-                                } catch (SQLException ex) {
-                                    java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                                Logger("Player " + p.getName() + "saved in db with " + XP + " XP!", "Debug");
-                                if (XP != neu) {
-                                    p.setLevel(0);
-                                    p.setExp(0);
-                                    xpShop.this.UpdateXP(p, neu, "AutoUpdate");
-                                    if (XP < neu) {
-                                        xpShop.this.PlayerLogger(p, String.format(config.addedxp, neu - XP), "");
-                                    } else if (neu < XP) {
-                                        xpShop.this.PlayerLogger(p, String.format(config.substractedxp, XP - neu), "");
-                                    }
-                                }
-                            }
-                            time = (System.nanoTime() - time) / 1000000;
-                            Logger("Synced XP with DB in " + time + " ms!", "Debug");
-
-                        }
-                    }
-                }, (long) (config.DelayTimeTask * 20), (long) (config.TaskRepeat) * 20);
-            }
-            this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
-
-                @Override
-                public void run() {
-                    if (config.Internet) {
-                        Logger("Searching update for xpShop!", "Debug");
-                        newversion = upd.getNewVersion("http://ibhh.de:80/aktuelleversionxpShop.html");
-                        Logger("installed xpShop version: " + Version + ", latest version: " + newversion, "Debug");
-                        if (newversion > Version) {
-                            Logger("New version: " + newversion + " found!", "Warning");
-                            Logger("******************************************", "Warning");
-                            Logger("*********** Please update!!!! ************", "Warning");
-                            Logger("* http://ibhh.de/xpShop.jar *", "Warning");
-                            Logger("******************************************", "Warning");
-                            xpShop.updateaviable = true;
-                            if (getConfig().getBoolean("installondownload")) {
-                                install();
-                            }
-                        } else {
-                            Logger("No update found!", "Debug");
-                        }
-                    }
-                }
-            }, 400L, 50000L);
-        } else if (run == 1) {
-            try {
-                config = new ConfigHandler(this);
-                config.loadConfigonStart();
-                Logger("Version: " + aktuelleVersion(), "Debug");
-                if (getConfig().getString("teleport.tpconfirm.de").equalsIgnoreCase("Bitte tippe /xpShop yes zum betaetigen.")) {
-                    Logger("Version == 8.1", "Debug");
-//                    getConfig().set("teleport.acceptconfirmdeny.de", "Bitte tippe /xpShop deny zum Ablehnen des Teleports.");
-                    getConfig().set("teleport.tpconfirm.de", "Bitte tippe /xpShop yestp zum betaetigen.");
-                    getConfig().set("teleport.tpconfirm.en", "Please execute the command /xpShop yestp to confirm the teleport.");
-                    getConfig().set("teleport.tpconfirmdeny.de", "Bitte tippe /xpShop notp um abzubrechen.");
-                    getConfig().set("teleport.tpconfirmdeny.en", "Please execute the command /xpShop notp to cancel the command.");
-                    saveConfig();
-                    reloadConfig();
-                    config.loadConfigonStart();
-                    config.reload();
-                }
-
-            } catch (Exception e1) {
-                Logger("Error on loading config: " + e1.getMessage(), "Error");
-                e1.printStackTrace();
-                Logger("Version: " + Version + " failed to enable!", "Error");
-                onDisable();
-            }
-        } else if (run == 3) {
-            if (config.Internet) {
-                try {
-                    String URL = "http://ibhh.de:80/aktuelleversion" + this.getDescription().getName() + ".html";
-                    UpdateAvailable(URL, Version);
-                    if (updateaviable) {
-                        Logger("New version: " + upd.getNewVersion(URL) + " found!", "Warning");
-                        Logger("******************************************", "Warning");
-                        Logger("*********** Please update!!!! ************", "Warning");
-                        Logger("* http://ibhh.de/xpShop.jar *", "Warning");
-                        Logger("******************************************", "Warning");
-                    }
-                } catch (Exception e) {
-                    Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
-                    Logger("may the mainserver is down!", "Error");
-                }
-            }
-        }
-
-    }
-
     public void install() {
         if (config.Internet) {
             forceUpdate();
@@ -700,6 +666,26 @@ public class xpShop extends JavaPlugin {
                                         if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
                                             Help.help(sender, args);
                                         }
+                                    } else if (args[0].equalsIgnoreCase("repairconfirm")) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                            repair.RepairConfirm(player);
+                                            return true;
+                                        }
+                                    } else if (args[0].equalsIgnoreCase("repaircancel")) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                            repair.RepairCancel(player);
+                                            return true;
+                                        }
+                                    } else if (args[0].equalsIgnoreCase("repair")) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                            repair.registerRepair(player, 0);
+                                        }
+                                        return true;
+                                    } else if (args[0].equalsIgnoreCase("toolinfo")) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                            PlayerLogger(player, String.format(getConfig().getString("Repair.damage." + config.language), repair.getDamage(player.getItemInHand()), repair.maxDurability(player.getItemInHand())), "");
+                                        }
+                                        return true;
                                     } else if (args[0].equalsIgnoreCase("reload")) {
                                         if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
                                             PlayerLogger(player, "Please wait: Reloading this plugin!", "Warning");
@@ -707,6 +693,7 @@ public class xpShop extends JavaPlugin {
                                             plugman.loadPlugin("xpShop");
                                             PlayerLogger(player, "Reloaded!", "");
                                         }
+                                        return true;
                                     } else if (args[0].equalsIgnoreCase("showdebug")) {
                                         if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
                                             if (DebugMsg.containsKey(player.getName())) {
@@ -939,7 +926,18 @@ public class xpShop extends JavaPlugin {
                                                 return true;
                                             }
                                             PlayerLogger(player, config.commanderrornoint, "Error");
-                                            return false;
+                                            return true;
+                                        }
+                                    }
+                                    if (args[0].equalsIgnoreCase("repair")) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                            if (Tools.isInteger(args[1])) {
+                                                repair.registerRepair(player, Integer.parseInt(args[1]));
+                                                return true;
+                                            } else {
+                                                PlayerLogger(player, config.commanderrornoint, "Error");
+                                                return true;
+                                            }
                                         }
                                     }
                                     if (ActionxpShop.equals("bottle")) {
@@ -1520,7 +1518,7 @@ public class xpShop extends JavaPlugin {
                 }
             }
             if (playerManager != null) {
-                playerManager.BroadcastMsg("xpShop.gamemsg", "Player: " + p.getName() + " Error: " + msg);
+                playerManager.BroadcastconsoleMsg("xpShop.gamemsg", "Player: " + p.getName() + " Error: " + msg);
             }
         } else {
             if (config.UsePrefix) {
@@ -1535,7 +1533,7 @@ public class xpShop extends JavaPlugin {
                 }
             }
             if (playerManager != null) {
-                playerManager.BroadcastMsg("xpShop.gamemsg", "Player: " + p.getName() + " " + msg);
+                playerManager.BroadcastconsoleMsg("xpShop.gamemsg", "Player: " + p.getName() + " " + msg);
             }
         }
     }

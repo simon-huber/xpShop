@@ -1,5 +1,5 @@
 name: xpShop
-version: 8.5
+version: 8.7
 description: Managing of players XP
 author: ibhh
 website: http://ibhh.de/xpShop.jar
@@ -34,6 +34,7 @@ permissions:
       xpShop.tpto: false
       xpShop.tpme: false
       xpShop.tp: false
+      xpShop.update: false
     default: false
   xpShop.buy:
     description: Allows you to buy xp.
@@ -94,4 +95,7 @@ permissions:
     default: false
   xpShop.tp:
     description: Allows you to accept a teleport.
+    default: false
+  xpShop.update:
+    description: Allows you to update the plugin ingame.
     default: false

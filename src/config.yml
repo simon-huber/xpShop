@@ -90,6 +90,46 @@ BottleFilling:
   notenoughbottles:
     de: Du hast keine %1$d Flaschen!
     en: You havent got %1$d bottles!
+Repair:
+  RegisterRepair1:
+    de: Willst Du wirklich das Item %1$s fuer %2$d %3$s reparieren?
+    en: Do you want to repair the item %1$s with %2$d %3$s?
+  RegisterRepair2:
+    de: Bestaetige mit /xpShop repairconfirm oder lehne mit /xpShop repaircancel ab.
+    en: Confirm with /xpShop repairconfirm or cancel with /xpShop repaircancel.
+  RegisterRepair3:
+    de: Die Anfrage laeuft in %1$d Sekunden aus.
+    en: The command times out in %1$d seconds.
+  TimedOut:
+    de: Die Anfrage ist abgelaufen.
+    en: The command timed out.
+  NotEnoughXP:
+    de: Du hast nicht genuegend %2$s um dieses Item fuer %1$d %2$s zu reparieren.
+    en: You havent got enough %2$s to repair this item for %1$d %2$s.
+  CommandConfirmed:
+    de: Bestaetigt.
+    en: Confirmed.
+  CommandCanceled:
+    de: Abgebrochen.
+    en: Canceled.
+  NoCommand:
+    de: Kein Befehl vorhanden.
+    en: no command registered.
+  WrongAmount:
+    de: Falscher Reperaturwert, da er die maximale Haltbarkeit ueberschreitet.
+    en: Wrong Amount because its exeeded the maximal durability.
+  alreadyCommandRegistered:
+    de: Du fuehrst bereits einen Befehl aus.
+    en: You have already registered a command. 
+  executed:
+    de: Item repariert.
+    en: The items had been repaired.
+  damage:
+    de: Das Tool hat %1$d/%2$d Schaden.
+    en: The tool has %1$d/%2$d damage.
+  notool:
+    de: Dies ist kein Tool!
+    en: That is no tool!
 teleport:
   xpperblock: 1
   teleportstopped:
@@ -575,3 +615,31 @@ help:
         de: Zeigt alle xpShop meldungen
         en: Shows every message.
       usage: /xpShop showdebug
+    repair:
+      name: repair
+      permission: xpShop.repair
+      description:
+        de: Repariert tools
+        en: Repairs tools.
+      usage: /xpShop repair [damage]
+    repairconfirm:
+      name: repairconfirm
+      permission: xpShop.repair
+      description:
+        de: Bestaetigt den Befehl zum Reparieren
+        en: Confirms the command to reparieren.
+      usage: /xpShop repairconfirm
+    repaircancel:
+      name: repaircancel
+      permission: xpShop.repair
+      description:
+        de: Bricht den Befehl zum Reparieren ab.
+        en: Cancels the command to reparieren.
+      usage: /xpShop repaircancel
+    toolinfo:
+      name: toolinfo
+      permission: xpShop.toolinfo
+      description:
+        de: Zeigt den Schaden eines Tools.
+        en: Shows damge of a tool.
+      usage: /xpShop toolinfo
