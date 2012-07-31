@@ -53,6 +53,9 @@ public class PermissionsChecker {
     }
 
     public boolean checkpermissionssilent(Player player, String action) {
+        if(plugin.toggle){
+            return false;
+        }
         try {
             if (player.isOp()) {
                 return true;
@@ -116,7 +119,6 @@ public class PermissionsChecker {
                     return false;
                 }
             } else {
-                plugin.PlayerLogger(player, player.getName() + " " + plugin.getConfig().getString("permissions.error." + plugin.getConfig().getString("language")) + " (" + action + ")", "Error");
                 System.out.println("PermissionsEx plugin are not found.");
                 return false;
             }
@@ -129,6 +131,9 @@ public class PermissionsChecker {
     }
 
     public boolean checkpermissions(Player player, String action) {
+        if(plugin.toggle){
+            return false;
+        }
         try {
             if (player.isOp()) {
                 return true;

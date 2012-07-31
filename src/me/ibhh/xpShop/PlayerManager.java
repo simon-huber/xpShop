@@ -20,6 +20,9 @@ public class PlayerManager {
 
     public int BroadcastMsg(String Permission, String msg) {
         int BroadcastedPlayers = 0;
+        if(plugin.toggle){
+            return 0;
+        }
         try {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 if (plugin.PermissionsHandler != null) {
@@ -37,6 +40,9 @@ public class PlayerManager {
 
     public int BroadcastconsoleMsg(String Permission, String msg) {
         int BroadcastedPlayers = 0;
+        if(plugin.toggle){
+            return 0;
+        }
         try {
             for (Player player : plugin.getServer().getOnlinePlayers()) {
                 if (plugin.PermissionsHandler != null) {
