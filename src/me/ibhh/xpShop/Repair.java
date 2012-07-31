@@ -61,26 +61,26 @@ public class Repair {
                 mode1 = "Money";
             }
             configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.OXYGEN", 1);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.PROTECTION_ENVIRONMENTAL", 2);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.PROTECTION_EXPLOSIONS", 3);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.PROTECTION_FALL", 2);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.PROTECTION_FIRE", 2);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.PROTECTION_ENVIRONMENTAL", 1.5);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.PROTECTION_EXPLOSIONS", 2);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.PROTECTION_FALL", 1.3);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.PROTECTION_FIRE", 1.4);
             configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.PROTECTION_PROJECTILE", 1);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.SILK_TOUCH", 3);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.WATER_WORKER", 2);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.SILK_TOUCH", 2);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.WATER_WORKER", 1.6);
             configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.ARROW_DAMAGE", 1);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.ARROW_FIRE", 2);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.ARROW_INFINITE", 3);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.ARROW_FIRE", 1.4);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.ARROW_INFINITE", 2.2);
             configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.ARROW_KNOCKBACK", 2);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.DAMAGE_ALL", 3);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.DAMAGE_ARTHROPODS", 2);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.DAMAGE_UNDEAD", 2);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.DIG_SPEED", 2);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.DURABILITY", 2);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.FIRE_ASPECT", 2);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.KNOCKBACK", 2);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.LOOT_BONUS_BLOCKS", 2);
-            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.LOOT_BONUS_MOBS", 2);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.DAMAGE_ALL", 2.5);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.DAMAGE_ARTHROPODS", 1.2);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.DAMAGE_UNDEAD", 1.2);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.DIG_SPEED", 1.5);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.DURABILITY", 1.5);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.FIRE_ASPECT", 1.8);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.KNOCKBACK", 1.3);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.LOOT_BONUS_BLOCKS", 2.5);
+            configuration.addDefault("Repair.Enchantment." + mode1 + ".Factor.LOOT_BONUS_MOBS", 1.2);
         }
         try {
             configuration.save(configurationFile);
@@ -134,8 +134,10 @@ public class Repair {
         double ret = 0;
         for (Enchantment ench : Enchantment.values()) {
             if (i.containsEnchantment(ench)) {
-                plugin.Logger("items contains enchantment: " + ench.getName(), "Debug");
-                double a = configuration.getDouble("Repair.Enchantment." + mode1 + ".Factor." + ench.getName()) * i.getEnchantmentLevel(ench) * repairAmount;
+                plugin.Logger("items contains enchantment: " + ench.getName() + " level " + i.getEnchantmentLevel(ench), "Debug");
+                double b = configuration.getDouble("Repair.Enchantment." + mode1 + ".Factor." + ench.getName());
+                plugin.Logger("extracost of " + ench.getName()  + ": " + b, "Debug");
+                double a = (b + i.getEnchantmentLevel(ench)) * (repairAmount / i.getEnchantments().size());
                 plugin.Logger("Extra costs: " + a, "Debug");
                 ret = ret + a;
                 plugin.Logger("new amount ret = " + ret, "Debug");
@@ -249,7 +251,7 @@ public class Repair {
                 ItemStack i = item.get(player);
                 int damage = getDurability(i);
                 plugin.Logger("Tool: " + i.getType().name() + " damage: " + damage + " maxDurability: " + maxDurability(i) + " repairdamage: " + repairdamage.get(player), "Debug");
-                if (damage - repairdamage.get(player) <= 0) {
+                if (damage - repairdamage.get(player) >= 0) {
                     setDurability(i, damage - repairdamage.get(player));
                     if (mode) {
                         plugin.UpdateXP(player, -executer.get(player), "Repair");

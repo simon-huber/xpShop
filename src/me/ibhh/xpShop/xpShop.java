@@ -103,10 +103,15 @@ public class xpShop extends JavaPlugin {
         "infoxpother",
         "infolevelown",
         "infolevelother",
+        "toolinfo",
+        "repair",
+        "grand",
+        "showdebug",
         "debugfile",
         "internet",
         "version",
         "update",
+        "reload",
         "deletedebug",
         "log",
         "toggle",
@@ -114,18 +119,14 @@ public class xpShop extends JavaPlugin {
         "language",
         "resetplayer",
         "setXP",
-        "grand",
         "tpto",
         "tpme",
         "yestp",
         "notp",
         "accept",
         "deny",
-        "showdebug",
-        "repair",
         "repaircancel",
-        "repairconfirm",
-        "toolinfo"
+        "repairconfirm"
     };
     public TeleportManager TP;
 
