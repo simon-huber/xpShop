@@ -72,8 +72,6 @@ public class xpShop extends JavaPlugin {
     public String Blacklistcode = "0000000000000";
     public String Blacklistmsg;
     public SQLConnectionHandler SQL;
-    public String versionsfile = "http://ibhh.de:80/aktuelleversionxpShop.html";
-    public String jarfile = "http://ibhh.de:80/xpShop.jar";
     public static boolean updateaviable = false;
     public PermissionsChecker PermissionsHandler;
     public iConomyHandler MoneyHandler;
@@ -267,7 +265,10 @@ public class xpShop extends JavaPlugin {
             public void run() {
                 if (config.Internet) {
                     Logger("Searching update for xpShop!", "Debug");
-                    newversion = upd.getNewVersion("http://ibhh.de:80/aktuelleversionxpShop.html");
+                    newversion = upd.checkUpdate();
+                    if (newversion == -1) {
+                        newversion = aktuelleVersion();
+                    }
                     Logger("installed xpShop version: " + Version + ", latest version: " + newversion, "Debug");
                     if (newversion > Version) {
                         Logger("New version: " + newversion + " found!", "Warning");
@@ -310,7 +311,7 @@ public class xpShop extends JavaPlugin {
                     String URL = "http://ibhh.de:80/aktuelleversion" + this.getDescription().getName() + ".html";
                     UpdateAvailable(URL, Version);
                     if (updateaviable) {
-                        Logger("New version: " + upd.getNewVersion(URL) + " found!", "Warning");
+                        Logger("New version: " + upd.checkUpdate() + " found!", "Warning");
                         Logger("******************************************", "Warning");
                         Logger("*********** Please update!!!! ************", "Warning");
                         Logger("* http://ibhh.de/xpShop.jar *", "Warning");
@@ -353,19 +354,13 @@ public class xpShop extends JavaPlugin {
      * @param type
      * @return true if successfully downloaded xpShop
      */
-    public boolean autoUpdate(final String url, final String path, final String name, final String type) {
+    public boolean autoUpdate(final String path) {
         if (config.Internet) {
             try {
-                upd.autoDownload(url, path, name, type);
+                upd.download(path);
             } catch (Exception e) {
                 Logger("Error on doing blacklist update! Message: " + e.getMessage(), "Error");
                 Logger("may the mainserver is down!", "Error");
-                try {
-                    upd.autoDownload(url, path + "xpShop" + File.separator, name, type);
-                } catch (Exception ex) {
-                    Logger("Error on doing update! Message: " + ex.getMessage(), "Error");
-                    Logger("may the mainserver is down!", "Error");
-                }
             }
         }
         return true;
@@ -378,7 +373,7 @@ public class xpShop extends JavaPlugin {
         if (config.Internet) {
             try {
                 if (updateaviable) {
-                    Logger("New version: " + upd.getNewVersion(versionsfile) + " found!", "Warning");
+                    Logger("New version: " + newversion + " found!", "Warning");
                     Logger("******************************************", "Warning");
                     Logger("*********** Please update!!!! ************", "Warning");
                     Logger("* http://ibhh.de/xpShop.jar *", "Warning");
@@ -387,7 +382,7 @@ public class xpShop extends JavaPlugin {
                         if (getConfig().getBoolean("autodownload")) {
                             try {
                                 String path = "plugins" + File.separator + "xpShop" + File.separator;
-                                if (autoUpdate("http://ibhh.de/xpShop.jar", path, "xpShop.jar", "forceupdate")) {
+                                if (upd.download(path)) {
                                     Logger("Downloaded new Version!", "Warning");
                                 } else {
                                     Logger(" Cant download new Version!", "Warning");
@@ -400,7 +395,7 @@ public class xpShop extends JavaPlugin {
                         if (getConfig().getBoolean("installondownload")) {
                             try {
                                 String path = "plugins" + File.separator;
-                                if (autoUpdate("http://ibhh.de/xpShop.jar", path, "xpShop.jar", "forceupdate")) {
+                                if (upd.download(path)) {
                                     Logger("Downloaded new Version!", "Warning");
                                     Logger("xpShop will be updated on the next restart!", "Warning");
                                 } else {
@@ -421,15 +416,6 @@ public class xpShop extends JavaPlugin {
             }
         }
 
-    }
-
-    public void downloadVault() {
-        try {
-            String path = "plugins/";
-            upd.autoDownload("http://ibhh.de/Vault.jar", path, "Vault.jar", "forceupdate");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -471,7 +457,7 @@ public class xpShop extends JavaPlugin {
                     if (updateaviable) {
                         try {
                             String path = "plugins" + File.separator;
-                            if (autoUpdate("http://ibhh.de/xpShop.jar", path, "xpShop.jar", "forceupdate")) {
+                            if (upd.download(path)) {
                                 Logger("Downloaded new Version!", "Warning");
                                 Logger("xpShop will be updated on the next restart!", "Warning");
                             } else {
@@ -515,7 +501,7 @@ public class xpShop extends JavaPlugin {
     public void UpdateAvailable(final String url, final float currVersion) {
         if (config.Internet) {
             try {
-                if (upd.getNewVersion(versionsfile) > currVersion) {
+                if (upd.checkUpdate() > currVersion) {
                     xpShop.updateaviable = true;
                 }
                 if (updateaviable) {
@@ -601,10 +587,23 @@ public class xpShop extends JavaPlugin {
 
     public void install() {
         if (config.Internet) {
-            forceUpdate();
+            try {
+                String path = "plugins" + File.separator;
+                if (upd.download(path)) {
+                    Logger("Downloaded new Version!", "Warning");
+                    Logger("xpShop will be updated on the next restart!", "Warning");
+                } else {
+                    Logger(" Cant download new Version!", "Warning");
+                }
+            } catch (Exception e) {
+                Logger("Error on donwloading new Version!", "Error");
+                e.printStackTrace();
+            }
         }
-        Logger("Found Update! Installing now because of 'installondownload = true', please wait!", "Warning");
-        playerManager.BroadcastMsg("xpShop.update", "Found Update! Installing now because of 'installondownload = true', please wait!");
+        if (getConfig().getBoolean("installondownload")) {
+            Logger("Found Update! Installing now because of 'installondownload = true', please wait!", "Warning");
+            playerManager.BroadcastMsg("xpShop.update", "Found Update! Installing now because of 'installondownload = true', please wait!");
+        }
         try {
             plugman.unloadPlugin("xpShop");
         } catch (NoSuchFieldException ex) {
@@ -1294,7 +1293,7 @@ public class xpShop extends JavaPlugin {
                         if (args.length == 1) {
                             if (args[0].equalsIgnoreCase("download")) {
                                 String path = "plugins" + File.separator;
-                                autoUpdate("http://ibhh.de/xpShop.jar", path, "xpShop.jar", "forceupdate");
+                                upd.download(path);
                                 Logger("Downloaded new Version!", "Warning");
                                 Logger("xpShop will be updated on the next restart!", "Warning");
                                 return true;

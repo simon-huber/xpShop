@@ -74,9 +74,8 @@ public class iConomyHandler {
                     iConomyversion = 6;
                     plugin.Logger("hooked into iConomy6", "Debug");
                 } else {
-                    plugin.Logger("cant hook into iConomy5, iConomy6, Vault or Register. Downloading Vault!", "");
-                    plugin.Logger(" ************ Please configure Vault!!!!! **********", "Warning");
-                    plugin.downloadVault();
+                    plugin.Logger("cant hook into iConomy5, iConomy6, Vault or Register.!", "");
+                    plugin.Logger(" ************ Please download and configure Vault!!!!! **********", "Warning");
                 }
             } catch (Exception E) {
                 E.printStackTrace();

