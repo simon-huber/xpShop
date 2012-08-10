@@ -231,7 +231,7 @@ public class SignHandler {
             if (!playername.equalsIgnoreCase(line[1])) {
                 if (plugin.SQL.isindb(line[1])) {
                     int XPPlayer = plugin.SQL.getXP(playername);
-                    double xptemp = plugin.getTOTALXP(player);
+                    double xptemp = player.getTotalExperience();
                     if (xptemp != XPPlayer) {
                         plugin.SQL.UpdateXP(playername, (int) xptemp);
                     }
@@ -282,7 +282,7 @@ public class SignHandler {
             if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
                 plugin.MoneyHandler.substract(price, player);
                 if (plugin.config.usedbtomanageXP) {
-                    plugin.SQL.UpdateXP(player.getName(), (int) (Integer.parseInt(line[2]) + plugin.getTOTALXP(player)));
+                    plugin.SQL.UpdateXP(player.getName(), (int) (Integer.parseInt(line[2]) + player.getTotalExperience()));
                 }
                 plugin.UpdateXP(player, (Integer.parseInt(s.getLine(2))), "Sign");
                 plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), "Admin", price), "");
@@ -305,7 +305,7 @@ public class SignHandler {
             Player empfaenger = plugin.getmyOfflinePlayer(line, 1);
             if (empfaenger != null) {
                 if (plugin.config.getPlayerConfig(empfaenger, player)) {
-                    if (plugin.getTOTALXP(empfaenger) >= Integer.parseInt(line[2])) {
+                    if (empfaenger.getTotalExperience() >= Integer.parseInt(line[2])) {
                         if (plugin.ListenerShop.getPrice(s, player, true) > 0) {
                             double price = plugin.ListenerShop.getPrice(s, player, true);
                             if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
@@ -345,7 +345,7 @@ public class SignHandler {
             if (!playername.equalsIgnoreCase(line[1])) {
                 if (plugin.SQL.isindb(line[1])) {
                     int XPPlayer = plugin.SQL.getXP(playername);
-                    double xptemp = plugin.getTOTALXP(player);
+                    double xptemp = player.getTotalExperience();
                     if (xptemp != XPPlayer) {
                         plugin.Logger("Updating XP before buy on Sign because some differences!", "");
                         plugin.SQL.UpdateXP(playername, (int) xptemp);
@@ -448,7 +448,7 @@ public class SignHandler {
             Player empfaenger = plugin.getmyOfflinePlayer(line, 1);
             if (empfaenger != null) {
                 if (plugin.config.getPlayerConfig(empfaenger, player)) {
-                    if (plugin.getTOTALXP(player) >= Integer.parseInt(line[2])) {
+                    if (player.getTotalExperience() >= Integer.parseInt(line[2])) {
                         if (plugin.ListenerShop.getPrice(s, player, false) > 0) {
                             double price = plugin.ListenerShop.getPrice(s, player, false);
                             if ((plugin.MoneyHandler.getBalance(empfaenger) - price) >= 0) {
@@ -536,12 +536,12 @@ public class SignHandler {
         plugin.Logger("Line 2: " + line[1], "Debug");
         plugin.Logger("Line 3: " + line[2], "Debug");
         plugin.Logger("Line 4: " + line[3], "Debug");
-        if (plugin.getTOTALXP(player) >= Integer.parseInt(line[2])) {
+        if (player.getTotalExperience() >= Integer.parseInt(line[2])) {
             if (plugin.ListenerShop.getPrice(s, player, false) > 0) {
                 double price = plugin.ListenerShop.getPrice(s, player, false);
                 plugin.MoneyHandler.addmoney(price, player);
                 if (plugin.config.usedbtomanageXP) {
-                    plugin.SQL.UpdateXP(player.getName(), (int) (plugin.getTOTALXP(player) - Integer.parseInt(line[2])));
+                    plugin.SQL.UpdateXP(player.getName(), (int) (player.getTotalExperience() - Integer.parseInt(line[2])));
                 }
                 plugin.UpdateXP(player, -(Integer.parseInt(s.getLine(2))), "Sign");
                 plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccesssell, s.getLine(2), "Admin", price), "");
@@ -564,7 +564,7 @@ public class SignHandler {
             Player empfaenger = plugin.getmyOfflinePlayer(line, 1);
             if (empfaenger != null) {
                 if (plugin.config.getPlayerConfig(empfaenger, player)) {
-                    if (plugin.getTOTALXP(player) >= Integer.parseInt(line[2])) {
+                    if (player.getTotalExperience() >= Integer.parseInt(line[2])) {
                         if (plugin.ListenerShop.getPrice(s, player, false) > 0) {
                             double price = plugin.ListenerShop.getPrice(s, player, false);
                             if ((plugin.MoneyHandler.getBalance(empfaenger) - price) >= 0) {

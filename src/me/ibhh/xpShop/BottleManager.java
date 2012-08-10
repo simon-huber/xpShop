@@ -76,7 +76,7 @@ public class BottleManager {
 
     public boolean registerCommandXPBottles(final Player player, int anzahl) {
         if (!Playermap.containsKey(player)) {
-            if (plugin.getTOTALXP(player) >= anzahl * plugin.getConfig().getInt("XPperBottle")) {
+            if (player.getTotalExperience() >= anzahl * plugin.getConfig().getInt("XPperBottle")) {
                 if (hasEnoughBottles(player, anzahl)) {
                     Playermap.put(player, anzahl);
                     plugin.Logger("Player: " + player.getName() + " has enough XP to fill " + anzahl + " Bottles (each " + plugin.getConfig().getInt("XPperBottle") + " XP)", "Debug");
@@ -118,11 +118,11 @@ public class BottleManager {
 
     public void confirmChange(Player player) {
         int anzahl = Playermap.get(player);
-        if (plugin.getTOTALXP(player) >= anzahl * plugin.getConfig().getInt("XPperBottle")) {
+        if (player.getTotalExperience() >= anzahl * plugin.getConfig().getInt("XPperBottle")) {
             if (hasEnoughBottles(player, anzahl)) {
                 plugin.UpdateXP(player, -anzahl * plugin.getConfig().getInt("XPperBottle"), "Bottle");
                 if (plugin.config.usedbtomanageXP) {
-                    plugin.SQL.UpdateXP(player.getName(), ((int) (plugin.getTOTALXP(player) - anzahl * plugin.getConfig().getInt("XPperBottle"))));
+                    plugin.SQL.UpdateXP(player.getName(), ((int) (player.getTotalExperience() - anzahl * plugin.getConfig().getInt("XPperBottle"))));
                 }
                 executeCommandXPBottles(player, anzahl);
                 if (Playermap.containsKey(player)) {

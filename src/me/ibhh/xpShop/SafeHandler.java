@@ -175,7 +175,7 @@ public class SafeHandler {
                     s.update();
                     plugin.PlayerLogger(p, String.format(plugin.config.safestore, Integer.parseInt(s.getLine(3))), "");
                 } else {
-                    plugin.PlayerLogger(p, String.format(plugin.config.safenotenoughxptostore, (int) plugin.getTOTALXP(p)), "Error");
+                    plugin.PlayerLogger(p, String.format(plugin.config.safenotenoughxptostore, p.getTotalExperience()), "Error");
                 }
             } else {
                 plugin.PlayerLogger(p, line[1] + " " + plugin.config.playerwasntonline, "Error");
@@ -187,7 +187,7 @@ public class SafeHandler {
     }
 
     public void xpShopSafeSignStore(String[] line, Player p, Sign s) {
-        if (plugin.getTOTALXP(p) >= Integer.parseInt(line[3]) && line[2] != null) {
+        if (p.getTotalExperience() >= Integer.parseInt(line[3]) && line[2] != null) {
             plugin.UpdateXP(p, -(Integer.parseInt(s.getLine(3))), "Safe");
             p.saveData();
             int Erg = Integer.parseInt(line[2]) + Integer.parseInt(line[3]);
@@ -198,7 +198,7 @@ public class SafeHandler {
             s.update();
             plugin.PlayerLogger(p, String.format(plugin.config.safestore, Integer.parseInt(s.getLine(3))), "");
         } else {
-            plugin.PlayerLogger(p, String.format(plugin.config.safenotenoughxptostore, (int) plugin.getTOTALXP(p)), "Error");
+            plugin.PlayerLogger(p, String.format(plugin.config.safenotenoughxptostore, p.getTotalExperience()), "Error");
         }
     }
 

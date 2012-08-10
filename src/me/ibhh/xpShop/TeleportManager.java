@@ -33,7 +33,7 @@ public class TeleportManager {
             exec.put(executer.getName(), executer);
             int xpneeded = (int) (plugin.getEntfernung(executer.getLocation(), destinator.getLocation()) * plugin.getConfig().getDouble("teleport.xpperblock"));
             int entfernung = plugin.getEntfernung(destinator.getLocation(), executer.getLocation());
-            if (plugin.getTOTALXP(executer) >= xpneeded) {
+            if (executer.getTotalExperience() >= xpneeded) {
                 plugin.Logger("Player: " + executer.getName() + " has enough XP", "Debug");
 //                plugin.PlayerLogger(player2, String.format(plugin.getConfig().getString("teleport.teleportrequesttoplayer." + plugin.config.language), player2.getName(), plugin.getConfig().getInt("Cooldownoftp")), "");
 //                plugin.PlayerLogger(executer, String.format(plugin.getConfig().getString("teleport.teleportmustbeaccepted." + plugin.config.language), player2.getName(), plugin.getConfig().getInt("Cooldownoftp")), "");
@@ -65,7 +65,7 @@ public class TeleportManager {
         Player teleporter = exec.get(requestedname.get(accepter.getName()));
         int entfernung = plugin.getEntfernung(accepter.getLocation(), teleporter.getLocation());
         int xpneeded = (int) (entfernung * plugin.getConfig().getDouble("teleport.xpperblock"));
-        if (plugin.getTOTALXP(teleporter) >= xpneeded) {
+        if (teleporter.getTotalExperience() >= xpneeded) {
             plugin.UpdateXP(teleporter, -xpneeded, "teleport");
             requested.remove(accepter.getName());
             requestedname.remove(accepter.getName());
@@ -84,10 +84,10 @@ public class TeleportManager {
         Player teleporter = exec.get(requestedname.get(accepter.getName()));
         int entfernung = plugin.getEntfernung(accepter.getLocation(), teleporter.getLocation());
         int xpneeded = (int) (entfernung * plugin.getConfig().getDouble("teleport.xpperblock"));
-        if (plugin.getTOTALXP(teleporter) >= xpneeded) {
+        if (teleporter.getTotalExperience() >= xpneeded) {
             plugin.UpdateXP(teleporter, -xpneeded, "teleport");
             if (plugin.config.usedbtomanageXP) {
-                plugin.SQL.UpdateXP(teleporter.getName(), ((int) (plugin.getTOTALXP(teleporter) - xpneeded)));
+                plugin.SQL.UpdateXP(teleporter.getName(), ((int) (teleporter.getTotalExperience() - xpneeded)));
             }
             requested.remove(accepter.getName());
             requestedname.remove(accepter.getName());

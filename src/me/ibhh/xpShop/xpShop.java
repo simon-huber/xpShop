@@ -147,9 +147,8 @@ public class xpShop extends JavaPlugin {
     public void onDisable() {
         toggle = true;
         long timetemp = System.currentTimeMillis();
-        String URL = "http://ibhh.de:80/aktuelleversion" + this.getDescription().getName() + ".html";
         if (config.Internet) {
-            UpdateAvailable(URL, Version);
+            UpdateAvailable(Version);
         }
         if (config.usedbtomanageXP) {
             SQL.CloseCon();
@@ -234,7 +233,7 @@ public class xpShop extends JavaPlugin {
                         int XP = 0;
                         int neu = 0;
                         for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-                            XP = (int) xpShop.this.getTOTALXP(p);
+                            XP = p.getTotalExperience();
                             try {
                                 neu = xpShop.this.SQL.getXP(p.getName());
                             } catch (SQLException ex) {
@@ -264,24 +263,29 @@ public class xpShop extends JavaPlugin {
             @Override
             public void run() {
                 if (config.Internet) {
-                    Logger("Searching update for xpShop!", "Debug");
-                    newversion = upd.checkUpdate();
-                    if (newversion == -1) {
-                        newversion = aktuelleVersion();
-                    }
-                    Logger("installed xpShop version: " + Version + ", latest version: " + newversion, "Debug");
-                    if (newversion > Version) {
-                        Logger("New version: " + newversion + " found!", "Warning");
-                        Logger("******************************************", "Warning");
-                        Logger("*********** Please update!!!! ************", "Warning");
-                        Logger("* http://ibhh.de/xpShop.jar *", "Warning");
-                        Logger("******************************************", "Warning");
-                        xpShop.updateaviable = true;
-                        if (getConfig().getBoolean("installondownload")) {
-                            install();
+                    try {
+                        Logger("Searching update for xpShop!", "Debug");
+                        newversion = upd.checkUpdate();
+                        if (newversion == -1) {
+                            newversion = aktuelleVersion();
                         }
-                    } else {
-                        Logger("No update found!", "Debug");
+                        Logger("installed xpShop version: " + Version + ", latest version: " + newversion, "Debug");
+                        if (newversion > Version) {
+                            Logger("New version: " + newversion + " found!", "Warning");
+                            Logger("******************************************", "Warning");
+                            Logger("*********** Please update!!!! ************", "Warning");
+                            Logger("* http://ibhh.de/xpShop.jar *", "Warning");
+                            Logger("******************************************", "Warning");
+                            xpShop.updateaviable = true;
+                            if (getConfig().getBoolean("installondownload")) {
+                                install();
+                            }
+                        } else {
+                            Logger("No update found!", "Debug");
+                        }
+                    } catch (Exception e) {
+                        Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
+                        Logger("may the mainserver is down!", "Error");
                     }
                 }
             }
@@ -308,8 +312,7 @@ public class xpShop extends JavaPlugin {
             repair = new Repair(this);
             if (config.Internet) {
                 try {
-                    String URL = "http://ibhh.de:80/aktuelleversion" + this.getDescription().getName() + ".html";
-                    UpdateAvailable(URL, Version);
+                    UpdateAvailable(Version);
                     if (updateaviable) {
                         Logger("New version: " + upd.checkUpdate() + " found!", "Warning");
                         Logger("******************************************", "Warning");
@@ -415,7 +418,6 @@ public class xpShop extends JavaPlugin {
                 Logger("may the mainserver is down!", "Error");
             }
         }
-
     }
 
     /**
@@ -452,8 +454,7 @@ public class xpShop extends JavaPlugin {
                     Blacklistmsg = temp[2];
                     Logger("Your version is blacklisted because of bugs, after restart an bugfix will be installed!", "Warning");
                     Logger("Reason: " + Blacklistmsg, "Warning");
-                    String URL = "http://ibhh.de:80/aktuelleversion" + xpShop.this.getDescription().getName() + ".html";
-                    UpdateAvailable(URL, Version);
+                    UpdateAvailable(Version);
                     if (updateaviable) {
                         try {
                             String path = "plugins" + File.separator;
@@ -498,7 +499,7 @@ public class xpShop extends JavaPlugin {
      *
      * @param url from newVersion file + currentVersion
      */
-    public void UpdateAvailable(final String url, final float currVersion) {
+    public void UpdateAvailable(final float currVersion) {
         if (config.Internet) {
             try {
                 if (upd.checkUpdate() > currVersion) {
@@ -955,7 +956,7 @@ public class xpShop extends JavaPlugin {
                                             if (teler != null) {
                                                 int entfernung = getEntfernung(player.getLocation(), teler.getLocation());
                                                 int xpneeded = (int) (getEntfernung(player.getLocation(), teler.getLocation()) * getConfig().getDouble("teleport.xpperblock"));
-                                                if (getTOTALXP(player) >= xpneeded) {
+                                                if (player.getTotalExperience() >= xpneeded) {
                                                     if (commandexec.containsKey(player)) {
                                                         PlayerLogger(player, getConfig().getString("teleport.teleportrequest1." + config.language), "Error");
                                                     } else {
@@ -992,7 +993,7 @@ public class xpShop extends JavaPlugin {
                                             if (teler != null) {
                                                 int entfernung = getEntfernung(player.getLocation(), teler.getLocation());
                                                 int xpneeded = (int) (getEntfernung(player.getLocation(), teler.getLocation()) * getConfig().getDouble("teleport.xpperblock"));
-                                                if (getTOTALXP(player) >= xpneeded) {
+                                                if (player.getTotalExperience() >= xpneeded) {
                                                     if (commandexec.containsKey(player)) {
                                                         PlayerLogger(player, getConfig().getString("teleport.teleportrequest1." + config.language), "Error");
                                                     } else {
@@ -1039,7 +1040,7 @@ public class xpShop extends JavaPlugin {
                                     } else if (ActionxpShop.equalsIgnoreCase("testsetxp")) {
                                         if (PermissionsHandler.checkpermissions(player, "xpShop.testsetxp")) {
                                             player.setTotalExperience(Integer.parseInt(args[1]));
-                                            PlayerLogger(player, "This are: " + getTOTALXP(player), "");
+                                            PlayerLogger(player, "This are: " + player.getTotalExperience(), "");
                                             temptime = (System.nanoTime() - temptime) / 1000000;
                                             Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
                                             return true;
@@ -1566,7 +1567,6 @@ public class xpShop extends JavaPlugin {
                             if (getServer().getPlayer(empfaenger) != null) {
                                 empfaenger1 = getServer().getPlayer(empfaenger);
                                 buy(empfaenger1, temp, false, "sendxp");
-                                empfaenger1.setTotalExperience((int) getTOTALXP(empfaenger1));
                                 PlayerLogger(empfaenger1, (String.format(config.commandsuccessrecievedxp, temp, playername)), "");
                             }
                         } catch (NullPointerException e) {
@@ -1597,7 +1597,6 @@ public class xpShop extends JavaPlugin {
                                 PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                                 return;
                             }
-                            empfaenger1.setTotalExperience((int) getTOTALXP(empfaenger1));
                             try {
                                 PlayerLogger(player, (String.format(config.commandsuccesssentxp, temp, args[1])), "");
                                 PlayerLogger(empfaenger1, (String.format(config.commandsuccessrecievedxp, temp, sender.getName())), "");
@@ -1629,7 +1628,7 @@ public class xpShop extends JavaPlugin {
         return exp;
     }
 
-    private static int nextLevelAt(int level) {
+    public static int nextLevelAt(int level) {
         if (level >= 30) {
             return 62 + (level - 30) * 7;
         }
@@ -1651,16 +1650,6 @@ public class xpShop extends JavaPlugin {
     }
 
     /**
-     * Get XP which a player has at this moment
-     *
-     * @param player
-     * @return value of XP of the player
-     */
-    public double getTOTALXP(Player player) {
-        return player.getTotalExperience();
-    }
-
-    /**
      * Updates the players amount (grands)
      *
      * @param sender
@@ -1669,11 +1658,12 @@ public class xpShop extends JavaPlugin {
      */
     public void UpdateXP(CommandSender sender, int amount, String von) {
         Player player = (Player) sender;
-        Logger("Old TOTALXP of " + player.getName() + ": " + getTOTALXP(player), "Debug");
+        Logger("Old TOTALXP of " + player.getName() + ": " + player.getTotalExperience(), "Debug");
         Logger("Old TOTALXP of (Bukkit) " + player.getName() + ": " + player.getTotalExperience(), "Debug");
-        double Expaktuell = getTOTALXP(player) + amount;
+        double Expaktuell = player.getTotalExperience() + amount;
         try {
             if (Expaktuell >= 0) {
+                player.setTotalExperience(0);
                 player.setExp(0);
                 player.setLevel(0);
                 player.giveExp((int) Expaktuell);
@@ -1683,8 +1673,7 @@ public class xpShop extends JavaPlugin {
         } catch (NumberFormatException ex) {
             PlayerLogger(player, "Invalid exp count: " + amount, "Error");
         }
-        player.setTotalExperience((int) Expaktuell);
-        Logger("New TOTALXP of " + player.getName() + ": " + getTOTALXP(player), "Debug");
+        Logger("New TOTALXP of " + player.getName() + ": " + player.getTotalExperience(), "Debug");
         Logger("New TOTALXP (Bukkit) of " + player.getName() + ": " + player.getTotalExperience(), "Debug");
     }
 
@@ -1736,7 +1725,7 @@ public class xpShop extends JavaPlugin {
         Player player = (Player) sender;
         if (!Blacklistcode.startsWith("1", 8)) {
             if (args.length == 1) {
-                PlayerLogger(player, String.format(config.infoownXP, (int) getTOTALXP(player)), "");
+                PlayerLogger(player, String.format(config.infoownXP, (int) player.getTotalExperience()), "");
             } else if (args.length == 2) {
                 if (config.usedbtomanageXP) {
                     try {
@@ -1763,7 +1752,7 @@ public class xpShop extends JavaPlugin {
                         }
                         if (empfaenger1 != null) {
                             if (empfaenger1.hasPlayedBefore()) {
-                                PlayerLogger(player, String.format(config.infootherXP, empfaenger1.getName(), (int) getTOTALXP(empfaenger1)), "");
+                                PlayerLogger(player, String.format(config.infootherXP, empfaenger1.getName(), empfaenger1.getTotalExperience()), "");
                             }
                         } else {
                             PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
@@ -1817,7 +1806,7 @@ public class xpShop extends JavaPlugin {
             if (valid) {
                 if (buyamount > 0) {
                     if (config.usedbtomanageXP) {
-                        SQL.UpdateXP(player.getName(), ((int) getTOTALXP(player) + buyamount));
+                        SQL.UpdateXP(player.getName(), ((int) player.getTotalExperience() + buyamount));
                     }
                     UpdateXP(sender, buyamount, "buy");
                     if (moneyactive) {
@@ -1865,7 +1854,7 @@ public class xpShop extends JavaPlugin {
                 return 0;
             }
             try {
-                double TOTAL = getTOTALXP(player);
+                double TOTAL = player.getTotalExperience();
                 int TOTALint = (int) TOTAL;
                 getmoney = config.xptomoney;
                 if (sellamount <= TOTAL) {
@@ -1916,7 +1905,7 @@ public class xpShop extends JavaPlugin {
             }
             double money1 = config.moneytoxp;
             double xpNeededForLevel = getLevelXP(levelamontbuy + level);
-            double xpAktuell = getTOTALXP(player);
+            double xpAktuell = player.getTotalExperience();
             double neededXP = xpNeededForLevel - xpAktuell;
             if (MoneyHandler.getBalance(player) < (money1 * neededXP)) {
                 PlayerLogger(player, "Stopped because of not having enough money!", "Error");
@@ -1960,7 +1949,7 @@ public class xpShop extends JavaPlugin {
                 int level = player.getLevel();
                 double money1 = config.moneytoxp;
                 double xpNeededForLevel = getLevelXP(level - levelamountsell);
-                double xpAktuell = getTOTALXP(player);
+                double xpAktuell = player.getTotalExperience();
                 double XP2Sell = xpAktuell - xpNeededForLevel;
                 if (XP2Sell >= 0) {
                     if (moneyactive) {

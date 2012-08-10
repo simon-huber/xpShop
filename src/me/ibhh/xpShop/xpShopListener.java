@@ -1,5 +1,6 @@
 package me.ibhh.xpShop;
 
+import com.griefcraft.scripting.ModuleLoader;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -34,10 +35,16 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void join(PlayerJoinEvent event) {
         if (!plugin.toggle) {
+            Player player = event.getPlayer();
+            plugin.Logger("Player " +event.getPlayer().getTotalExperience() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
+//            double y = 1.75 * (event.getPlayer().getLevel() + event.getPlayer().getExp()) * (event.getPlayer().getLevel() + event.getPlayer().getExp()) + 4.9997 * (event.getPlayer().getLevel() + event.getPlayer().getExp()) + 0.1327;
+//            event.getPlayer().setTotalExperience((int) y);
+            double t = plugin.getLevelXP(player.getLevel()) + (plugin.nextLevelAt(player.getLevel()) * player.getExp());
+            player.setTotalExperience((int) t);
+            plugin.Logger("After calculating: Player " +event.getPlayer().getTotalExperience() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
             if (plugin.config.usedbtomanageXP) {
                 String playername;
-                Player player = event.getPlayer();
-                double XP = plugin.getTOTALXP(player);
+                double XP = player.getTotalExperience();
                 double XPneu = XP;
                 playername = player.getName();
                 plugin.Logger("Playername (joined): " + playername, "Debug");
@@ -62,7 +69,6 @@ public class xpShopListener implements Listener {
                     player.setLevel(0);
                     player.setExp(0);
                     plugin.UpdateXP(player, (int) XPneu, "Join");
-                    player.setTotalExperience((int) plugin.getTOTALXP(player));
                     player.saveData();
                 }
             }
@@ -71,7 +77,7 @@ public class xpShopListener implements Listener {
                     if (plugin.updateaviable) {
                         plugin.PlayerLogger(event.getPlayer(), "installed xpShop version: " + plugin.Version + ", latest version: " + plugin.newversion, "Warning");
                         plugin.PlayerLogger(event.getPlayer(), "New xpShop update aviable: type \"/xpShop update\" to install!", "Warning");
-                        if(!plugin.getConfig().getBoolean("installondownload")){
+                        if (!plugin.getConfig().getBoolean("installondownload")) {
                             plugin.PlayerLogger(event.getPlayer(), "Please edit the config.yml if you wish that the plugin updates itself atomatically!", "Warning");
                         }
                     }
@@ -90,9 +96,13 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void Verzaubern(PlayerLevelChangeEvent event) {
         if (!plugin.toggle) {
-            plugin.Logger("Players Level changed: " + event.getPlayer().getName(), "Debug");
+            plugin.Logger("Players Level changed: " + event.getPlayer().getName() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
+            final Player player = event.getPlayer();
+            double t = plugin.getLevelXP(player.getLevel()) + (plugin.nextLevelAt(player.getLevel()) * player.getExp());
+            plugin.Logger("Players Level changed: new XP: " + t, "Debug");
+            player.setTotalExperience((int) t);
             if (plugin.config.usedbtomanageXP) {
-                final Player player = event.getPlayer();
+
                 final String playername = player.getName();
                 plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
 
@@ -100,11 +110,10 @@ public class xpShopListener implements Listener {
                     public void run() {
                         plugin.Logger("Saving new XP!", "Debug");
                         double XP;
-                        XP = plugin.getTOTALXP(player);
+                        XP = player.getTotalExperience();
                         plugin.SQL.UpdateXP(playername, (int) XP);
-                        player.setTotalExperience((int) plugin.getTOTALXP(player));
                         try {
-                            plugin.Logger("Player updated into db: " + playername + "With " + plugin.getTOTALXP(player) + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
+                            plugin.Logger("Player updated into db: " + playername + "With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
                         } catch (SQLException ex) {
                             Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -129,7 +138,7 @@ public class xpShopListener implements Listener {
     public void change(PlayerExpChangeEvent event) {
         if (!plugin.toggle) {
             if (plugin.config.debug) {
-                plugin.Logger("Players XP changed: " + event.getPlayer().getName(), "Debug");
+                plugin.Logger("Players XP changed: " + event.getPlayer().getName() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
             }
             if (plugin.config.usedbtomanageXP) {
 
@@ -141,11 +150,10 @@ public class xpShopListener implements Listener {
                     public void run() {
                         plugin.Logger("Saving new XP!", "Debug");
                         double XP;
-                        XP = plugin.getTOTALXP(player);
+                        XP = player.getTotalExperience();
                         plugin.SQL.UpdateXP(playername, (int) XP);
-                        player.setTotalExperience((int) plugin.getTOTALXP(player));
                         try {
-                            plugin.Logger("Player updated into db: " + playername + "With " + plugin.getTOTALXP(player) + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
+                            plugin.Logger("Player updated into db: " + playername + "With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
                         } catch (SQLException ex) {
                             Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -169,7 +177,6 @@ public class xpShopListener implements Listener {
                         player.setLevel(0);
                         try {
                             plugin.UpdateXP(player, plugin.SQL.getXP(player.getName()), "respawn");
-                            player.setTotalExperience((int) plugin.getTOTALXP(player));
                             plugin.Logger("Successfully saved XP in db!", "Debug");
                         } catch (SQLException ex) {
                             Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
@@ -194,18 +201,16 @@ public class xpShopListener implements Listener {
                     plugin.Logger("Keeping Levels!", "Debug");
                     double XP;
                     event.setKeepLevel(true);
-                    XP = plugin.getTOTALXP(player);
+                    XP = player.getTotalExperience();
                     plugin.SQL.UpdateXP(player.getName(), (int) XP);
-                    player.setTotalExperience((int) plugin.getTOTALXP(player));
                 } else {
                     plugin.Logger("Not keeping XP!", "Debug");
                     plugin.Logger("saving new XP in db!", "Debug");
-                    double XP = plugin.getTOTALXP(player);
+                    double XP = player.getTotalExperience();
                     plugin.UpdateXP(player, -((int) XP), "death");
                     plugin.SQL.UpdateXP(player.getName(), (int) 0);
-                    player.setTotalExperience((int) plugin.getTOTALXP(player));
                     try {
-                        plugin.Logger("Player updated into db: " + player.getName() + " With " + plugin.getTOTALXP(player) + " XP! DB: " + plugin.SQL.getXP(player.getName()), "Debug");
+                        plugin.Logger("Player updated into db: " + player.getName() + " With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(player.getName()), "Debug");
                     } catch (SQLException ex) {
                         Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -234,11 +239,10 @@ public class xpShopListener implements Listener {
                     public void run() {
                         plugin.Logger("Saving new XP!", "Debug");
                         double XP;
-                        XP = plugin.getTOTALXP(player);
+                        XP = player.getTotalExperience();
                         plugin.SQL.UpdateXP(playername, (int) XP);
-                        player.setTotalExperience((int) plugin.getTOTALXP(player));
                         try {
-                            plugin.Logger("Player updated into db: " + playername + "With " + plugin.getTOTALXP(player) + " XP! DB: " + plugin.SQL.getXP(player.getName()), "Debug");
+                            plugin.Logger("Player updated into db: " + playername + "With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(player.getName()), "Debug");
                         } catch (SQLException ex) {
                             Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -260,20 +264,19 @@ public class xpShopListener implements Listener {
                     public void run() {
                         plugin.Logger("Saving new XP after quit!", "Debug");
                         double XP;
-                        XP = plugin.getTOTALXP(player);
+                        XP = player.getTotalExperience();
                         try {
                             int temp = plugin.SQL.getXP(playername);
                             if (XP != temp) {
                                 plugin.Logger("Updating XP after quit because some differences!", "Debug");
                                 plugin.Logger("Difference: Player: " + XP + " Player: " + temp, "Debug");
                                 plugin.SQL.UpdateXP(playername, (int) XP);
-                                player.setTotalExperience((int) plugin.getTOTALXP(player));
                             }
                         } catch (SQLException ex) {
                             Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         try {
-                            plugin.Logger("Player updated into db: " + playername + "With " + plugin.getTOTALXP(player) + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
+                            plugin.Logger("Player updated into db: " + playername + "With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
                         } catch (SQLException ex) {
                             Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -477,11 +480,9 @@ public class xpShopListener implements Listener {
                             if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.create")) {
                                 plugin.PlayerLogger(p, "Destroying xpShopSafe!", "");
                                 plugin.UpdateXP(p, Integer.parseInt(line[2]), "destroy");
-                                p.setTotalExperience((int) plugin.getTOTALXP(p));
                                 if (plugin.config.usedbtomanageXP) {
                                     try {
                                         plugin.SQL.UpdateXP(p.getName(), plugin.SQL.getXP(p.getName()) + Integer.parseInt(line[2]));
-                                        p.setTotalExperience((int) plugin.getTOTALXP(p));
                                     } catch (SQLException ex) {
                                         Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
                                     }

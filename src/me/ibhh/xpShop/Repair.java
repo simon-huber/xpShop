@@ -189,7 +189,7 @@ public class Repair {
                 int cost = getXP_Price(i, amount);
                 boolean ok = false;
                 if (mode) {
-                    if (plugin.getTOTALXP(player) >= cost) {
+                    if (player.getTotalExperience() >= cost) {
                         ok = true;
                     }
                 } else {
@@ -239,7 +239,7 @@ public class Repair {
             plugin.PlayerLogger(player, plugin.getConfig().getString("Repair.CommandConfirmed." + plugin.config.language), "");
             boolean ok = false;
             if (mode) {
-                if (plugin.getTOTALXP(player) >= executer.get(player)) {
+                if (player.getTotalExperience() >= executer.get(player)) {
                     ok = true;
                 }
             } else {
