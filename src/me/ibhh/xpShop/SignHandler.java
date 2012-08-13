@@ -4,6 +4,7 @@
  */
 package me.ibhh.xpShop;
 
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -39,6 +40,7 @@ public class SignHandler {
                     if (!line[1].equalsIgnoreCase("AdminShop") && line[1].length() < 16) {
                         if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
                             plugin.Logger("First line != null", "Debug");
+                            event.setLine(0, "[xpShop]");
                             event.setLine(1, event.getPlayer().getName());
                             plugin.PlayerLogger(event.getPlayer(), "Successfully created xpShop!", "");
                             if (plugin.config.ConnectionofSafetoShop) {
@@ -48,21 +50,29 @@ public class SignHandler {
                                     Sign sign = plugin.ListenerShop.getCorrectsafeSign(b);
                                     if (sign != null) {
                                         if (sign.getLine(0).equalsIgnoreCase("[xpShopSafe]")) {
+                                        } else {
+                                            plugin.PlayerLogger(event.getPlayer(), plugin.config.safepleaseaddSafe, "Warning");
                                         }
                                     } else {
                                         plugin.PlayerLogger(event.getPlayer(), plugin.config.safepleaseaddSafe, "Warning");
                                     }
                                 }
                             }
-
+                            MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
+                            if (!plugin.metricshandler.Shop.containsKey(loc)) {
+                                plugin.metricshandler.Shop.put(loc, event.getPlayer().getName());
+                                plugin.Logger("Added Shop to list!", "Debug");
+                            }
                         } else {
-                            plugin.Logger("Player " + p.getName() + " has no permission: xpShop.create", "Debug");
+                            plugin.Logger("Player " + p.getName() + " has no permission: xpShop.create.own", "Debug");
                             plugin.PlayerLogger(event.getPlayer(), "xpShop creation failed!", "Error");
                             event.setCancelled(true);
                         }
                     } else if (line[1].equalsIgnoreCase(p.getName()) && line[1].length() < 16) {
                         if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
                             plugin.PlayerLogger(event.getPlayer(), "Successfully created xpShop!", "");
+                            event.setLine(0, "[xpShop]");
+                            event.setLine(1, event.getPlayer().getName());
                             if (plugin.config.ConnectionofSafetoShop) {
                                 Block eventblock = event.getBlock();
                                 if (eventblock != null) {
@@ -70,14 +80,19 @@ public class SignHandler {
                                     Sign sign = plugin.ListenerShop.getCorrectsafeSign(b);
                                     if (sign != null) {
                                         if (sign.getLine(0).equalsIgnoreCase("[xpShopSafe]")) {
+                                        } else {
+                                            plugin.PlayerLogger(event.getPlayer(), plugin.config.safepleaseaddSafe, "Warning");
                                         }
                                     } else {
                                         plugin.PlayerLogger(event.getPlayer(), plugin.config.safepleaseaddSafe, "Warning");
                                     }
                                 }
                             }
-
-                            event.setLine(0, "[xpShop]");
+                            MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
+                            if (!plugin.metricshandler.Shop.containsKey(loc)) {
+                                plugin.metricshandler.Shop.put(loc, event.getPlayer().getName());
+                                plugin.Logger("Added Shop to list!", "Debug");
+                            }
                         } else {
                             plugin.Logger("Player " + p.getName() + " has no permission: xpShop.create", "Debug");
                             plugin.PlayerLogger(event.getPlayer(), "xpShop creation failed!", "Error");
@@ -86,6 +101,13 @@ public class SignHandler {
                     } else if (line[1].equalsIgnoreCase("AdminShop")) {
                         if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
                             plugin.Logger("Player " + p.getName() + " has permission: xpShop.create.admin", "Debug");
+                            event.setLine(0, "[xpShop]");
+                            event.setLine(1, "AdminShop");
+                            MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
+                            if (!plugin.metricshandler.Shop.containsKey(loc)) {
+                                plugin.metricshandler.Shop.put(loc, event.getPlayer().getName());
+                                plugin.Logger("Added Shop to list!", "Debug");
+                            }
                             plugin.PlayerLogger(event.getPlayer(), "Successfully created xpShop!", "");
                         } else {
                             plugin.Logger("Player " + p.getName() + " has no permission: xpShop.create.admin", "Debug");
@@ -201,6 +223,7 @@ public class SignHandler {
                                 plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
                                 sign.setLine(2, bui.toString());
                                 sign.update();
+                                plugin.metricshandler.xpShopSignBuy++;
                                 plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), player.getName(), price), "");
                             } else {
                                 plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
@@ -251,6 +274,7 @@ public class SignHandler {
                                 plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
                                 sign.setLine(2, bui.toString());
                                 sign.update();
+                                plugin.metricshandler.xpShopSignBuy++;
                             } else {
                                 plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
                             }
@@ -285,6 +309,7 @@ public class SignHandler {
                     plugin.SQL.UpdateXP(player.getName(), (int) (Integer.parseInt(line[2]) + player.getTotalExperience()));
                 }
                 plugin.UpdateXP(player, (Integer.parseInt(s.getLine(2))), "Sign");
+                plugin.metricshandler.xpShopSignBuy++;
                 plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), "Admin", price), "");
             } else {
                 plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
@@ -315,6 +340,7 @@ public class SignHandler {
                                 plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
                                 plugin.UpdateXP(empfaenger, -(Integer.parseInt(s.getLine(2))), "Sign");
                                 empfaenger.saveData();
+                                plugin.metricshandler.xpShopSignBuy++;
                                 plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), playername, price), "");
                             } else {
                                 plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
@@ -366,6 +392,7 @@ public class SignHandler {
                                     Empfaenger.setLevel(0);
                                     Empfaenger.setExp(0);
                                     plugin.UpdateXP(Empfaenger, plugin.SQL.getXP(Empfaenger.getName()), "Sign");
+                                    plugin.metricshandler.xpShopSignBuy++;
                                     plugin.PlayerLogger(Empfaenger, String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), playername, price), "");
                                 }
                             } else {
@@ -464,6 +491,7 @@ public class SignHandler {
                                 sign.setLine(2, bui.toString());
                                 sign.update();
                                 empfaenger.saveData();
+                                plugin.metricshandler.xpShopSignSell++;
                                 plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccesssell, s.getLine(2), s.getLine(1), price), "");
                             } else {
                                 plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
@@ -507,6 +535,7 @@ public class SignHandler {
                             plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
                             sign.setLine(2, bui.toString());
                             sign.update();
+                            plugin.metricshandler.xpShopSignSell++;
                             plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccesssell, line[2], line[1], price), "");
                             Player empfaenger = plugin.getServer().getPlayer(line[1]);
                             if (empfaenger != null) {
@@ -544,6 +573,7 @@ public class SignHandler {
                     plugin.SQL.UpdateXP(player.getName(), (int) (player.getTotalExperience() - Integer.parseInt(line[2])));
                 }
                 plugin.UpdateXP(player, -(Integer.parseInt(s.getLine(2))), "Sign");
+                plugin.metricshandler.xpShopSignSell++;
                 plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccesssell, s.getLine(2), "Admin", price), "");
             } else {
                 plugin.PlayerLogger(player, plugin.config.Shoperrorcantsellhere, "Error");
@@ -574,6 +604,7 @@ public class SignHandler {
                                 plugin.MoneyHandler.addmoney(price, player);
                                 plugin.UpdateXP(player, -(Integer.parseInt(s.getLine(2))), "Sign");
                                 empfaenger.saveData();
+                                plugin.metricshandler.xpShopSignSell++;
                                 plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccesssell, s.getLine(2), s.getLine(1), price), "");
                             } else {
                                 plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
@@ -619,6 +650,7 @@ public class SignHandler {
                                     plugin.UpdateXP(empfaenger, (Integer.parseInt(line[2])), "Sign");
                                     plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerselled, s.getLine(2), playername, price), "");
                                 }
+                                plugin.metricshandler.xpShopSignSell++;
                             } else {
                                 plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
                             }

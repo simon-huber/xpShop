@@ -78,7 +78,7 @@ public class xpShop extends JavaPlugin {
     public BottleManager bottle;
     public Logger Loggerclass;
     public boolean toggle = true;
-    public Metrics metrics;
+    public MetricsHandler metricshandler;
     public PlayerManager playerManager;
     public Repair repair;
     private HashMap<Player, Player> requested = new HashMap<Player, Player>();
@@ -131,15 +131,6 @@ public class xpShop extends JavaPlugin {
     public xpShop() {
     }
 
-    private void startStatistics() {
-        try {
-            metrics = new Metrics(this);
-            metrics.start();
-        } catch (Exception ex) {
-            Logger("There was an error while submitting statistics.", "Error");
-        }
-    }
-
     /**
      * Called by Bukkit on stopping the server
      */
@@ -154,6 +145,7 @@ public class xpShop extends JavaPlugin {
             SQL.CloseCon();
             SQL = null;
         }
+        metricshandler.saveStatsFiles();
         forceUpdate();
         blacklistUpdate();
         timetemp = System.currentTimeMillis() - timetemp;
@@ -310,6 +302,15 @@ public class xpShop extends JavaPlugin {
             playerManager = new PlayerManager(this);
             plugman = new Utilities(this);
             repair = new Repair(this);
+            metricshandler = new MetricsHandler(this);
+            metricshandler.loadStatsFiles();
+            this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+
+                @Override
+                public void run() {
+                    metricshandler.saveStatsFiles();
+                }
+            }, 200L, 50000L);
             if (config.Internet) {
                 try {
                     UpdateAvailable(Version);
@@ -340,9 +341,9 @@ public class xpShop extends JavaPlugin {
             @Override
             public void run() {
                 toggle = false;
+                metricshandler.onStart();
             }
         }, 20);
-        startStatistics();
         timetemp1 = (System.nanoTime() - timetemp1) / 1000000;
 
         Logger("Enabled in " + timetemp1 + "ms", "");
@@ -680,10 +681,12 @@ public class xpShop extends JavaPlugin {
                                     } else if (args[0].equalsIgnoreCase("repair")) {
                                         if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
                                             repair.registerRepair(player, 0);
+                                            metricshandler.repair++;
                                         }
                                         return true;
                                     } else if (args[0].equalsIgnoreCase("toolinfo")) {
                                         if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                            metricshandler.toolinfo++;
                                             PlayerLogger(player, String.format(getConfig().getString("Repair.damage." + config.language), repair.getDamage(player.getItemInHand()), repair.maxDurability(player.getItemInHand())), "");
                                         }
                                         return true;
@@ -724,6 +727,7 @@ public class xpShop extends JavaPlugin {
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("infoxp")) {
                                         if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + "infoxpown" + ".permission"))) {
+                                            metricshandler.infoxp++;
                                             infoxp(sender, args);
                                             temptime = (System.nanoTime() - temptime) / 1000000;
                                             Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
@@ -861,6 +865,7 @@ public class xpShop extends JavaPlugin {
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("infolevel")) {
                                         if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + "infolevelown" + ".permission"))) {
+                                            metricshandler.infolevel++;
                                             infolevel(sender, args);
                                             temptime = (System.nanoTime() - temptime) / 1000000;
                                             Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
@@ -923,6 +928,7 @@ public class xpShop extends JavaPlugin {
                                                 selllevel = Integer.parseInt(args[1]);
                                                 selllevel(player, this.selllevel, true);
                                                 temptime = (System.nanoTime() - temptime) / 1000000;
+                                                metricshandler.selllevel++;
                                                 Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
                                                 return true;
                                             }
@@ -934,6 +940,7 @@ public class xpShop extends JavaPlugin {
                                         if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
                                             if (Tools.isInteger(args[1])) {
                                                 repair.registerRepair(player, Integer.parseInt(args[1]));
+                                                metricshandler.repair++;
                                                 return true;
                                             } else {
                                                 PlayerLogger(player, config.commanderrornoint, "Error");
@@ -945,6 +952,7 @@ public class xpShop extends JavaPlugin {
                                         if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
                                             if (Tools.isInteger(args[1])) {
                                                 bottle.registerCommandXPBottles(player, Integer.parseInt(args[1]));
+                                                metricshandler.bottle++;
                                                 return true;
                                             }
                                             PlayerLogger(player, config.commanderrornoint, "Error");
@@ -979,6 +987,7 @@ public class xpShop extends JavaPlugin {
                                                         PlayerLogger(player, String.format(getConfig().getString("teleport.info1." + config.language), xpneeded, entfernung), "Warning");
                                                         PlayerLogger(player, getConfig().getString("teleport.tpconfirm." + config.language), "Warning");
                                                         PlayerLogger(player, getConfig().getString("teleport.tpconfirmdeny." + config.language), "Warning");
+                                                        metricshandler.tpme++;
                                                     }
                                                 } else {
                                                     PlayerLogger(player, String.format(getConfig().getString("teleport.notenoughxp." + config.language), entfernung, xpneeded), "Error");
@@ -1016,6 +1025,7 @@ public class xpShop extends JavaPlugin {
                                                         PlayerLogger(player, String.format(getConfig().getString("teleport.info1." + config.language), xpneeded, entfernung), "Warning");
                                                         PlayerLogger(player, getConfig().getString("teleport.tpconfirm." + config.language), "Warning");
                                                         PlayerLogger(player, getConfig().getString("teleport.tpconfirmdeny." + config.language), "Warning");
+                                                        metricshandler.tpto++;
                                                     }
                                                 } else {
                                                     PlayerLogger(player, String.format(getConfig().getString("teleport.notenoughxp." + config.language), entfernung, xpneeded), "Error");
@@ -1052,6 +1062,7 @@ public class xpShop extends JavaPlugin {
                                                 buylevel(player, this.buylevel, true);
                                                 temptime = (System.nanoTime() - temptime) / 1000000;
                                                 Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                                metricshandler.buylevel++;
                                                 return true;
                                             }
                                             PlayerLogger(player, config.commanderrornoint, "Error");
@@ -1064,6 +1075,7 @@ public class xpShop extends JavaPlugin {
                                                 sell(player, this.sell, true, "sell");
                                                 temptime = (System.nanoTime() - temptime) / 1000000;
                                                 Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                                metricshandler.sell++;
                                                 return true;
                                             }
                                             PlayerLogger(player, config.commanderrornoint, "Error");
@@ -1076,6 +1088,7 @@ public class xpShop extends JavaPlugin {
                                                 buy(player, this.buy, true, "buy");
                                                 temptime = (System.nanoTime() - temptime) / 1000000;
                                                 Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                                metricshandler.buy++;
                                                 return true;
                                             }
                                             return false;
@@ -1086,6 +1099,7 @@ public class xpShop extends JavaPlugin {
                                                 infoxp(sender, args);
                                                 temptime = (System.nanoTime() - temptime) / 1000000;
                                                 Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                                metricshandler.infoxp++;
                                                 return true;
                                             }
                                             PlayerLogger(player, config.commanderrornoint, "Error");
@@ -1097,6 +1111,7 @@ public class xpShop extends JavaPlugin {
                                                 infolevel(sender, args);
                                                 temptime = (System.nanoTime() - temptime) / 1000000;
                                                 Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                                metricshandler.infolevel++;
                                                 return true;
                                             }
                                             PlayerLogger(player, config.commanderrornoint, "Error");
@@ -1136,6 +1151,7 @@ public class xpShop extends JavaPlugin {
                                                 info(player, args);
                                                 temptime = (System.nanoTime() - temptime) / 1000000;
                                                 Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                                metricshandler.info++;
                                                 return true;
                                             }
                                             PlayerLogger(player, config.commanderrornoint, "Error");
@@ -1148,6 +1164,7 @@ public class xpShop extends JavaPlugin {
                                                 sendxp(sender, xp, args[1], args);
                                                 temptime = (System.nanoTime() - temptime) / 1000000;
                                                 Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                                metricshandler.send++;
                                                 return true;
                                             }
                                             PlayerLogger(player, config.commanderrornoint, "Error");
@@ -1180,6 +1197,7 @@ public class xpShop extends JavaPlugin {
                                                     } catch (SQLException ex) {
                                                         java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
                                                     }
+                                                    metricshandler.grand++;
                                                     return true;
                                                 }
                                             }
@@ -1206,6 +1224,7 @@ public class xpShop extends JavaPlugin {
                                                         } catch (NullPointerException e) {
                                                             PlayerLogger(player, "Error!", "Error");
                                                         }
+                                                        metricshandler.grand++;
                                                         return true;
                                                     }
                                                 } else {

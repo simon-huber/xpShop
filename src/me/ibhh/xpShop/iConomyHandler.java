@@ -9,7 +9,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 public class iConomyHandler {
 
-    private static int iConomyversion = 0;
+    public static int iConomyversion = 0;
     private com.iConomy.system.Holdings balance5;
     private Double balance;
     private xpShop plugin;
@@ -29,7 +29,7 @@ public class iConomyHandler {
                 plugin.Logger("checking MoneyPlugin!", "Debug");
                 iConomyversion();
             }
-        }, 1);
+        }, 0);
     }
 
     private static boolean packageExists(String[] packages) {

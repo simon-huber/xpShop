@@ -4,6 +4,7 @@
  */
 package me.ibhh.xpShop;
 
+import org.bukkit.Location;
 import org.bukkit.event.block.SignChangeEvent;
 
 /**
@@ -11,7 +12,7 @@ import org.bukkit.event.block.SignChangeEvent;
  * @author Simon
  */
 public class CreateHandler {
-    
+
     //define variable
     private xpShop plugin;
     private SafeHandler safeHandler;
@@ -20,7 +21,8 @@ public class CreateHandler {
 
     /**
      * Konstruktor
-     * @param pl 
+     *
+     * @param pl
      */
     public CreateHandler(xpShop pl) {
         plugin = pl;
@@ -31,7 +33,8 @@ public class CreateHandler {
 
     /**
      * Manages the creation of shops
-     * @param event 
+     *
+     * @param event
      */
     public void CreatexpShop(SignChangeEvent event) {
         if (plugin.config.optionalconnectionofSafetoShop) {

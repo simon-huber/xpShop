@@ -14,7 +14,7 @@ public class PermissionsChecker {
 
     private xpShop plugin;
     private GroupManager groupManager;
-    private int PermPlugin = 0;
+    public int PermPlugin = 0;
 
     public PermissionsChecker(xpShop pl, String von) {
         this.plugin = pl;
@@ -33,7 +33,7 @@ public class PermissionsChecker {
                 plugin.Logger("checking PermissionsPlugin!", "Debug");
                 searchpermplugin();
             }
-        }, 1);
+        }, 0);
     }
 
     public void searchpermplugin() {

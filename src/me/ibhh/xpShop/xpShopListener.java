@@ -5,6 +5,7 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -36,12 +37,12 @@ public class xpShopListener implements Listener {
     public void join(PlayerJoinEvent event) {
         if (!plugin.toggle) {
             Player player = event.getPlayer();
-            plugin.Logger("Player " +event.getPlayer().getTotalExperience() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
+            plugin.Logger("Player " + event.getPlayer().getTotalExperience() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
 //            double y = 1.75 * (event.getPlayer().getLevel() + event.getPlayer().getExp()) * (event.getPlayer().getLevel() + event.getPlayer().getExp()) + 4.9997 * (event.getPlayer().getLevel() + event.getPlayer().getExp()) + 0.1327;
 //            event.getPlayer().setTotalExperience((int) y);
             double t = plugin.getLevelXP(player.getLevel()) + (plugin.nextLevelAt(player.getLevel()) * player.getExp());
             player.setTotalExperience((int) t);
-            plugin.Logger("After calculating: Player " +event.getPlayer().getTotalExperience() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
+            plugin.Logger("After calculating: Player " + event.getPlayer().getTotalExperience() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
             if (plugin.config.usedbtomanageXP) {
                 String playername;
                 double XP = player.getTotalExperience();
@@ -424,8 +425,18 @@ public class xpShopListener implements Listener {
                             if (blockIsValid(sign)) {
                                 if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
                                     plugin.PlayerLogger(p, "Destroying xpShop!", "");
+                                    MTLocation loc = MTLocation.getMTLocationFromLocation(sign.getLocation());
+                                    if (plugin.metricshandler.Shop.containsKey(loc)) {
+                                        plugin.metricshandler.Shop.remove(loc);
+                                        plugin.Logger("Removed Shop from list!", "Debug");
+                                    }
                                 } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
                                     plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
+                                    MTLocation loc = MTLocation.getMTLocationFromLocation(sign.getLocation());
+                                    if (plugin.metricshandler.Shop.containsKey(loc)) {
+                                        plugin.metricshandler.Shop.remove(loc);
+                                        plugin.Logger("Removed Shop from list!", "Debug");
+                                    }
                                 } else {
                                     event.setCancelled(true);
                                 }
@@ -440,8 +451,18 @@ public class xpShopListener implements Listener {
                             if (SafeIsValid(sign)) {
                                 if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.create")) {
                                     plugin.PlayerLogger(p, "Destroying xpShopSafe!", "");
+                                    MTLocation loc = MTLocation.getMTLocationFromLocation(sign.getLocation());
+                                    if (plugin.metricshandler.Safe.containsKey(loc)) {
+                                        plugin.metricshandler.Safe.remove(loc);
+                                        plugin.Logger("Removed Safe from list!", "Debug");
+                                    }
                                 } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.admin")) {
                                     plugin.PlayerLogger(p, "Destroying xpShopSafe (Admin)!", "");
+                                    MTLocation loc = MTLocation.getMTLocationFromLocation(sign.getLocation());
+                                    if (plugin.metricshandler.Safe.containsKey(loc)) {
+                                        plugin.metricshandler.Safe.remove(loc);
+                                        plugin.Logger("Removed Safe from list!", "Debug");
+                                    }
                                 } else {
                                     event.setCancelled(true);
                                 }
@@ -464,8 +485,18 @@ public class xpShopListener implements Listener {
                                 event.setCancelled(true);
                             } else if (s.getLine(1).equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
                                 plugin.PlayerLogger(p, "Destroying xpShop!", "");
+                                MTLocation loc = MTLocation.getMTLocationFromLocation(s.getLocation());
+                                if (plugin.metricshandler.Shop.containsKey(loc)) {
+                                    plugin.metricshandler.Shop.remove(loc);
+                                    plugin.Logger("Removed Shop from list!", "Debug");
+                                }
                             } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
                                 plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
+                                MTLocation loc = MTLocation.getMTLocationFromLocation(s.getLocation());
+                                if (plugin.metricshandler.Shop.containsKey(loc)) {
+                                    plugin.metricshandler.Shop.remove(loc);
+                                    plugin.Logger("Removed Shop from list!", "Debug");
+                                }
                             } else {
                                 event.setCancelled(true);
                             }
@@ -487,8 +518,18 @@ public class xpShopListener implements Listener {
                                         Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
                                     }
                                 }
+                                MTLocation loc = MTLocation.getMTLocationFromLocation(s.getLocation());
+                                if (plugin.metricshandler.Safe.containsKey(loc)) {
+                                    plugin.metricshandler.Safe.remove(loc);
+                                    plugin.Logger("Removed Safe from list!", "Debug");
+                                }
                             } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.admin")) {
                                 plugin.PlayerLogger(p, "Destroying xpShopSafe (Admin)!", "");
+                                MTLocation loc = MTLocation.getMTLocationFromLocation(s.getLocation());
+                                if (plugin.metricshandler.Safe.containsKey(loc)) {
+                                    plugin.metricshandler.Safe.remove(loc);
+                                    plugin.Logger("Removed Safe from list!", "Debug");
+                                }
                             } else {
                                 event.setCancelled(true);
                             }

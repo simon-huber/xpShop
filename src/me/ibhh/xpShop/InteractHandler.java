@@ -4,6 +4,7 @@
  */
 package me.ibhh.xpShop;
 
+import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -22,7 +23,8 @@ public class InteractHandler {
 
     /**
      * Konstruktor of InteractHandler
-     * @param pl 
+     *
+     * @param pl
      */
     public InteractHandler(xpShop pl) {
         plugin = pl;
@@ -33,7 +35,8 @@ public class InteractHandler {
 
     /**
      * Handles playerinteracts
-     * @param event 
+     *
+     * @param event
      */
     public void InteracteventHandler(PlayerInteractEvent event) {
         if (!plugin.toggle) {
@@ -51,7 +54,8 @@ public class InteractHandler {
 
     /**
      * Manages a rightklick on a block.
-     * @param event 
+     *
+     * @param event
      */
     public void RightInteract(PlayerInteractEvent event) {
         Player p = event.getPlayer();
@@ -64,15 +68,26 @@ public class InteractHandler {
                 } else {
                     signHandler.RechtsKlick(event, line, p, s);
                 }
+                MTLocation loc = MTLocation.getMTLocationFromLocation(event.getClickedBlock().getLocation());
+                if (!plugin.metricshandler.Shop.containsKey(loc)) {
+                    plugin.metricshandler.Shop.put(loc, event.getPlayer().getName());
+                    plugin.Logger("Added Shop to list!", "Debug");
+                }
             } else if (line[0].equalsIgnoreCase("[xpShopSafe]")) {
                 safeHandler.RechtsKlick(event, line, p, s);
+                MTLocation loc = MTLocation.getMTLocationFromLocation(event.getClickedBlock().getLocation());
+                if (!plugin.metricshandler.Safe.containsKey(loc)) {
+                    plugin.metricshandler.Safe.put(loc, event.getPlayer().getName());
+                    plugin.Logger("Added Safe to list!", "Debug");
+                }
             }
         }
     }
 
     /**
      * Manages leftklickinteracts
-     * @param event 
+     *
+     * @param event
      */
     public void LeftInteract(PlayerInteractEvent event) {
         Player p = event.getPlayer();
@@ -91,8 +106,16 @@ public class InteractHandler {
                 } else {
                     signHandler.LinksKlick(event, line, p, s);
                 }
+                MTLocation loc = MTLocation.getMTLocationFromLocation(event.getClickedBlock().getLocation());
+                if (!plugin.metricshandler.Shop.containsKey(loc)) {
+                    plugin.metricshandler.Shop.put(loc, event.getPlayer().getName());
+                }
             } else if (line[0].equalsIgnoreCase("[xpShopSafe]")) {
                 safeHandler.LinksKlick(event, line, p, s);
+                MTLocation loc = MTLocation.getMTLocationFromLocation(event.getClickedBlock().getLocation());
+                if (!plugin.metricshandler.Safe.containsKey(loc)) {
+                    plugin.metricshandler.Safe.put(loc, event.getPlayer().getName());
+                }
             }
         }
     }

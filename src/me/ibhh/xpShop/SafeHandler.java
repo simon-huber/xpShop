@@ -5,6 +5,7 @@
 package me.ibhh.xpShop;
 
 import java.sql.SQLException;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.SignChangeEvent;
@@ -41,7 +42,13 @@ public class SafeHandler {
                     if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.create")) {
                         plugin.PlayerLogger(event.getPlayer(), "Successfully created xpShopSafe!", "");
                         event.setLine(0, "[xpShopSafe]");
+                        event.setLine(1, event.getPlayer().getName());
                         event.setLine(2, "0");
+                        MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
+                        if (!plugin.metricshandler.Safe.containsKey(loc)) {
+                            plugin.metricshandler.Safe.put(loc, event.getPlayer().getName());
+                            plugin.Logger("Added Safe to list!", "Debug");
+                        }
                     } else {
                         plugin.Logger("Player " + p.getName() + " has no permission: xpShop.safe.create", "Debug");
                         plugin.PlayerLogger(event.getPlayer(), "xpShopSafe creation failed!", "Error");
@@ -53,8 +60,14 @@ public class SafeHandler {
                 } else if (!(line[1].equalsIgnoreCase(p.getName()))) {
                     if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.create")) {
                         plugin.Logger("First line != null", "Debug");
-                        event.setLine(1, p.getName());
+                        event.setLine(0, "[xpShopSafe]");
+                        event.setLine(1, event.getPlayer().getName());
                         event.setLine(2, "0");
+                        MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
+                        if (!plugin.metricshandler.Safe.containsKey(loc)) {
+                            plugin.metricshandler.Safe.put(loc, event.getPlayer().getName());
+                            plugin.Logger("Added Safe to list!", "Debug");
+                        }
                         plugin.PlayerLogger(event.getPlayer(), "Successfully created xpShopSafe!", "");
                     } else {
                         plugin.Logger("Player " + p.getName() + " has no permission: xpShop.create", "Debug");
@@ -106,6 +119,7 @@ public class SafeHandler {
                     plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
                     s.setLine(2, bui.toString());
                     s.update();
+                    plugin.metricshandler.xpShopSafeGet++;
                     plugin.PlayerLogger(p, String.format(plugin.config.safedestore, Integer.parseInt(s.getLine(3))), "");
                 } else {
                     plugin.PlayerLogger(p, plugin.config.safenotenoughinsafe, "Error");
@@ -128,6 +142,7 @@ public class SafeHandler {
             plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
             s.setLine(2, bui.toString());
             s.update();
+            plugin.metricshandler.xpShopSafeGet++;
             plugin.PlayerLogger(p, String.format(plugin.config.safedestore, Integer.parseInt(s.getLine(3))), "");
         } else {
             plugin.PlayerLogger(p, plugin.config.safenotenoughinsafe, "Error");
@@ -150,6 +165,7 @@ public class SafeHandler {
                         } else {
                             xpShopSafeSignGet(line, p, s);
                         }
+                        plugin.metricshandler.xpShopSafeGet++;
                     } else {
                         plugin.PlayerLogger(p, plugin.config.safenotyoursafe, "");
                     }
@@ -173,6 +189,7 @@ public class SafeHandler {
                     plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
                     s.setLine(2, bui.toString());
                     s.update();
+                    plugin.metricshandler.xpShopSafeStore++;
                     plugin.PlayerLogger(p, String.format(plugin.config.safestore, Integer.parseInt(s.getLine(3))), "");
                 } else {
                     plugin.PlayerLogger(p, String.format(plugin.config.safenotenoughxptostore, p.getTotalExperience()), "Error");
@@ -196,6 +213,7 @@ public class SafeHandler {
             plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
             s.setLine(2, bui.toString());
             s.update();
+            plugin.metricshandler.xpShopSafeStore++;
             plugin.PlayerLogger(p, String.format(plugin.config.safestore, Integer.parseInt(s.getLine(3))), "");
         } else {
             plugin.PlayerLogger(p, String.format(plugin.config.safenotenoughxptostore, p.getTotalExperience()), "Error");

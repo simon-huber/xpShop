@@ -4,6 +4,7 @@
  */
 package me.ibhh.xpShop;
 
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -41,7 +42,6 @@ public class SignConSafeHandler {
                     if (!line[1].equalsIgnoreCase("AdminShop") && line[1].length() < 16) {
                         if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
                             plugin.Logger("First line != null", "Debug");
-                            event.setLine(1, event.getPlayer().getName());
                             plugin.PlayerLogger(event.getPlayer(), "Successfully created xpShop!", "");
                             Block eventblock = event.getBlock();
                             if (eventblock != null) {
@@ -55,6 +55,13 @@ public class SignConSafeHandler {
                                 } else {
                                     plugin.PlayerLogger(event.getPlayer(), plugin.config.safecanaddSafe, "Warning");
                                 }
+                            }
+                            event.setLine(0, "[xpShop]");
+                            event.setLine(1, event.getPlayer().getName());
+                            MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
+                            if (!plugin.metricshandler.Shop.containsKey(loc)) {
+                                plugin.metricshandler.Shop.put(loc, event.getPlayer().getName());
+                                plugin.Logger("Added Shop to list!", "Debug");
                             }
                         } else {
                             plugin.Logger("Player " + p.getName() + " has no permission: xpShop.create.own", "Debug");
@@ -78,6 +85,12 @@ public class SignConSafeHandler {
                                 }
                             }
                             event.setLine(0, "[xpShop]");
+                            event.setLine(1, event.getPlayer().getName());
+                            MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
+                            if (!plugin.metricshandler.Shop.containsKey(loc)) {
+                                plugin.metricshandler.Shop.put(loc, event.getPlayer().getName());
+                                plugin.Logger("Added Shop to list!", "Debug");
+                            }
                         } else {
                             plugin.Logger("Player " + p.getName() + " has no permission: xpShop.create", "Debug");
                             plugin.PlayerLogger(event.getPlayer(), "xpShop creation failed!", "Error");
@@ -86,6 +99,13 @@ public class SignConSafeHandler {
                     } else if (line[1].equalsIgnoreCase("AdminShop")) {
                         if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
                             plugin.Logger("Player " + p.getName() + " has permission: xpShop.create.admin", "Debug");
+                            event.setLine(0, "[xpShop]");
+                            event.setLine(1, event.getPlayer().getName());
+                            MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
+                            if (!plugin.metricshandler.Shop.containsKey(loc)) {
+                                plugin.metricshandler.Shop.put(loc, "AdminShop");
+                                plugin.Logger("Added Shop to list!", "Debug");
+                            }
                             plugin.PlayerLogger(event.getPlayer(), "Successfully created xpShop!", "");
                         } else {
                             plugin.Logger("Player " + p.getName() + " has no permission: xpShop.create.admin", "Debug");
