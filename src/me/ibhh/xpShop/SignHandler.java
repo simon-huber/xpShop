@@ -37,7 +37,7 @@ public class SignHandler {
                     plugin.Logger("Line 3: " + line[2], "Debug");
                     plugin.Logger("Line 4: " + line[3], "Debug");
                     plugin.Logger("Sign is valid", "Debug");
-                    if (!line[1].equalsIgnoreCase("AdminShop") && line[1].length() < 16) {
+                    if (!line[1].equalsIgnoreCase("AdminShop") && p.getName().length() < 16) {
                         if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
                             plugin.Logger("First line != null", "Debug");
                             event.setLine(0, "[xpShop]");
@@ -68,36 +68,6 @@ public class SignHandler {
                             plugin.PlayerLogger(event.getPlayer(), "xpShop creation failed!", "Error");
                             event.setCancelled(true);
                         }
-                    } else if (line[1].equalsIgnoreCase(p.getName()) && line[1].length() < 16) {
-                        if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
-                            plugin.PlayerLogger(event.getPlayer(), "Successfully created xpShop!", "");
-                            event.setLine(0, "[xpShop]");
-                            event.setLine(1, event.getPlayer().getName());
-                            if (plugin.config.ConnectionofSafetoShop) {
-                                Block eventblock = event.getBlock();
-                                if (eventblock != null) {
-                                    Block[] b = plugin.ListenerShop.DrueberDrunter(eventblock);
-                                    Sign sign = plugin.ListenerShop.getCorrectsafeSign(b);
-                                    if (sign != null) {
-                                        if (sign.getLine(0).equalsIgnoreCase("[xpShopSafe]")) {
-                                        } else {
-                                            plugin.PlayerLogger(event.getPlayer(), plugin.config.safepleaseaddSafe, "Warning");
-                                        }
-                                    } else {
-                                        plugin.PlayerLogger(event.getPlayer(), plugin.config.safepleaseaddSafe, "Warning");
-                                    }
-                                }
-                            }
-                            MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
-                            if (!plugin.metricshandler.Shop.containsKey(loc)) {
-                                plugin.metricshandler.Shop.put(loc, event.getPlayer().getName());
-                                plugin.Logger("Added Shop to list!", "Debug");
-                            }
-                        } else {
-                            plugin.Logger("Player " + p.getName() + " has no permission: xpShop.create", "Debug");
-                            plugin.PlayerLogger(event.getPlayer(), "xpShop creation failed!", "Error");
-                            event.setCancelled(true);
-                        }
                     } else if (line[1].equalsIgnoreCase("AdminShop")) {
                         if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
                             plugin.Logger("Player " + p.getName() + " has permission: xpShop.create.admin", "Debug");
@@ -114,7 +84,7 @@ public class SignHandler {
                             plugin.PlayerLogger(event.getPlayer(), "xpShop creation failed!", "Error");
                             event.setCancelled(true);
                         }
-                    } else if (line[1].length() >= 16) {
+                    } else if (p.getName().length() >= 16) {
                         plugin.PlayerLogger(event.getPlayer(), "xpShop creation failed! Username too long!", "Error");
                         event.setCancelled(true);
                     }

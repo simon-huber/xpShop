@@ -357,7 +357,7 @@ public class MetricsHandler implements Serializable {
     }
 
     public void initializeDependenciesGraph() {
-        Metrics.Graph depGraph = metrics.createGraph("Dependencies");
+        Metrics.Graph depGraph = metrics.createGraph("EconomyDependencies");
         String iConomyName = "None";
         if (plugin.MoneyHandler.iConomyversion() != 0) {
             if (plugin.MoneyHandler.iConomyversion() == 1) {
@@ -377,6 +377,7 @@ public class MetricsHandler implements Serializable {
                 return 1;
             }
         });
+        Metrics.Graph Permgraph = metrics.createGraph("PermissionDependencies");
         String PermName = "None";
         if (plugin.PermissionsHandler.PermPlugin != 0) {
             if (plugin.PermissionsHandler.PermPlugin == 1) {
@@ -389,7 +390,7 @@ public class MetricsHandler implements Serializable {
                 PermName = "bPermissions";
             }
         }
-        depGraph.addPlotter(new Metrics.Plotter(PermName) {
+        Permgraph.addPlotter(new Metrics.Plotter(PermName) {
 
             @Override
             public int getValue() {

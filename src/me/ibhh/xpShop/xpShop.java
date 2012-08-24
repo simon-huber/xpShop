@@ -271,6 +271,8 @@ public class xpShop extends JavaPlugin {
                             xpShop.updateaviable = true;
                             if (getConfig().getBoolean("installondownload")) {
                                 install();
+                            } else if (getConfig().getBoolean("autodownload")) {
+                                Logger("After shutdown the new file is stored under 'plugins/xpShop", "Warning");
                             }
                         } else {
                             Logger("No update found!", "Debug");
@@ -320,6 +322,9 @@ public class xpShop extends JavaPlugin {
                         Logger("*********** Please update!!!! ************", "Warning");
                         Logger("* http://ibhh.de/xpShop.jar *", "Warning");
                         Logger("******************************************", "Warning");
+                        if (getConfig().getBoolean("autodownload")) {
+                            Logger("After shutdown the new file is stored under 'plugins/xpShop", "Warning");
+                        }
                     }
                 } catch (Exception e) {
                     Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
@@ -388,6 +393,7 @@ public class xpShop extends JavaPlugin {
                                 String path = "plugins" + File.separator + "xpShop" + File.separator;
                                 if (upd.download(path)) {
                                     Logger("Downloaded new Version!", "Warning");
+                                    Logger("After shutdown the new file is stored under 'plugins/xpShop", "Warning");
                                 } else {
                                     Logger(" Cant download new Version!", "Warning");
                                 }
@@ -1202,36 +1208,38 @@ public class xpShop extends JavaPlugin {
                                                 }
                                             }
                                         } else {
-                                            Player empfaenger1;
-                                            try {
-                                                empfaenger1 = getmyOfflinePlayer(args, 1);
-                                            } catch (Exception e1) {
-                                                PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
-                                                return false;
-                                            }
-                                            if (empfaenger1 != null) {
-                                                if (empfaenger1.hasPlayedBefore()) {
-                                                    if (config.getPlayerConfig(empfaenger1, player)) {
-                                                        try {
-                                                            UpdateXP(empfaenger1, Integer.parseInt(args[2]), "grand");
-                                                            empfaenger1.saveData();
-                                                        } catch (Exception e1) {
-                                                            PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
-                                                            return false;
+                                            if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                                Player empfaenger1;
+                                                try {
+                                                    empfaenger1 = getmyOfflinePlayer(args, 1);
+                                                } catch (Exception e1) {
+                                                    PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+                                                    return false;
+                                                }
+                                                if (empfaenger1 != null) {
+                                                    if (empfaenger1.hasPlayedBefore()) {
+                                                        if (config.getPlayerConfig(empfaenger1, player)) {
+                                                            try {
+                                                                UpdateXP(empfaenger1, Integer.parseInt(args[2]), "grand");
+                                                                empfaenger1.saveData();
+                                                            } catch (Exception e1) {
+                                                                PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+                                                                return false;
+                                                            }
+                                                            try {
+                                                                PlayerLogger(player, (String.format(config.commandsuccesssentxp, Integer.parseInt(args[2]), empfaenger1.getName())), "");
+                                                            } catch (NullPointerException e) {
+                                                                PlayerLogger(player, "Error!", "Error");
+                                                            }
+                                                            metricshandler.grand++;
+                                                            return true;
                                                         }
-                                                        try {
-                                                            PlayerLogger(player, (String.format(config.commandsuccesssentxp, Integer.parseInt(args[2]), empfaenger1.getName())), "");
-                                                        } catch (NullPointerException e) {
-                                                            PlayerLogger(player, "Error!", "Error");
-                                                        }
-                                                        metricshandler.grand++;
-                                                        return true;
+                                                    } else {
+                                                        PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                                                     }
                                                 } else {
                                                     PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                                                 }
-                                            } else {
-                                                PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                                             }
                                         }
                                         return false;
@@ -1677,23 +1685,44 @@ public class xpShop extends JavaPlugin {
      */
     public void UpdateXP(CommandSender sender, int amount, String von) {
         Player player = (Player) sender;
-        Logger("Old TOTALXP of " + player.getName() + ": " + player.getTotalExperience(), "Debug");
-        Logger("Old TOTALXP of (Bukkit) " + player.getName() + ": " + player.getTotalExperience(), "Debug");
-        double Expaktuell = player.getTotalExperience() + amount;
-        try {
-            if (Expaktuell >= 0) {
-                player.setTotalExperience(0);
-                player.setExp(0);
-                player.setLevel(0);
-                player.giveExp((int) Expaktuell);
-            } else {
+        if (config.usedbtomanageXP) {
+            SQL.UpdateXP(sender.getName(), amount);
+            Logger("Old TOTALXP of " + player.getName() + ": " + player.getTotalExperience(), "Debug");
+            Logger("Old TOTALXP of (Bukkit) " + player.getName() + ": " + player.getTotalExperience(), "Debug");
+            double Expaktuell = player.getTotalExperience() + amount;
+            try {
+                if (Expaktuell >= 0) {
+                    player.setTotalExperience(0);
+                    player.setExp(0);
+                    player.setLevel(0);
+                    player.giveExp((int) Expaktuell);
+                } else {
+                    PlayerLogger(player, "Invalid exp count: " + amount, "Error");
+                }
+            } catch (NumberFormatException ex) {
                 PlayerLogger(player, "Invalid exp count: " + amount, "Error");
             }
-        } catch (NumberFormatException ex) {
-            PlayerLogger(player, "Invalid exp count: " + amount, "Error");
+            Logger("New TOTALXP of " + player.getName() + ": " + player.getTotalExperience(), "Debug");
+            Logger("New TOTALXP (Bukkit) of " + player.getName() + ": " + player.getTotalExperience(), "Debug");
+        } else {
+            Logger("Old TOTALXP of " + player.getName() + ": " + player.getTotalExperience(), "Debug");
+            Logger("Old TOTALXP of (Bukkit) " + player.getName() + ": " + player.getTotalExperience(), "Debug");
+            double Expaktuell = player.getTotalExperience() + amount;
+            try {
+                if (Expaktuell >= 0) {
+                    player.setTotalExperience(0);
+                    player.setExp(0);
+                    player.setLevel(0);
+                    player.giveExp((int) Expaktuell);
+                } else {
+                    PlayerLogger(player, "Invalid exp count: " + amount, "Error");
+                }
+            } catch (NumberFormatException ex) {
+                PlayerLogger(player, "Invalid exp count: " + amount, "Error");
+            }
+            Logger("New TOTALXP of " + player.getName() + ": " + player.getTotalExperience(), "Debug");
+            Logger("New TOTALXP (Bukkit) of " + player.getName() + ": " + player.getTotalExperience(), "Debug");
         }
-        Logger("New TOTALXP of " + player.getName() + ": " + player.getTotalExperience(), "Debug");
-        Logger("New TOTALXP (Bukkit) of " + player.getName() + ": " + player.getTotalExperience(), "Debug");
     }
 
     /**

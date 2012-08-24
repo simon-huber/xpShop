@@ -360,7 +360,7 @@ help:
       name: reload
       permission: xpShop.reload
       description: 
-        de: Lädt das Plugin neu.
+        de: Laedt das Plugin neu.
         en: Reloads plugin.
       usage: /xpShop reload
     configconfirm:
