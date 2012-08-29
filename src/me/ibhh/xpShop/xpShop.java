@@ -66,6 +66,7 @@ public class xpShop extends JavaPlugin {
     public static String Prefix = "[xpShop] ";
     private PanelControl panel;
     public ConfigHandler config;
+    public ReportToHost report;
     public xpShopListener ListenerShop;
     private Update upd;
     public xpShop xpShop = this;
@@ -159,6 +160,7 @@ public class xpShop extends JavaPlugin {
     @Override
     public void onEnable() {
         long timetemp1 = System.nanoTime();
+        report = new ReportToHost(this);
         Loggerclass = new Logger(this);
         try {
             config = new ConfigHandler(this);
@@ -177,6 +179,7 @@ public class xpShop extends JavaPlugin {
             }
         } catch (Exception e1) {
             Logger("Error on loading config: " + e1.getMessage(), "Error");
+            report.report(332, "Config loading failed", e1.getMessage(), "xpShop", e1.getCause());
             e1.printStackTrace();
             Logger("Version: " + Version + " failed to enable!", "Error");
             onDisable();
@@ -188,14 +191,12 @@ public class xpShop extends JavaPlugin {
         } catch (IllegalAccessError e) {
             Logger("Cant access Class \"Update\": " + e.getMessage(), "Error");
             e.printStackTrace();
-            upd = new Update(this);
         }
         try {
             blacklistcheck();
         } catch (IllegalAccessError e) {
             Logger("Cant access Class \"Update\": " + e.getMessage(), "Error");
             e.printStackTrace();
-            upd = new Update(this);
             blacklistcheck();
         }
         this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
@@ -279,6 +280,7 @@ public class xpShop extends JavaPlugin {
                         }
                     } catch (Exception e) {
                         Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
+                        report.report(333, "Error on doing update check", e.getMessage(), "xpShop" , e.getCause());
                         Logger("may the mainserver is down!", "Error");
                     }
                 }
@@ -328,6 +330,7 @@ public class xpShop extends JavaPlugin {
                     }
                 } catch (Exception e) {
                     Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
+                    report.report(334, "Error on doing update check", e.getMessage(), "xpShop", e.getCause());
                     Logger("may the mainserver is down!", "Error");
                 }
             }
@@ -336,7 +339,6 @@ public class xpShop extends JavaPlugin {
                 SQL.createConnection();
                 SQL.PrepareDB();
             }
-
         } else {
             Logger(this.getDescription().getName() + " version " + Version + " is blacklisted because of bugs, after restart an bugfix will be installed!", "Warning");
             Logger("All funktions deactivated to prevent the server!", "Warning");
@@ -350,7 +352,6 @@ public class xpShop extends JavaPlugin {
             }
         }, 20);
         timetemp1 = (System.nanoTime() - timetemp1) / 1000000;
-
         Logger("Enabled in " + timetemp1 + "ms", "");
     }
 
@@ -369,6 +370,7 @@ public class xpShop extends JavaPlugin {
                 upd.download(path);
             } catch (Exception e) {
                 Logger("Error on doing blacklist update! Message: " + e.getMessage(), "Error");
+                report.report(335, "Error on doing update", e.getMessage(), "xpShop", e.getCause());
                 Logger("may the mainserver is down!", "Error");
             }
         }
@@ -422,6 +424,7 @@ public class xpShop extends JavaPlugin {
                 }
             } catch (Exception e) {
                 Logger("Error on doing update check or update! Message: " + e.getMessage(), "Error");
+                report.report(336, "Error on doing update check or update", e.getMessage(), "xpShop", e.getCause());
                 Logger("may the mainserver is down!", "Error");
             }
         }
@@ -443,6 +446,7 @@ public class xpShop extends JavaPlugin {
                 config.getBlacklistCode();
             } catch (Exception e) {
                 Logger("Error on doing blacklistcheck! Message: " + e.getMessage(), "Error");
+                report.report(337, "Error on doing blacklistcheck", e.getMessage(), "xpShop", e.getCause());
                 Logger("may the mainserver is down!", "Error");
             }
         }
@@ -481,6 +485,7 @@ public class xpShop extends JavaPlugin {
                 }
             } catch (Exception e) {
                 Logger("Error on doing blacklist update! Message: " + e.getMessage(), "Error");
+                report.report(338, "Error on doing blacklistcheck", e.getMessage(), "xpShop", e.getCause());
                 Logger("May the mainserver is down!", "Error");
             }
         }
@@ -519,6 +524,7 @@ public class xpShop extends JavaPlugin {
                 }
             } catch (Exception e) {
                 Logger("Error checking for new version! Message: " + e.getMessage(), "Error");
+                report.report(337, "Error on checking for new version", e.getMessage(), "xpShop", e.getCause());
                 Logger("May the mainserver is down!", "Error");
             }
         }
@@ -594,48 +600,56 @@ public class xpShop extends JavaPlugin {
     }
 
     public void install() {
-        if (config.Internet) {
-            try {
-                String path = "plugins" + File.separator;
-                if (upd.download(path)) {
-                    Logger("Downloaded new Version!", "Warning");
-                    Logger("xpShop will be updated on the next restart!", "Warning");
-                } else {
-                    Logger(" Cant download new Version!", "Warning");
+        try {
+            if (config.Internet) {
+                try {
+                    String path = "plugins" + File.separator;
+                    if (upd.download(path)) {
+                        Logger("Downloaded new Version!", "Warning");
+                        Logger("xpShop will be updated on the next restart!", "Warning");
+                    } else {
+                        Logger(" Cant download new Version!", "Warning");
+                    }
+                } catch (Exception e) {
+                    Logger("Error on downloading new Version!", "Error");
+                    report.report(3313, "Error on downloading new Version", e.getMessage(), "xpShop", e.getCause());
+                    e.printStackTrace();
+                    Logger("Uncatched Exeption!", "Error");
                 }
-            } catch (Exception e) {
-                Logger("Error on donwloading new Version!", "Error");
-                e.printStackTrace();
             }
+            if (getConfig().getBoolean("installondownload")) {
+                Logger("Found Update! Installing now because of 'installondownload = true', please wait!", "Warning");
+                playerManager.BroadcastMsg("xpShop.update", "Found Update! Installing now because of 'installondownload = true', please wait!");
+            }
+            try {
+                plugman.unloadPlugin("xpShop");
+            } catch (NoSuchFieldException ex) {
+                Logger("Error on installing! Please check the log!", "Error");
+                playerManager.BroadcastMsg("xpShop.update", "Error on installing! Please check the log!");
+                java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+                Logger("Error on installing! Please check the log!", "Error");
+                playerManager.BroadcastMsg("xpShop.update", "Error on installing! Please check the log!");
+                java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                plugman.loadPlugin("xpShop");
+            } catch (InvalidPluginException ex) {
+                Logger("Error on loading after installing! Please check the log!", "Error");
+                playerManager.BroadcastMsg("xpShop.update", "Error on loading after installing! Please check the log!");
+                java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InvalidDescriptionException ex) {
+                Logger("Error on loading after installing! Please check the log!", "Error");
+                playerManager.BroadcastMsg("xpShop.update", "Error on loading after installing! Please check the log!");
+                java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            Logger("Installing finished!", "");
+            playerManager.BroadcastMsg("xpShop.update", "Installing finished!");
+        } catch (Exception w) {
+            w.printStackTrace();
+            Logger("Uncatched Exeption!", "Error");
+            report.report(3314, "Uncatched Exeption on installing", w.getMessage(), "xpShop", w.getCause());
         }
-        if (getConfig().getBoolean("installondownload")) {
-            Logger("Found Update! Installing now because of 'installondownload = true', please wait!", "Warning");
-            playerManager.BroadcastMsg("xpShop.update", "Found Update! Installing now because of 'installondownload = true', please wait!");
-        }
-        try {
-            plugman.unloadPlugin("xpShop");
-        } catch (NoSuchFieldException ex) {
-            Logger("Error on installing! Please check the log!", "Error");
-            playerManager.BroadcastMsg("xpShop.update", "Error on installing! Please check the log!");
-            java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            Logger("Error on installing! Please check the log!", "Error");
-            playerManager.BroadcastMsg("xpShop.update", "Error on installing! Please check the log!");
-            java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            plugman.loadPlugin("xpShop");
-        } catch (InvalidPluginException ex) {
-            Logger("Error on loading after installing! Please check the log!", "Error");
-            playerManager.BroadcastMsg("xpShop.update", "Error on loading after installing! Please check the log!");
-            java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvalidDescriptionException ex) {
-            Logger("Error on loading after installing! Please check the log!", "Error");
-            playerManager.BroadcastMsg("xpShop.update", "Error on loading after installing! Please check the log!");
-            java.util.logging.Logger.getLogger(xpShop.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        Logger("Installing finished!", "");
-        playerManager.BroadcastMsg("xpShop.update", "Installing finished!");
     }
 
     /**
@@ -1145,7 +1159,18 @@ public class xpShop extends JavaPlugin {
                                             PlayerLogger(player, config.dbnotused, "");
                                             return false;
                                         }
-                                    } else {
+                                    } else if (ActionxpShop.equalsIgnoreCase("report")) {
+                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (!Tools.isInteger(args[1])) {
+                                            PlayerLogger(player, report.report(331, "Reported issue", args[1], "xpShop", null), "");
+                                            temptime = (System.nanoTime() - temptime) / 1000000;
+                                            Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                            return true;
+                                        }
+                                        PlayerLogger(player, config.commanderrornoint, "Error");
+                                        return false;
+                                    }
+                                } else {
                                         Help.help(sender, args);
                                     }
                                     break;
@@ -1496,32 +1521,38 @@ public class xpShop extends JavaPlugin {
      * @param TYPE
      */
     public void Logger(String msg, String TYPE) {
-        if (TYPE.equalsIgnoreCase("Warning") || TYPE.equalsIgnoreCase("Error")) {
-            System.err.println(PrefixConsole + TYPE + ": " + msg);
-            if (config.debugfile) {
-                Loggerclass.log("Error: " + msg);
+        try {
+            if (TYPE.equalsIgnoreCase("Warning") || TYPE.equalsIgnoreCase("Error")) {
+                System.err.println(PrefixConsole + TYPE + ": " + msg);
+                if (config.debugfile) {
+                    Loggerclass.log("Error: " + msg);
+                }
+                if (playerManager != null) {
+                    playerManager.BroadcastconsoleMsg("xpShop.consolemsg", " Warning: " + msg);
+                }
+            } else if (TYPE.equalsIgnoreCase("Debug")) {
+                if (config.debug) {
+                    System.out.println(PrefixConsole + "Debug: " + msg);
+                }
+                if (config.debugfile) {
+                    Loggerclass.log("Debug: " + msg);
+                }
+                if (playerManager != null) {
+                    playerManager.BroadcastconsoleMsg("xpShop.consolemsg", " Debug: " + msg);
+                }
+            } else {
+                if (playerManager != null) {
+                    playerManager.BroadcastconsoleMsg("xpShop.consolemsg", msg);
+                }
+                System.out.println(PrefixConsole + msg);
+                if (config.debugfile) {
+                    Loggerclass.log(msg);
+                }
             }
-            if (playerManager != null) {
-                playerManager.BroadcastconsoleMsg("xpShop.consolemsg", " Warning: " + msg);
-            }
-        } else if (TYPE.equalsIgnoreCase("Debug")) {
-            if (config.debug) {
-                System.out.println(PrefixConsole + "Debug: " + msg);
-            }
-            if (config.debugfile) {
-                Loggerclass.log("Debug: " + msg);
-            }
-            if (playerManager != null) {
-                playerManager.BroadcastconsoleMsg("xpShop.consolemsg", " Debug: " + msg);
-            }
-        } else {
-            if (playerManager != null) {
-                playerManager.BroadcastconsoleMsg("xpShop.consolemsg", msg);
-            }
-            System.out.println(PrefixConsole + msg);
-            if (config.debugfile) {
-                Loggerclass.log(msg);
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("[xpShop] Error: Uncatch Exeption!");
+            report.report(3317, "Logger doesnt work", e.getMessage(), "xpShop", e.getCause());
         }
     }
 
@@ -1533,36 +1564,42 @@ public class xpShop extends JavaPlugin {
      * @param TYPE
      */
     public void PlayerLogger(Player p, String msg, String TYPE) {
-        if (TYPE.equalsIgnoreCase("Error")) {
-            if (config.UsePrefix) {
-                p.sendMessage(config.Prefix + Prefix + ChatColor.RED + "Error: " + config.Text + msg);
-                if (config.debugfile) {
-                    Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
+        try {
+            if (TYPE.equalsIgnoreCase("Error")) {
+                if (config.UsePrefix) {
+                    p.sendMessage(config.Prefix + Prefix + ChatColor.RED + "Error: " + config.Text + msg);
+                    if (config.debugfile) {
+                        Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
+                    }
+                } else {
+                    p.sendMessage(ChatColor.RED + "Error: " + config.Text + msg);
+                    if (config.debugfile) {
+                        Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
+                    }
+                }
+                if (playerManager != null) {
+                    playerManager.BroadcastconsoleMsg("xpShop.gamemsg", "Player: " + p.getName() + " Error: " + msg);
                 }
             } else {
-                p.sendMessage(ChatColor.RED + "Error: " + config.Text + msg);
-                if (config.debugfile) {
-                    Loggerclass.log("Player: " + p.getName() + " Error: " + msg);
+                if (config.UsePrefix) {
+                    p.sendMessage(config.Prefix + Prefix + config.Text + msg);
+                    if (config.debugfile) {
+                        Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
+                    }
+                } else {
+                    p.sendMessage(config.Text + msg);
+                    if (config.debugfile) {
+                        Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
+                    }
+                }
+                if (playerManager != null) {
+                    playerManager.BroadcastconsoleMsg("xpShop.gamemsg", "Player: " + p.getName() + " " + msg);
                 }
             }
-            if (playerManager != null) {
-                playerManager.BroadcastconsoleMsg("xpShop.gamemsg", "Player: " + p.getName() + " Error: " + msg);
-            }
-        } else {
-            if (config.UsePrefix) {
-                p.sendMessage(config.Prefix + Prefix + config.Text + msg);
-                if (config.debugfile) {
-                    Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
-                }
-            } else {
-                p.sendMessage(config.Text + msg);
-                if (config.debugfile) {
-                    Loggerclass.log("Player: " + p.getName() + " Msg: " + msg);
-                }
-            }
-            if (playerManager != null) {
-                playerManager.BroadcastconsoleMsg("xpShop.gamemsg", "Player: " + p.getName() + " " + msg);
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("[xpShop] Error: Uncatch Exeption!");
+            report.report(3317, "PlayerLogger doesnt work", e.getMessage(), "xpShop", e.getCause());
         }
     }
 

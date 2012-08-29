@@ -24,17 +24,20 @@ public class PermissionsChecker {
         final Plugin GMplugin = pluginManager.getPlugin("GroupManager");
 
         plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
-
             @Override
             public void run() {
-                if (GMplugin != null && GMplugin.isEnabled()) {
-                    groupManager = (GroupManager) GMplugin;
+                try {
+                    if (GMplugin != null && GMplugin.isEnabled()) {
+                        groupManager = (GroupManager) GMplugin;
 
+                    }
+                    plugin.Logger("checking PermissionsPlugin!", "Debug");
+                    searchpermplugin();
+                } catch (Exception e) {
+                    plugin.report.report(3324, "Checking Permissions plugin failed", e.getMessage(), "PermissionsChecker", e.getCause());
                 }
-                plugin.Logger("checking PermissionsPlugin!", "Debug");
-                searchpermplugin();
             }
-        }, 1);
+        }, 0);
     }
 
     public void searchpermplugin() {
@@ -54,7 +57,7 @@ public class PermissionsChecker {
         }
         try {
             plugin.getServer().getServicesManager().getRegistration(de.bananaco.bpermissions.api.util.CalculableType.class);
-            PermPlugin = 3;
+            PermPlugin = 4;
             plugin.Logger("Permissions: Hooked into bPermissions!", "Debug");
             return;
         } catch (NoClassDefFoundError e) {
@@ -78,11 +81,12 @@ public class PermissionsChecker {
                     return false;
                 } catch (Exception e) {
                     e.printStackTrace();
+                    plugin.report.report(3325, "Couldnt check permission with BukkitPermission", e.getMessage(), "PermissionsChecker", e.getCause());
                     return false;
                 }
             } else if (PermPlugin == 2) {
-                if(!Bukkit.getPluginManager().isPluginEnabled("PermissionsEx")){
-                   return false;
+                if (!Bukkit.getPluginManager().isPluginEnabled("PermissionsEx")) {
+                    return false;
                 }
                 try {
                     PermissionUser user = PermissionsEx.getUser(player);;
@@ -99,12 +103,13 @@ public class PermissionsChecker {
                         return false;
                     } catch (Exception e1) {
                         e.printStackTrace();
+                        plugin.report.report(3326, "Couldnt check permission with PermissionEX", e.getMessage(), "PermissionsChecker", e.getCause());
                         return false;
                     }
                 }
             } else if (PermPlugin == 3) {
-                if(!Bukkit.getPluginManager().isPluginEnabled("GroupManager")){
-                   return false;
+                if (!Bukkit.getPluginManager().isPluginEnabled("GroupManager")) {
+                    return false;
                 }
                 try {
                     final AnjoPermissionsHandler handler = groupManager.getWorldsHolder().getWorldPermissions(player);
@@ -119,11 +124,12 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    plugin.report.report(3327, "Couldnt check permission with GroupManager", e.getMessage(), "PermissionsChecker", e.getCause());
                     return false;
                 }
             } else if (PermPlugin == 4) {
-                if(!Bukkit.getPluginManager().isPluginEnabled("bPermissions")){
-                   return false;
+                if (!Bukkit.getPluginManager().isPluginEnabled("bPermissions")) {
+                    return false;
                 }
                 try {
                     if (de.bananaco.bpermissions.api.ApiLayer.hasPermission(player.getWorld().getName(), CalculableType.USER, player.getName(), action)) {
@@ -135,6 +141,7 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    plugin.report.report(3327, "Couldnt check permission with bPermissions", e.getMessage(), "PermissionsChecker", e.getCause());
                     return false;
                 }
             } else {
@@ -143,6 +150,7 @@ public class PermissionsChecker {
             }
         } catch (Exception e) {
             plugin.Logger("Error on checking permissions!", "Error");
+            plugin.report.report(3328, "Error on checking permissions", e.getMessage(), "PermissionsChecker", e.getCause());
             e.printStackTrace();
             return false;
         }
@@ -167,6 +175,7 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     plugin.Logger("Error on checking permissions with BukkitPermissions!", "Error");
+                    plugin.report.report(3329, "Couldnt check permission with BukkitPermissions", e.getMessage(), "PermissionsChecker", e.getCause());
                     plugin.PlayerLogger(player, "Error on checking permissions with BukkitPermissions!", "Error");
                     e.printStackTrace();
                     return false;
@@ -185,7 +194,7 @@ public class PermissionsChecker {
                         return false;
                     }
                 } catch (Exception e) {
-                    plugin.Logger("Error on checking permissions with PermissionsEX!", "Error");
+
                     try {
                         PermissionManager permissions = PermissionsEx.getPermissionManager();
 
@@ -196,12 +205,15 @@ public class PermissionsChecker {
                             return false;
                         }
                     } catch (Exception e1) {
+                        plugin.Logger("Error on checking permissions with PermissionsEX!", "Error");
+                        plugin.report.report(3330, "Couldnt check permission with PermissionsEx", e.getMessage(), "PermissionsChecker", e.getCause());
                         e.printStackTrace();
                         return false;
                     }
                 }
             } else if (PermPlugin == 3) {
                 if (!Bukkit.getPluginManager().isPluginEnabled("GroupManager")) {
+                    plugin.PlayerLogger(player, "GroupManager is not enabled!", "Error");
                     return false;
                 }
                 try {
@@ -218,12 +230,14 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     plugin.Logger("Error on checking permissions with GroupManager!", "Error");
+                    plugin.report.report(3331, "Couldnt check permission with GroupManager", e.getMessage(), "PermissionsChecker", e.getCause());
                     plugin.PlayerLogger(player, "Error on checking permissions with GroupManager!", "Error");
                     e.printStackTrace();
                     return false;
                 }
             } else if (PermPlugin == 4) {
                 if (!Bukkit.getPluginManager().isPluginEnabled("bPermissions")) {
+                    plugin.PlayerLogger(player, "bPermissions is not enabled!", "Error");
                     return false;
                 }
                 try {
@@ -237,6 +251,7 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     plugin.Logger("Error on checking permissions with bPermissions!", "Error");
+                    plugin.report.report(3332, "Couldnt check permission with bPermissions", e.getMessage(), "PermissionsChecker", e.getCause());
                     plugin.PlayerLogger(player, "Error on checking permissions with bPermissions!", "Error");
                     e.printStackTrace();
                     return false;
@@ -248,6 +263,7 @@ public class PermissionsChecker {
             }
         } catch (Exception e) {
             plugin.Logger("Error on checking permissions!", "Error");
+            plugin.report.report(3333, "Error on checking permissions", e.getMessage(), "PermissionsChecker", e.getCause());
             plugin.PlayerLogger(player, "Error on checking permissions!", "Error");
             e.printStackTrace();
             return false;
