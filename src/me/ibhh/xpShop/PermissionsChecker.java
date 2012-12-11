@@ -34,7 +34,7 @@ public class PermissionsChecker {
                     plugin.Logger("checking PermissionsPlugin!", "Debug");
                     searchpermplugin();
                 } catch (Exception e) {
-                    plugin.report.report(3324, "Checking Permissions plugin failed", e.getMessage(), "PermissionsChecker", e.getCause());
+                    plugin.report.report(3324, "Checking Permissions plugin failed", e.getMessage(), "PermissionsChecker", e);
                 }
             }
         }, 0);
@@ -75,13 +75,10 @@ public class PermissionsChecker {
             }
             if (PermPlugin == 1) {
                 try {
-                    if (player.hasPermission(action)) {
-                        return true;
-                    }
-                    return false;
+                    return player.hasPermission(action) || player.hasPermission(action.toLowerCase());
                 } catch (Exception e) {
                     e.printStackTrace();
-                    plugin.report.report(3325, "Couldnt check permission with BukkitPermission", e.getMessage(), "PermissionsChecker", e.getCause());
+                    plugin.report.report(3325, "Couldnt check permission with BukkitPermission", e.getMessage(), "PermissionsChecker", e);
                     return false;
                 }
             } else if (PermPlugin == 2) {
@@ -95,6 +92,9 @@ public class PermissionsChecker {
                     }
                     return false;
                 } catch (Exception e) {
+                    if (plugin.config.debug) {
+                        e.printStackTrace();
+                    }
                     try {
                         PermissionManager permissions = PermissionsEx.getPermissionManager();
                         if (permissions.has(player, action)) {
@@ -103,7 +103,12 @@ public class PermissionsChecker {
                         return false;
                     } catch (Exception e1) {
                         e.printStackTrace();
-                        plugin.report.report(3326, "Couldnt check permission with PermissionEX", e.getMessage(), "PermissionsChecker", e.getCause());
+                        plugin.Logger("Error on checking Permission with PermissionsEx!", "Error");
+                        plugin.Logger("May the /reload command caused this issue!", "Error");
+                        plugin.Logger("May your permissions.yml is wrong, please check it!", "Error");
+                        plugin.Logger("------------", "Error");
+                        plugin.Logger("If you mean this is an error, use /" + plugin.getName() + " report myissueisthis", "Error");
+                        plugin.Logger("------------", "Error");
                         return false;
                     }
                 }
@@ -124,7 +129,7 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    plugin.report.report(3327, "Couldnt check permission with GroupManager", e.getMessage(), "PermissionsChecker", e.getCause());
+                    plugin.report.report(3327, "Couldnt check permission with GroupManager", e.getMessage(), "PermissionsChecker", e);
                     return false;
                 }
             } else if (PermPlugin == 4) {
@@ -141,7 +146,7 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    plugin.report.report(3327, "Couldnt check permission with bPermissions", e.getMessage(), "PermissionsChecker", e.getCause());
+                    plugin.report.report(3327, "Couldnt check permission with bPermissions", e.getMessage(), "PermissionsChecker", e);
                     return false;
                 }
             } else {
@@ -150,7 +155,7 @@ public class PermissionsChecker {
             }
         } catch (Exception e) {
             plugin.Logger("Error on checking permissions!", "Error");
-            plugin.report.report(3328, "Error on checking permissions", e.getMessage(), "PermissionsChecker", e.getCause());
+            plugin.report.report(3328, "Error on checking permissions", e.getMessage(), "PermissionsChecker", e);
             e.printStackTrace();
             return false;
         }
@@ -175,7 +180,7 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     plugin.Logger("Error on checking permissions with BukkitPermissions!", "Error");
-                    plugin.report.report(3329, "Couldnt check permission with BukkitPermissions", e.getMessage(), "PermissionsChecker", e.getCause());
+                    plugin.report.report(3329, "Couldnt check permission with BukkitPermissions", e.getMessage(), "PermissionsChecker", e);
                     plugin.PlayerLogger(player, "Error on checking permissions with BukkitPermissions!", "Error");
                     e.printStackTrace();
                     return false;
@@ -194,7 +199,9 @@ public class PermissionsChecker {
                         return false;
                     }
                 } catch (Exception e) {
-
+                    if (plugin.getConfig().getBoolean("debug")) {
+                        e.printStackTrace();
+                    }
                     try {
                         PermissionManager permissions = PermissionsEx.getPermissionManager();
 
@@ -205,8 +212,13 @@ public class PermissionsChecker {
                             return false;
                         }
                     } catch (Exception e1) {
-                        plugin.Logger("Error on checking permissions with PermissionsEX!", "Error");
-                        plugin.report.report(3330, "Couldnt check permission with PermissionsEx", e.getMessage(), "PermissionsChecker", e.getCause());
+                        plugin.PlayerLogger(player, "Error on checking Permission with PermissionsEx! Please inform an Admin!", "Error");
+                        plugin.Logger("Error on checking Permission with PermissionsEx!", "Error");
+                        plugin.Logger("May the /reload command caused this issue!", "Error");
+                        plugin.Logger("May your permissions.yml is wrong, please check it!", "Error");
+                        plugin.Logger("------------", "Error");
+                        plugin.Logger("If you mean this is an error, use /" + plugin.getName() + " report myissueisthis", "Error");
+                        plugin.Logger("------------", "Error");
                         e.printStackTrace();
                         return false;
                     }
@@ -230,7 +242,7 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     plugin.Logger("Error on checking permissions with GroupManager!", "Error");
-                    plugin.report.report(3331, "Couldnt check permission with GroupManager", e.getMessage(), "PermissionsChecker", e.getCause());
+                    plugin.report.report(3331, "Couldnt check permission with GroupManager", e.getMessage(), "PermissionsChecker", e);
                     plugin.PlayerLogger(player, "Error on checking permissions with GroupManager!", "Error");
                     e.printStackTrace();
                     return false;
@@ -251,7 +263,7 @@ public class PermissionsChecker {
                     }
                 } catch (Exception e) {
                     plugin.Logger("Error on checking permissions with bPermissions!", "Error");
-                    plugin.report.report(3332, "Couldnt check permission with bPermissions", e.getMessage(), "PermissionsChecker", e.getCause());
+                    plugin.report.report(3332, "Couldnt check permission with bPermissions", e.getMessage(), "PermissionsChecker", e);
                     plugin.PlayerLogger(player, "Error on checking permissions with bPermissions!", "Error");
                     e.printStackTrace();
                     return false;
@@ -263,7 +275,7 @@ public class PermissionsChecker {
             }
         } catch (Exception e) {
             plugin.Logger("Error on checking permissions!", "Error");
-            plugin.report.report(3333, "Error on checking permissions", e.getMessage(), "PermissionsChecker", e.getCause());
+            plugin.report.report(3333, "Error on checking permissions", e.getMessage(), "PermissionsChecker", e);
             plugin.PlayerLogger(player, "Error on checking permissions!", "Error");
             e.printStackTrace();
             return false;

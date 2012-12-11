@@ -32,16 +32,13 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.logging.Level;
-import net.minecraft.server.EntityPlayer;
-import net.minecraft.server.ItemInWorldManager;
-import net.minecraft.server.MinecraftServer;
+import me.ibhh.xpShop.Tools.ToolUtility;
+import me.ibhh.xpShop.Tools.Tools;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.InvalidDescriptionException;
 import org.bukkit.plugin.InvalidPluginException;
@@ -128,6 +125,22 @@ public class xpShop extends JavaPlugin {
         "repairconfirm"
     };
     public TeleportManager TP;
+    private String[] mcversion = {"1.3", "1.4.1", "1.4.2", "1.4.3", "1.4.4", "1.4.5-R0.1", "1.4.5-R0.2", "1.4.5-R0.3"};
+
+    public boolean isBukkitVersionCompatible() {
+        boolean contains = false;
+        for (String version1 : mcversion) {
+            if (getServer().getBukkitVersion().contains(version1)) {
+                contains = true;
+            }
+        }
+        return contains;
+    }
+
+    public static String getRawBukkitVersion() {
+        String[] a = Bukkit.getServer().getBukkitVersion().split("-");
+        return a[0];
+    }
 
     public xpShop() {
     }
@@ -160,8 +173,9 @@ public class xpShop extends JavaPlugin {
     @Override
     public void onEnable() {
         long timetemp1 = System.nanoTime();
-        report = new ReportToHost(this);
         Loggerclass = new Logger(this);
+        
+        Exception ex1 = null;
         try {
             config = new ConfigHandler(this);
             config.loadConfigonStart();
@@ -179,10 +193,35 @@ public class xpShop extends JavaPlugin {
             }
         } catch (Exception e1) {
             Logger("Error on loading config: " + e1.getMessage(), "Error");
-            report.report(332, "Config loading failed", e1.getMessage(), "xpShop", e1.getCause());
+            ex1 = e1;
             e1.printStackTrace();
             Logger("Version: " + Version + " failed to enable!", "Error");
             onDisable();
+        }
+        Logger("*****************************", "Warning");
+        Logger("Because of some Bukkitchanges", "Warning");
+        Logger("you have to update the plugin", "Warning");
+        Logger("manually.", "Warning");
+        Logger("This plugin needs a update every", "Warning");
+        Logger("MC-Update!!!!", "Warning");
+        Logger("*****************************", "Warning");
+        Logger("Your Bukkit version: " + getServer().getBukkitVersion(), "Warning");
+        boolean contains = false;
+        for (String version : mcversion) {
+            if (getServer().getBukkitVersion().contains(version)) {
+                contains = true;
+            }
+        }
+        if (contains) {
+            Logger("This plugin is compatible to this bukkit-version", "Warning");
+        } else {
+            Logger("Your plugin-version is NOT compatible!", "Error");
+            setEnabled(false);
+            return;
+        }
+        report = new ReportToHost(this);
+        if (ex1 != null) {
+            report.report(332, "Config loading failed", ex1.getMessage(), "xpShop", ex1);
         }
         ListenerShop = new xpShopListener(this);
         aktuelleVersion();
@@ -200,7 +239,6 @@ public class xpShop extends JavaPlugin {
             blacklistcheck();
         }
         this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
-
             @Override
             public void run() {
                 if (config.Internet) {
@@ -216,7 +254,6 @@ public class xpShop extends JavaPlugin {
         }, 200L, 50000L);
         if (config.usedbtomanageXP) {
             this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
-
                 @Override
                 public void run() {
                     if (!toggle) {
@@ -252,7 +289,6 @@ public class xpShop extends JavaPlugin {
             }, (long) (config.DelayTimeTask * 20), (long) (config.TaskRepeat) * 20);
         }
         this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
-
             @Override
             public void run() {
                 if (config.Internet) {
@@ -280,7 +316,7 @@ public class xpShop extends JavaPlugin {
                         }
                     } catch (Exception e) {
                         Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
-                        report.report(333, "Error on doing update check", e.getMessage(), "xpShop" , e.getCause());
+                        report.report(333, "Error on doing update check", e.getMessage(), "xpShop", e);
                         Logger("may the mainserver is down!", "Error");
                     }
                 }
@@ -309,7 +345,6 @@ public class xpShop extends JavaPlugin {
             metricshandler = new MetricsHandler(this);
             metricshandler.loadStatsFiles();
             this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
-
                 @Override
                 public void run() {
                     metricshandler.saveStatsFiles();
@@ -330,7 +365,7 @@ public class xpShop extends JavaPlugin {
                     }
                 } catch (Exception e) {
                     Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
-                    report.report(334, "Error on doing update check", e.getMessage(), "xpShop", e.getCause());
+                    report.report(334, "Error on doing update check", e.getMessage(), "xpShop", e);
                     Logger("may the mainserver is down!", "Error");
                 }
             }
@@ -344,7 +379,6 @@ public class xpShop extends JavaPlugin {
             Logger("All funktions deactivated to prevent the server!", "Warning");
         }
         this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-
             @Override
             public void run() {
                 toggle = false;
@@ -370,7 +404,7 @@ public class xpShop extends JavaPlugin {
                 upd.download(path);
             } catch (Exception e) {
                 Logger("Error on doing blacklist update! Message: " + e.getMessage(), "Error");
-                report.report(335, "Error on doing update", e.getMessage(), "xpShop", e.getCause());
+                report.report(335, "Error on doing update", e.getMessage(), "xpShop", e);
                 Logger("may the mainserver is down!", "Error");
             }
         }
@@ -424,7 +458,7 @@ public class xpShop extends JavaPlugin {
                 }
             } catch (Exception e) {
                 Logger("Error on doing update check or update! Message: " + e.getMessage(), "Error");
-                report.report(336, "Error on doing update check or update", e.getMessage(), "xpShop", e.getCause());
+                report.report(336, "Error on doing update check or update", e.getMessage(), "xpShop", e);
                 Logger("may the mainserver is down!", "Error");
             }
         }
@@ -446,7 +480,7 @@ public class xpShop extends JavaPlugin {
                 config.getBlacklistCode();
             } catch (Exception e) {
                 Logger("Error on doing blacklistcheck! Message: " + e.getMessage(), "Error");
-                report.report(337, "Error on doing blacklistcheck", e.getMessage(), "xpShop", e.getCause());
+                report.report(337, "Error on doing blacklistcheck", e.getMessage(), "xpShop", e);
                 Logger("may the mainserver is down!", "Error");
             }
         }
@@ -485,7 +519,7 @@ public class xpShop extends JavaPlugin {
                 }
             } catch (Exception e) {
                 Logger("Error on doing blacklist update! Message: " + e.getMessage(), "Error");
-                report.report(338, "Error on doing blacklistcheck", e.getMessage(), "xpShop", e.getCause());
+                report.report(338, "Error on doing blacklistcheck", e.getMessage(), "xpShop", e);
                 Logger("May the mainserver is down!", "Error");
             }
         }
@@ -524,7 +558,7 @@ public class xpShop extends JavaPlugin {
                 }
             } catch (Exception e) {
                 Logger("Error checking for new version! Message: " + e.getMessage(), "Error");
-                report.report(337, "Error on checking for new version", e.getMessage(), "xpShop", e.getCause());
+                report.report(337, "Error on checking for new version", e.getMessage(), "xpShop", e);
                 Logger("May the mainserver is down!", "Error");
             }
         }
@@ -542,50 +576,6 @@ public class xpShop extends JavaPlugin {
         temp = (int) Math.sqrt(temp);
         entfernung = Math.round(temp);
         return entfernung;
-    }
-
-    /**
-     * Return player
-     *
-     * @param args
-     * @param index which field is playername
-     * @return player objekt (do player.saveData() after editing players data)
-     */
-    public Player getmyOfflinePlayer(String[] args, int index) {
-        String playername = args[index];
-        Logger("Empfaenger: " + playername, "Debug");
-        Player player = getServer().getPlayerExact(playername);
-        if (player == null) {
-            player = getServer().getPlayer(playername);
-        }
-        if (player == null) {
-            for (OfflinePlayer p : Bukkit.getServer().getOfflinePlayers()) {
-                OfflinePlayer offp = p;
-                if (offp.getName().toLowerCase().equals(playername.toLowerCase())) {
-                    Logger("Player has same name: " + offp.getName(), "Debug");
-                    if (offp != null) {
-                        if (offp.hasPlayedBefore()) {
-                            player = (Player) offp.getPlayer();
-                            Logger("Player has Played before: " + offp.getName(), "Debug");
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        if (player == null) {
-            MinecraftServer server = ((CraftServer) this.getServer()).getServer();
-            EntityPlayer entity = new EntityPlayer(server, server.getWorldServer(0), args[index], new ItemInWorldManager(server.getWorldServer(0)));
-            player = entity == null ? null : (Player) entity.getBukkitEntity();
-            if (player != null) {
-                player.loadData();
-                return player;
-            }
-        }
-        if (player != null) {
-            Logger("Empfaengername after getting Player: " + player.getName(), "Debug");
-        }
-        return player;
     }
 
     /**
@@ -612,7 +602,7 @@ public class xpShop extends JavaPlugin {
                     }
                 } catch (Exception e) {
                     Logger("Error on downloading new Version!", "Error");
-                    report.report(3313, "Error on downloading new Version", e.getMessage(), "xpShop", e.getCause());
+                    report.report(3313, "Error on downloading new Version", e.getMessage(), "xpShop", e);
                     e.printStackTrace();
                     Logger("Uncatched Exeption!", "Error");
                 }
@@ -648,7 +638,7 @@ public class xpShop extends JavaPlugin {
         } catch (Exception w) {
             w.printStackTrace();
             Logger("Uncatched Exeption!", "Error");
-            report.report(3314, "Uncatched Exeption on installing", w.getMessage(), "xpShop", w.getCause());
+            report.report(3314, "Uncatched Exeption on installing", w.getMessage(), "xpShop", w);
         }
     }
 
@@ -685,33 +675,33 @@ public class xpShop extends JavaPlugin {
                                 case 1:
                                     ActionxpShop = args[0];
                                     if (args[0].equalsIgnoreCase("help")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             Help.help(sender, args);
                                         }
                                     } else if (args[0].equalsIgnoreCase("repairconfirm")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             repair.RepairConfirm(player);
                                             return true;
                                         }
                                     } else if (args[0].equalsIgnoreCase("repaircancel")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             repair.RepairCancel(player);
                                             return true;
                                         }
                                     } else if (args[0].equalsIgnoreCase("repair")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             repair.registerRepair(player, 0);
                                             metricshandler.repair++;
                                         }
                                         return true;
                                     } else if (args[0].equalsIgnoreCase("toolinfo")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             metricshandler.toolinfo++;
                                             PlayerLogger(player, String.format(getConfig().getString("Repair.damage." + config.language), repair.getDamage(player.getItemInHand()), repair.maxDurability(player.getItemInHand())), "");
                                         }
                                         return true;
                                     } else if (args[0].equalsIgnoreCase("reload")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             PlayerLogger(player, "Please wait: Reloading this plugin!", "Warning");
                                             plugman.unloadPlugin("xpShop");
                                             plugman.loadPlugin("xpShop");
@@ -719,7 +709,7 @@ public class xpShop extends JavaPlugin {
                                         }
                                         return true;
                                     } else if (args[0].equalsIgnoreCase("showdebug")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (DebugMsg.containsKey(player.getName())) {
                                                 DebugMsg.remove(player.getName());
                                             } else {
@@ -728,7 +718,7 @@ public class xpShop extends JavaPlugin {
                                             return true;
                                         }
                                     } else if (args[0].equalsIgnoreCase("debugfile")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             getConfig().set("debugfile", !getConfig().getBoolean("debugfile"));
                                             PlayerLogger(player, "debugfile: " + getConfig().getBoolean("debugfile"), "");
                                             saveConfig();
@@ -737,7 +727,7 @@ public class xpShop extends JavaPlugin {
                                             return true;
                                         }
                                     } else if (args[0].equalsIgnoreCase("internet")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             getConfig().set("internet", !getConfig().getBoolean("internet"));
                                             PlayerLogger(player, "internet: " + getConfig().getBoolean("internet"), "");
                                             saveConfig();
@@ -761,27 +751,27 @@ public class xpShop extends JavaPlugin {
                                         Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
                                         return true;
                                     } else if (ActionxpShop.equalsIgnoreCase("bottleconfirm")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             bottle.confirmChange(player);
                                             return true;
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("bottlecancel")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             bottle.cancelChange(player);
                                             return true;
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("accept")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             TP.acceptteleport(player);
                                             return true;
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("deny")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             TP.denyteleport(player);
                                             return true;
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("notp")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (commandexec.containsKey(player)) {
                                                 commandexec.remove(player);
                                                 requested.remove(player);
@@ -792,7 +782,7 @@ public class xpShop extends JavaPlugin {
                                             return true;
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("yestp")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (commandexec.containsKey(player)) {
                                                 if (commandexec.get(player)) {
                                                     TP.registerTeleport(requested.get(player), true, player);
@@ -819,12 +809,12 @@ public class xpShop extends JavaPlugin {
                                             return true;
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("update")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             install();
                                             return true;
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("deletedebug")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             File file = new File("plugins" + File.separator + "xpShop" + File.separator + "debug.txt");
                                             if (file.exists()) {
                                                 if (file.delete()) {
@@ -841,7 +831,7 @@ public class xpShop extends JavaPlugin {
                                             return true;
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("log")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             File file = new File("plugins" + File.separator + "xpShop" + File.separator + "debug.txt");
                                             if (file.exists()) {
                                                 PlayerLogger(player, "debug.txt is " + file.length() + " Byte big!", "Warning");
@@ -850,7 +840,7 @@ public class xpShop extends JavaPlugin {
                                             return true;
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("toggle")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (toggle) {
                                                 toggle = false;
                                             } else {
@@ -860,11 +850,10 @@ public class xpShop extends JavaPlugin {
                                             return true;
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("deletetable")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (config.usedbtomanageXP) {
                                                 final Player pl = player;
                                                 this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-
                                                     @Override
                                                     public void run() {
                                                         if (SQL.deleteDB()) {
@@ -892,7 +881,7 @@ public class xpShop extends JavaPlugin {
                                             return true;
                                         }
                                     } else if (args[0].equalsIgnoreCase("configconfirm")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (Config.containsKey(player)) {
                                                 String temp = getConfig().getString(Config.get(player));
                                                 Logger("Temp: " + temp, "Debug");
@@ -926,7 +915,7 @@ public class xpShop extends JavaPlugin {
                                             return true;
                                         }
                                     } else if (args[0].equalsIgnoreCase("configcancel")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (Config.containsKey(player)) {
                                                 PlayerLogger(player, "Command canceled!", "Warning");
                                                 Set.remove(player);
@@ -943,7 +932,7 @@ public class xpShop extends JavaPlugin {
                                 case 2:
                                     ActionxpShop = args[0];
                                     if (ActionxpShop.equals("selllevel")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (Tools.isInteger(args[1])) {
                                                 selllevel = Integer.parseInt(args[1]);
                                                 selllevel(player, this.selllevel, true);
@@ -957,7 +946,7 @@ public class xpShop extends JavaPlugin {
                                         }
                                     }
                                     if (args[0].equalsIgnoreCase("repair")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (Tools.isInteger(args[1])) {
                                                 repair.registerRepair(player, Integer.parseInt(args[1]));
                                                 metricshandler.repair++;
@@ -969,7 +958,7 @@ public class xpShop extends JavaPlugin {
                                         }
                                     }
                                     if (ActionxpShop.equals("bottle")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (Tools.isInteger(args[1])) {
                                                 bottle.registerCommandXPBottles(player, Integer.parseInt(args[1]));
                                                 metricshandler.bottle++;
@@ -979,7 +968,7 @@ public class xpShop extends JavaPlugin {
                                             return false;
                                         }
                                     } else if (args[0].equalsIgnoreCase("tpme")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             Player teler = (Player) getServer().getPlayer(args[1]);
                                             if (teler != null) {
                                                 int entfernung = getEntfernung(player.getLocation(), teler.getLocation());
@@ -990,7 +979,6 @@ public class xpShop extends JavaPlugin {
                                                     } else {
                                                         final Player player1 = player;
                                                         getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-
                                                             @Override
                                                             public void run() {
                                                                 if (commandexec.containsKey(player1)) {
@@ -1017,7 +1005,7 @@ public class xpShop extends JavaPlugin {
                                             return true;
                                         }
                                     } else if (args[0].equalsIgnoreCase("tpto")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             Player teler = (Player) getServer().getPlayer(args[1]);
                                             if (teler != null) {
                                                 int entfernung = getEntfernung(player.getLocation(), teler.getLocation());
@@ -1028,7 +1016,6 @@ public class xpShop extends JavaPlugin {
                                                     } else {
                                                         final Player player1 = player;
                                                         getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-
                                                             @Override
                                                             public void run() {
                                                                 if (commandexec.containsKey(player1)) {
@@ -1055,7 +1042,7 @@ public class xpShop extends JavaPlugin {
                                             return true;
                                         }
                                     } else if (args[0].equalsIgnoreCase("language")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             getConfig().set("language", args[1]);
                                             PlayerLogger(player, "language set to: " + args[1], "");
                                             saveConfig();
@@ -1076,7 +1063,7 @@ public class xpShop extends JavaPlugin {
                                             return true;
                                         }
                                     } else if (ActionxpShop.equals("buylevel")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (Tools.isInteger(args[1])) {
                                                 buylevel = Integer.parseInt(args[1]);
                                                 buylevel(player, this.buylevel, true);
@@ -1089,7 +1076,7 @@ public class xpShop extends JavaPlugin {
                                             return false;
                                         }
                                     } else if (ActionxpShop.equals("sell")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (Tools.isInteger(args[1])) {
                                                 sell = Integer.parseInt(args[1]);
                                                 sell(player, this.sell, true, "sell");
@@ -1102,7 +1089,7 @@ public class xpShop extends JavaPlugin {
                                             return false;
                                         }
                                     } else if (ActionxpShop.equals("buy")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (Tools.isInteger(args[1])) {
                                                 buy = Integer.parseInt(args[1]);
                                                 buy(player, this.buy, true, "buy");
@@ -1150,7 +1137,7 @@ public class xpShop extends JavaPlugin {
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("resetplayer")) {
                                         if (config.usedbtomanageXP) {
-                                            if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                            if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                                 SQL.UpdateXP(args[1], 0);
                                                 PlayerLogger(player, String.format(config.Playerreset, args[1]), "");
                                                 return true;
@@ -1160,24 +1147,24 @@ public class xpShop extends JavaPlugin {
                                             return false;
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("report")) {
-                                    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
-                                        if (!Tools.isInteger(args[1])) {
-                                            PlayerLogger(player, report.report(331, "Reported issue", args[1], "xpShop", null), "");
-                                            temptime = (System.nanoTime() - temptime) / 1000000;
-                                            Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
-                                            return true;
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
+                                            if (!Tools.isInteger(args[1])) {
+                                                PlayerLogger(player, report.report(331, "Reported issue", args[1], "xpShop", ""), "");
+                                                temptime = (System.nanoTime() - temptime) / 1000000;
+                                                Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                                return true;
+                                            }
+                                            PlayerLogger(player, config.commanderrornoint, "Error");
+                                            return false;
                                         }
-                                        PlayerLogger(player, config.commanderrornoint, "Error");
-                                        return false;
-                                    }
-                                } else {
+                                    } else {
                                         Help.help(sender, args);
                                     }
                                     break;
                                 case 3:
                                     ActionxpShop = args[0];
                                     if (ActionxpShop.equalsIgnoreCase("info")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if ((!Tools.isInteger(args[1])) && (Tools.isInteger(args[2]))) {
                                                 info(player, args);
                                                 temptime = (System.nanoTime() - temptime) / 1000000;
@@ -1189,7 +1176,7 @@ public class xpShop extends JavaPlugin {
                                             return false;
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("send")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if ((!Tools.isInteger(args[1])) && (Tools.isInteger(args[2]))) {
                                                 int xp = Integer.parseInt(args[2]);
                                                 sendxp(sender, xp, args[1], args);
@@ -1203,7 +1190,7 @@ public class xpShop extends JavaPlugin {
                                         }
                                     } else if (ActionxpShop.equalsIgnoreCase("setXP")) {
                                         if (config.usedbtomanageXP) {
-                                            if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                            if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                                 if (Tools.isInteger(args[2])) {
                                                     SQL.UpdateXP(args[1], Integer.parseInt(args[2]));
                                                     PlayerLogger(player, String.format(config.Playerxpset, args[1], Integer.parseInt(args[2])), "");
@@ -1216,7 +1203,7 @@ public class xpShop extends JavaPlugin {
                                         return false;
                                     } else if (ActionxpShop.equalsIgnoreCase("grand")) {
                                         if (config.usedbtomanageXP) {
-                                            if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                            if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                                 if (Tools.isInteger(args[2])) {
                                                     try {
                                                         SQL.UpdateXP(args[1], SQL.getXP(args[1]) + Integer.parseInt(args[2]));
@@ -1233,10 +1220,10 @@ public class xpShop extends JavaPlugin {
                                                 }
                                             }
                                         } else {
-                                            if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                            if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                                 Player empfaenger1;
                                                 try {
-                                                    empfaenger1 = getmyOfflinePlayer(args, 1);
+                                                    empfaenger1 = ToolUtility.getTools().getmyOfflinePlayer(this, args, 1);
                                                 } catch (Exception e1) {
                                                     PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                                                     return false;
@@ -1269,7 +1256,7 @@ public class xpShop extends JavaPlugin {
                                         }
                                         return false;
                                     } else if (args[0].equalsIgnoreCase("config")) {
-                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                        if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (!Config.containsKey(player)) {
                                                 Config.put(player, args[1]);
                                                 String Configtext = args[2];
@@ -1283,7 +1270,6 @@ public class xpShop extends JavaPlugin {
                                                 PlayerLogger(player, "Please cancel with \"/xpShop configcancel\" !", "Warning");
                                                 final Player player1 = player;
                                                 getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-
                                                     @Override
                                                     public void run() {
                                                         if (Config.containsKey(player1)) {
@@ -1299,6 +1285,21 @@ public class xpShop extends JavaPlugin {
                                                 return true;
                                             }
                                         }
+                                    } else if (args[0].equalsIgnoreCase("report")) {
+                                        if (PermissionsHandler.checkpermissions(player, "xpShop.report")) {
+                                            if (!Tools.isInteger(args[1])) {
+                                                String text = "";
+                                                for (int i = 1; i < args.length; i++) {
+                                                    text = text.concat(" " + args[i]);
+                                                }
+                                                PlayerLogger(player, report.report(331, "Reported issue", text, "BookShop", "No stacktrace because of command"), "");
+                                                temptime = (System.nanoTime() - temptime) / 1000000;
+                                                Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                                return true;
+                                            }
+                                            PlayerLogger(player, config.commanderrornoint, "Error");
+                                            return false;
+                                        }
                                     } else {
                                         Help.help(sender, args);
                                     }
@@ -1306,7 +1307,7 @@ public class xpShop extends JavaPlugin {
                                 default:
                                     if (args.length > 3) {
                                         if (args[0].equalsIgnoreCase("config")) {
-                                            if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop + ".permission"))) {
+                                            if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                                 if (!Config.containsKey(player)) {
                                                     Config.put(player, args[1]);
                                                     String Configtext = args[2];
@@ -1320,7 +1321,6 @@ public class xpShop extends JavaPlugin {
                                                     PlayerLogger(player, "Please cancel with \"/xpShop configcancel\" !", "Warning");
                                                     final Player player1 = player;
                                                     getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-
                                                         @Override
                                                         public void run() {
                                                             if (Config.containsKey(player1)) {
@@ -1335,6 +1335,21 @@ public class xpShop extends JavaPlugin {
                                                     PlayerLogger(player, "Please confirm or cancel your last command first!", "Error");
                                                     return true;
                                                 }
+                                            }
+                                        } else if (args[0].equalsIgnoreCase("report")) {
+                                            if (PermissionsHandler.checkpermissions(player, "xpShop.report")) {
+                                                if (!Tools.isInteger(args[1])) {
+                                                    String text = "";
+                                                    for (int i = 1; i < args.length; i++) {
+                                                        text = text.concat(" " + args[i]);
+                                                    }
+                                                    PlayerLogger(player, report.report(331, "Reported issue", text, "BookShop", "No stacktrace because of command"), "");
+                                                    temptime = (System.nanoTime() - temptime) / 1000000;
+                                                    Logger("Command: " + cmd.getName() + " " + args.toString() + " executed in " + temptime + "ms", "Debug");
+                                                    return true;
+                                                }
+                                                PlayerLogger(player, config.commanderrornoint, "Error");
+                                                return false;
                                             }
                                         }
                                     }
@@ -1358,7 +1373,6 @@ public class xpShop extends JavaPlugin {
                                 return true;
                             } else if (args[0].equalsIgnoreCase("deletetable")) {
                                 this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-
                                     @Override
                                     public void run() {
                                         if (SQL.deleteDB()) {
@@ -1422,6 +1436,13 @@ public class xpShop extends JavaPlugin {
                                 config.reload();
                                 Logger("Config reloaded!", "Debug");
                                 return true;
+                            } else if (args[0].equalsIgnoreCase("report")) {
+                                String text = "";
+                                for (int i = 1; i < args.length; i++) {
+                                    text = text.concat(" " + args[i]);
+                                }
+                                Logger(report.report(331, "Reported issue", text, "BookShop", "No stacktrace because of command"), "");
+                                return true;
                             }
                         } else if (args.length == 2) {
                             if (args[0].equalsIgnoreCase("language")) {
@@ -1435,7 +1456,21 @@ public class xpShop extends JavaPlugin {
                                 config.reload();
                                 Logger("Config reloaded!", "Debug");
                                 return true;
+                            } else if (args[0].equalsIgnoreCase("report")) {
+                                String text = "";
+                                for (int i = 1; i < args.length; i++) {
+                                    text = text.concat(" " + args[i]);
+                                }
+                                Logger(report.report(331, "Reported issue", text, "BookShop", "No stacktrace because of command"), "");
+                                return true;
                             }
+                        } else if (args[0].equalsIgnoreCase("report")) {
+                            String text = "";
+                            for (int i = 1; i < args.length; i++) {
+                                text = text.concat(" " + args[i]);
+                            }
+                            Logger(report.report(331, "Reported issue", text, "BookShop", "No stacktrace because of command"), "");
+                            return true;
                         }
                     }
                     return false;
@@ -1552,7 +1587,7 @@ public class xpShop extends JavaPlugin {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("[xpShop] Error: Uncatch Exeption!");
-            report.report(3317, "Logger doesnt work", e.getMessage(), "xpShop", e.getCause());
+            report.report(3317, "Logger doesnt work", e.getMessage(), "xpShop", e);
         }
     }
 
@@ -1599,7 +1634,7 @@ public class xpShop extends JavaPlugin {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("[xpShop] Error: Uncatch Exeption!");
-            report.report(3317, "PlayerLogger doesnt work", e.getMessage(), "xpShop", e.getCause());
+            report.report(3317, "PlayerLogger doesnt work", e.getMessage(), "xpShop", e);
         }
     }
 
@@ -1644,7 +1679,7 @@ public class xpShop extends JavaPlugin {
                 }
             } else {
                 try {
-                    empfaenger1 = getmyOfflinePlayer(args, 1);
+                    empfaenger1 = ToolUtility.getTools().getmyOfflinePlayer(this, args, 1);
                 } catch (Exception e1) {
                     PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                     return;
@@ -1777,7 +1812,7 @@ public class xpShop extends JavaPlugin {
                 Player empfaenger1;
                 try {
                     try {
-                        empfaenger1 = getmyOfflinePlayer(args, 1);
+                        empfaenger1 = ToolUtility.getTools().getmyOfflinePlayer(this, args, 1);
                     } catch (Exception e1) {
                         PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                         return;
@@ -1826,7 +1861,7 @@ public class xpShop extends JavaPlugin {
                     Player empfaenger1;
                     try {
                         try {
-                            empfaenger1 = getmyOfflinePlayer(args, 1);
+                            empfaenger1 = ToolUtility.getTools().getmyOfflinePlayer(this, args, 1);
                         } catch (Exception e1) {
                             if (config.debug) {
                                 e1.printStackTrace();

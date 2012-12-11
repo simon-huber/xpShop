@@ -5,6 +5,7 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import me.ibhh.xpShop.Tools.Tools;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -36,60 +37,57 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void join(PlayerJoinEvent event) {
         if (!plugin.toggle) {
-            Player player = event.getPlayer();
-            plugin.Logger("Player " + event.getPlayer().getTotalExperience() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
+            try {
+                Player player = event.getPlayer();
+                plugin.Logger("Player " + event.getPlayer().getTotalExperience() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
 //            double y = 1.75 * (event.getPlayer().getLevel() + event.getPlayer().getExp()) * (event.getPlayer().getLevel() + event.getPlayer().getExp()) + 4.9997 * (event.getPlayer().getLevel() + event.getPlayer().getExp()) + 0.1327;
 //            event.getPlayer().setTotalExperience((int) y);
-            double t = plugin.getLevelXP(player.getLevel()) + (plugin.nextLevelAt(player.getLevel()) * player.getExp());
-            player.setTotalExperience((int) t);
-            plugin.Logger("After calculating: Player " + event.getPlayer().getTotalExperience() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
-            if (plugin.config.usedbtomanageXP) {
-                String playername;
-                double XP = player.getTotalExperience();
-                double XPneu = XP;
-                playername = player.getName();
-                plugin.Logger("Playername (joined): " + playername, "Debug");
-                try {
-                    if (plugin.SQL.isindb(playername)) {
-                        plugin.Logger("Playername is in db: " + playername + "With " + XP + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
-                        XPneu = plugin.SQL.getXP(playername);
-                    } else {
-                        plugin.SQL.InsertAuction(playername, (int) XP);
-                        XPneu = plugin.SQL.getXP(playername);
-                        plugin.Logger("Playername insert into db: " + playername + "With " + XP + " XP! DB now: " + XPneu, "Debug");
-                    }
-                } catch (SQLException we) {
-                    return;
-                }
-                if (XP != XPneu) {
-                    if (XP < XPneu) {
-                        plugin.PlayerLogger(player, String.format(plugin.config.addedxp, (int) (XPneu - XP)), "");
-                    } else if (XPneu < XP) {
-                        plugin.PlayerLogger(player, String.format(plugin.config.substractedxp, (int) (XP - XPneu)), "");
-                    }
-                    player.setLevel(0);
-                    player.setExp(0);
-                    plugin.UpdateXP(player, (int) XPneu, "Join");
-                    player.saveData();
-                }
-            }
-            if (!plugin.Blacklistcode.startsWith("1")) {
-                if (plugin.PermissionsHandler.checkpermissionssilent(event.getPlayer(), "xpShop.admin")) {
-                    if (plugin.updateaviable) {
-                        plugin.PlayerLogger(event.getPlayer(), "installed xpShop version: " + plugin.Version + ", latest version: " + plugin.newversion, "Warning");
-                        plugin.PlayerLogger(event.getPlayer(), "New xpShop update aviable: type \"/xpShop update\" to install!", "Warning");
-                        if (!plugin.getConfig().getBoolean("installondownload")) {
-                            plugin.PlayerLogger(event.getPlayer(), "Please edit the config.yml if you wish that the plugin updates itself atomatically!", "Warning");
+                double t = plugin.getLevelXP(player.getLevel()) + (plugin.nextLevelAt(player.getLevel()) * player.getExp());
+                player.setTotalExperience((int) t);
+                plugin.Logger("After calculating: Player " + event.getPlayer().getTotalExperience() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
+                if (plugin.config.usedbtomanageXP) {
+                    String playername;
+                    double XP = player.getTotalExperience();
+                    double XPneu = XP;
+                    playername = player.getName();
+                    plugin.Logger("Playername (joined): " + playername, "Debug");
+                    try {
+                        if (plugin.SQL.isindb(playername)) {
+                            plugin.Logger("Playername is in db: " + playername + "With " + XP + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
+                            XPneu = plugin.SQL.getXP(playername);
+                        } else {
+                            plugin.SQL.InsertAuction(playername, (int) XP);
+                            XPneu = plugin.SQL.getXP(playername);
+                            plugin.Logger("Playername insert into db: " + playername + "With " + XP + " XP! DB now: " + XPneu, "Debug");
                         }
+                    } catch (SQLException we) {
+                        return;
                     }
-                    File file = new File("plugins" + File.separator + "xpShop" + File.separator + "debug.txt");
-                    if (file.exists()) {
-                        if (file.length() > 100000000) {
-                            plugin.PlayerLogger(event.getPlayer(), "debug.txt is " + file.length() + "Byte big!", "Warning");
-                            plugin.PlayerLogger(event.getPlayer(), "Type /xpShop deletedebug to delete the debug.txt!", "Warning");
+                    if (XP != XPneu) {
+                        if (XP < XPneu) {
+                            plugin.PlayerLogger(player, String.format(plugin.config.addedxp, (int) (XPneu - XP)), "");
+                        } else if (XPneu < XP) {
+                            plugin.PlayerLogger(player, String.format(plugin.config.substractedxp, (int) (XP - XPneu)), "");
+                        }
+                        player.setLevel(0);
+                        player.setExp(0);
+                        plugin.UpdateXP(player, (int) XPneu, "Join");
+                        player.saveData();
+                    }
+                }
+                if (!plugin.Blacklistcode.startsWith("1")) {
+                    if (plugin.PermissionsHandler.checkpermissionssilent(event.getPlayer(), "xpShop.admin")) {
+                        if (plugin.updateaviable) {
+                            plugin.PlayerLogger(event.getPlayer(), "installed xpShop version: " + plugin.Version + ", latest version: " + plugin.newversion, "Warning");
+                            plugin.PlayerLogger(event.getPlayer(), "New xpShop update aviable: type \"/xpShop update\" to install!", "Warning");
+                            if (!plugin.getConfig().getBoolean("installondownload")) {
+                                plugin.PlayerLogger(event.getPlayer(), "Please edit the config.yml if you wish that the plugin updates itself atomatically!", "Warning");
+                            }
                         }
                     }
                 }
+            } catch (Exception e) {
+                plugin.report.report(334, "join event failed", e.getMessage(), "xpShopListener", e);
             }
         }
     }
@@ -97,29 +95,32 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void Verzaubern(PlayerLevelChangeEvent event) {
         if (!plugin.toggle) {
-            plugin.Logger("Players Level changed: " + event.getPlayer().getName() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
-            final Player player = event.getPlayer();
-            double t = plugin.getLevelXP(player.getLevel()) + (plugin.nextLevelAt(player.getLevel()) * player.getExp());
-            plugin.Logger("Players Level changed: new XP: " + t, "Debug");
-            player.setTotalExperience((int) t);
-            if (plugin.config.usedbtomanageXP) {
+            try {
+                plugin.Logger("Players Level changed: " + event.getPlayer().getName() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
+                final Player player = event.getPlayer();
+                double t = plugin.getLevelXP(player.getLevel()) + (plugin.nextLevelAt(player.getLevel()) * player.getExp());
+                plugin.Logger("Players Level changed: new XP: " + t, "Debug");
+                player.setTotalExperience((int) t);
+                if (plugin.config.usedbtomanageXP) {
 
-                final String playername = player.getName();
-                plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        plugin.Logger("Saving new XP!", "Debug");
-                        double XP;
-                        XP = player.getTotalExperience();
-                        plugin.SQL.UpdateXP(playername, (int) XP);
-                        try {
-                            plugin.Logger("Player updated into db: " + playername + "With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
-                        } catch (SQLException ex) {
-                            Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                    final String playername = player.getName();
+                    plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+                        @Override
+                        public void run() {
+                            plugin.Logger("Saving new XP!", "Debug");
+                            double XP;
+                            XP = player.getTotalExperience();
+                            plugin.SQL.UpdateXP(playername, (int) XP);
+                            try {
+                                plugin.Logger("Player updated into db: " + playername + "With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
+                            } catch (SQLException ex) {
+                                Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
-                    }
-                }, 0);
+                    }, 0);
+                }
+            } catch (Exception e) {
+                plugin.report.report(335, "Levelchange event failed", e.getMessage(), "xpShopListener", e);
             }
         }
     }
@@ -138,28 +139,31 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void change(PlayerExpChangeEvent event) {
         if (!plugin.toggle) {
-            if (plugin.config.debug) {
-                plugin.Logger("Players XP changed: " + event.getPlayer().getName() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
-            }
-            if (plugin.config.usedbtomanageXP) {
+            try {
+                if (plugin.config.debug) {
+                    plugin.Logger("Players XP changed: " + event.getPlayer().getName() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
+                }
+                if (plugin.config.usedbtomanageXP) {
 
-                final Player player = event.getPlayer();
-                final String playername = player.getName();
-                plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        plugin.Logger("Saving new XP!", "Debug");
-                        double XP;
-                        XP = player.getTotalExperience();
-                        plugin.SQL.UpdateXP(playername, (int) XP);
-                        try {
-                            plugin.Logger("Player updated into db: " + playername + "With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
-                        } catch (SQLException ex) {
-                            Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                    final Player player = event.getPlayer();
+                    final String playername = player.getName();
+                    plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+                        @Override
+                        public void run() {
+                            plugin.Logger("Saving new XP!", "Debug");
+                            double XP;
+                            XP = player.getTotalExperience();
+                            plugin.SQL.UpdateXP(playername, (int) XP);
+                            try {
+                                plugin.Logger("Player updated into db: " + playername + "With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
+                            } catch (SQLException ex) {
+                                Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
-                    }
-                }, 0);
+                    }, 0);
+                }
+            } catch (Exception e) {
+                plugin.report.report(336, "EXPchange event failed", e.getMessage(), "xpShopListener", e);
             }
         }
     }
@@ -167,26 +171,30 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void resp(PlayerDeathEvent event) {
         if (!plugin.toggle) {
-            Player player = (Player) event.getEntity();
-            plugin.Logger("Player: " + player.getName() + " respawned!", "Debug");
-            if (plugin.config.keepxpondeath) {
-                plugin.Logger("Keeping XP!", "Debug");
-                if (plugin.config.usedbtomanageXP) {
-                    plugin.Logger("db used!", "Debug");
-                    if (player != null) {
-                        player.setExp(0);
-                        player.setLevel(0);
-                        try {
-                            plugin.UpdateXP(player, plugin.SQL.getXP(player.getName()), "respawn");
-                            plugin.Logger("Successfully saved XP in db!", "Debug");
-                        } catch (SQLException ex) {
-                            Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                Player player = (Player) event.getEntity();
+                plugin.Logger("Player: " + player.getName() + " respawned!", "Debug");
+                if (plugin.config.keepxpondeath) {
+                    plugin.Logger("Keeping XP!", "Debug");
+                    if (plugin.config.usedbtomanageXP) {
+                        plugin.Logger("db used!", "Debug");
+                        if (player != null) {
+                            player.setExp(0);
+                            player.setLevel(0);
+                            try {
+                                plugin.UpdateXP(player, plugin.SQL.getXP(player.getName()), "respawn");
+                                plugin.Logger("Successfully saved XP in db!", "Debug");
+                            } catch (SQLException ex) {
+                                Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
+                    } else {
+                        plugin.Logger("Not using db!", "Debug");
+                        event.setKeepLevel(true);
                     }
-                } else {
-                    plugin.Logger("Not using db!", "Debug");
-                    event.setKeepLevel(true);
                 }
+            } catch (Exception e) {
+                plugin.report.report(338, "respawn event failed", e.getMessage(), "xpShopListener", e);
             }
         }
     }
@@ -194,34 +202,38 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void death(PlayerDeathEvent event) {
         if (!plugin.toggle) {
-            Player player = (Player) event.getEntity();
-            plugin.Logger("Player: " + player.getName() + " died!", "Debug");
-            if (plugin.config.usedbtomanageXP) {
-                plugin.Logger("using db!", "Debug");
-                if (plugin.config.keepxpondeath) {
-                    plugin.Logger("Keeping Levels!", "Debug");
-                    double XP;
-                    event.setKeepLevel(true);
-                    XP = player.getTotalExperience();
-                    plugin.SQL.UpdateXP(player.getName(), (int) XP);
+            try {
+                Player player = (Player) event.getEntity();
+                plugin.Logger("Player: " + player.getName() + " died!", "Debug");
+                if (plugin.config.usedbtomanageXP) {
+                    plugin.Logger("using db!", "Debug");
+                    if (plugin.config.keepxpondeath) {
+                        plugin.Logger("Keeping Levels!", "Debug");
+                        double XP;
+                        event.setKeepLevel(true);
+                        XP = player.getTotalExperience();
+                        plugin.SQL.UpdateXP(player.getName(), (int) XP);
+                    } else {
+                        plugin.Logger("Not keeping XP!", "Debug");
+                        plugin.Logger("saving new XP in db!", "Debug");
+                        double XP = player.getTotalExperience();
+                        plugin.UpdateXP(player, -((int) XP), "death");
+                        plugin.SQL.UpdateXP(player.getName(), (int) 0);
+                        try {
+                            plugin.Logger("Player updated into db: " + player.getName() + " With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(player.getName()), "Debug");
+                        } catch (SQLException ex) {
+                            Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
                 } else {
-                    plugin.Logger("Not keeping XP!", "Debug");
-                    plugin.Logger("saving new XP in db!", "Debug");
-                    double XP = player.getTotalExperience();
-                    plugin.UpdateXP(player, -((int) XP), "death");
-                    plugin.SQL.UpdateXP(player.getName(), (int) 0);
-                    try {
-                        plugin.Logger("Player updated into db: " + player.getName() + " With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(player.getName()), "Debug");
-                    } catch (SQLException ex) {
-                        Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                    plugin.Logger("Not using db!", "Debug");
+                    if (plugin.config.keepxpondeath) {
+                        plugin.Logger("keeping XP!", "Debug");
+                        event.setKeepLevel(true);
                     }
                 }
-            } else {
-                plugin.Logger("Not using db!", "Debug");
-                if (plugin.config.keepxpondeath) {
-                    plugin.Logger("keeping XP!", "Debug");
-                    event.setKeepLevel(true);
-                }
+            } catch (Exception e) {
+                plugin.report.report(338, "death event failed", e.getMessage(), "xpShopListener", e);
             }
         }
     }
@@ -229,26 +241,29 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void kick(PlayerKickEvent event) {
         if (!plugin.toggle) {
-            if (plugin.config.usedbtomanageXP) {
-                plugin.Logger("Player " + event.getPlayer().getName() + " kicked!", "Debug");
-                plugin.Logger("Using DB!", "Debug");
-                final Player player = event.getPlayer();
-                final String playername = player.getName();
-                plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        plugin.Logger("Saving new XP!", "Debug");
-                        double XP;
-                        XP = player.getTotalExperience();
-                        plugin.SQL.UpdateXP(playername, (int) XP);
-                        try {
-                            plugin.Logger("Player updated into db: " + playername + "With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(player.getName()), "Debug");
-                        } catch (SQLException ex) {
-                            Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                if (plugin.config.usedbtomanageXP) {
+                    plugin.Logger("Player " + event.getPlayer().getName() + " kicked!", "Debug");
+                    plugin.Logger("Using DB!", "Debug");
+                    final Player player = event.getPlayer();
+                    final String playername = player.getName();
+                    plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+                        @Override
+                        public void run() {
+                            plugin.Logger("Saving new XP!", "Debug");
+                            double XP;
+                            XP = player.getTotalExperience();
+                            plugin.SQL.UpdateXP(playername, (int) XP);
+                            try {
+                                plugin.Logger("Player updated into db: " + playername + "With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(player.getName()), "Debug");
+                            } catch (SQLException ex) {
+                                Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
-                    }
-                }, 2L);
+                    }, 2L);
+                }
+            } catch (Exception e) {
+                plugin.report.report(338, "kick event failed", e.getMessage(), "xpShopListener", e);
             }
         }
     }
@@ -256,33 +271,36 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void quit(PlayerQuitEvent event) {
         if (!plugin.toggle) {
-            if (plugin.config.usedbtomanageXP) {
-                final Player player = event.getPlayer();
-                final String playername = player.getName();
-                plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
-
-                    @Override
-                    public void run() {
-                        plugin.Logger("Saving new XP after quit!", "Debug");
-                        double XP;
-                        XP = player.getTotalExperience();
-                        try {
-                            int temp = plugin.SQL.getXP(playername);
-                            if (XP != temp) {
-                                plugin.Logger("Updating XP after quit because some differences!", "Debug");
-                                plugin.Logger("Difference: Player: " + XP + " Player: " + temp, "Debug");
-                                plugin.SQL.UpdateXP(playername, (int) XP);
+            try {
+                if (plugin.config.usedbtomanageXP) {
+                    final Player player = event.getPlayer();
+                    final String playername = player.getName();
+                    plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+                        @Override
+                        public void run() {
+                            plugin.Logger("Saving new XP after quit!", "Debug");
+                            double XP;
+                            XP = player.getTotalExperience();
+                            try {
+                                int temp = plugin.SQL.getXP(playername);
+                                if (XP != temp) {
+                                    plugin.Logger("Updating XP after quit because some differences!", "Debug");
+                                    plugin.Logger("Difference: Player: " + XP + " Player: " + temp, "Debug");
+                                    plugin.SQL.UpdateXP(playername, (int) XP);
+                                }
+                            } catch (SQLException ex) {
+                                Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                        } catch (SQLException ex) {
-                            Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                            try {
+                                plugin.Logger("Player updated into db: " + playername + "With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
+                            } catch (SQLException ex) {
+                                Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                            }
                         }
-                        try {
-                            plugin.Logger("Player updated into db: " + playername + "With " + player.getTotalExperience() + " XP! DB: " + plugin.SQL.getXP(playername), "Debug");
-                        } catch (SQLException ex) {
-                            Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                }, 2L);
+                    }, 2L);
+                }
+            } catch (Exception e) {
+                plugin.report.report(338, "quit event failed", e.getMessage(), "xpShopListener", e);
             }
         }
     }
@@ -290,13 +308,17 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void aendern(SignChangeEvent event) {
         if (!plugin.toggle) {
-            if (plugin.config.debug) {
-                plugin.Logger("First Line " + event.getLine(0), "Debug");
-            }
-            if (event.getLine(0).equalsIgnoreCase("[xpShop]")) {
-                createHandler.CreatexpShop(event);
-            } else if (event.getLine(0).equalsIgnoreCase("[xpShopSafe]")) {
-                createHandler.CreateSafe(event);
+            try {
+                if (plugin.config.debug) {
+                    plugin.Logger("First Line " + event.getLine(0), "Debug");
+                }
+                if (event.getLine(0).equalsIgnoreCase("[xpShop]")) {
+                    createHandler.CreatexpShop(event);
+                } else if (event.getLine(0).equalsIgnoreCase("[xpShopSafe]")) {
+                    createHandler.CreateSafe(event);
+                }
+            } catch (Exception e) {
+                plugin.report.report(338, "aendern event failed", e.getMessage(), "xpShopListener", e);
             }
         }
     }
@@ -412,27 +434,88 @@ public class xpShopListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onBreak(BlockBreakEvent event) {
         if (!plugin.toggle) {
-            Player p = event.getPlayer();
-            if (!(event.getBlock().getState() instanceof Sign)) {
-                if (plugin.config.debug) {
-                    plugin.Logger("Block dedected", "Debug");
-                }
-                org.bukkit.block.Sign sign = findSignxp(event.getBlock(), p.getName());
-                if (isCorrectSign(sign, event.getBlock())) {
-                    if (sign.getLine(0).equalsIgnoreCase("[xpShop]")) {
+            try {
+                Player p = event.getPlayer();
+                if (!(event.getBlock().getState() instanceof Sign)) {
+                    if (plugin.config.debug) {
+                        plugin.Logger("Block dedected", "Debug");
+                    }
+                    org.bukkit.block.Sign sign = findSignxp(event.getBlock(), p.getName());
+                    if (isCorrectSign(sign, event.getBlock())) {
+                        if (sign.getLine(0).equalsIgnoreCase("[xpShop]")) {
+                            if (!plugin.Blacklistcode.startsWith("1", 12)) {
+                                String[] line = sign.getLines();
+                                if (blockIsValid(sign)) {
+                                    if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
+                                        plugin.PlayerLogger(p, "Destroying xpShop!", "");
+                                        MTLocation loc = MTLocation.getMTLocationFromLocation(sign.getLocation());
+                                        if (plugin.metricshandler.Shop.containsKey(loc)) {
+                                            plugin.metricshandler.Shop.remove(loc);
+                                            plugin.Logger("Removed Shop from list!", "Debug");
+                                        }
+                                    } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
+                                        plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
+                                        MTLocation loc = MTLocation.getMTLocationFromLocation(sign.getLocation());
+                                        if (plugin.metricshandler.Shop.containsKey(loc)) {
+                                            plugin.metricshandler.Shop.remove(loc);
+                                            plugin.Logger("Removed Shop from list!", "Debug");
+                                        }
+                                    } else {
+                                        event.setCancelled(true);
+                                    }
+                                }
+                            } else {
+                                plugin.blacklistLogger(p);
+                                event.setCancelled(true);
+                            }
+                        } else if (sign.getLine(0).equalsIgnoreCase("[xpShopSafe]")) {
+                            if (!plugin.Blacklistcode.startsWith("1", 12)) {
+                                String[] line = sign.getLines();
+                                if (SafeIsValid(sign)) {
+                                    if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.create")) {
+                                        plugin.PlayerLogger(p, "Destroying xpShopSafe!", "");
+                                        MTLocation loc = MTLocation.getMTLocationFromLocation(sign.getLocation());
+                                        if (plugin.metricshandler.Safe.containsKey(loc)) {
+                                            plugin.metricshandler.Safe.remove(loc);
+                                            plugin.Logger("Removed Safe from list!", "Debug");
+                                        }
+                                    } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.admin")) {
+                                        plugin.PlayerLogger(p, "Destroying xpShopSafe (Admin)!", "");
+                                        MTLocation loc = MTLocation.getMTLocationFromLocation(sign.getLocation());
+                                        if (plugin.metricshandler.Safe.containsKey(loc)) {
+                                            plugin.metricshandler.Safe.remove(loc);
+                                            plugin.Logger("Removed Safe from list!", "Debug");
+                                        }
+                                    } else {
+                                        event.setCancelled(true);
+                                    }
+                                }
+                            } else {
+                                plugin.blacklistLogger(p);
+                                event.setCancelled(true);
+                            }
+                        }
+                    }
+                } else {
+                    Sign s = (Sign) event.getBlock().getState();
+                    String[] line = s.getLines();
+                    plugin.Logger("Line 0: " + line[0], "Debug");
+                    plugin.Logger("Sign dedected", "Debug");
+                    if (line[0].equalsIgnoreCase("[xpShop]")) {
                         if (!plugin.Blacklistcode.startsWith("1", 12)) {
-                            String[] line = sign.getLines();
-                            if (blockIsValid(sign)) {
-                                if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
+                            if (this.blockIsValid(line, "break", p)) {
+                                if (!plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own") && !plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
+                                    event.setCancelled(true);
+                                } else if (s.getLine(1).equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
                                     plugin.PlayerLogger(p, "Destroying xpShop!", "");
-                                    MTLocation loc = MTLocation.getMTLocationFromLocation(sign.getLocation());
+                                    MTLocation loc = MTLocation.getMTLocationFromLocation(s.getLocation());
                                     if (plugin.metricshandler.Shop.containsKey(loc)) {
                                         plugin.metricshandler.Shop.remove(loc);
                                         plugin.Logger("Removed Shop from list!", "Debug");
                                     }
                                 } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
                                     plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
-                                    MTLocation loc = MTLocation.getMTLocationFromLocation(sign.getLocation());
+                                    MTLocation loc = MTLocation.getMTLocationFromLocation(s.getLocation());
                                     if (plugin.metricshandler.Shop.containsKey(loc)) {
                                         plugin.metricshandler.Shop.remove(loc);
                                         plugin.Logger("Removed Shop from list!", "Debug");
@@ -445,20 +528,27 @@ public class xpShopListener implements Listener {
                             plugin.blacklistLogger(p);
                             event.setCancelled(true);
                         }
-                    } else if (sign.getLine(0).equalsIgnoreCase("[xpShopSafe]")) {
+                    } else if (line[0].equalsIgnoreCase("[xpShopSafe]")) {
                         if (!plugin.Blacklistcode.startsWith("1", 12)) {
-                            String[] line = sign.getLines();
-                            if (SafeIsValid(sign)) {
+                            if (SafeIsValid(s)) {
                                 if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.create")) {
                                     plugin.PlayerLogger(p, "Destroying xpShopSafe!", "");
-                                    MTLocation loc = MTLocation.getMTLocationFromLocation(sign.getLocation());
+                                    plugin.UpdateXP(p, Integer.parseInt(line[2]), "destroy");
+                                    if (plugin.config.usedbtomanageXP) {
+                                        try {
+                                            plugin.SQL.UpdateXP(p.getName(), plugin.SQL.getXP(p.getName()) + Integer.parseInt(line[2]));
+                                        } catch (SQLException ex) {
+                                            Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    }
+                                    MTLocation loc = MTLocation.getMTLocationFromLocation(s.getLocation());
                                     if (plugin.metricshandler.Safe.containsKey(loc)) {
                                         plugin.metricshandler.Safe.remove(loc);
                                         plugin.Logger("Removed Safe from list!", "Debug");
                                     }
                                 } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.admin")) {
                                     plugin.PlayerLogger(p, "Destroying xpShopSafe (Admin)!", "");
-                                    MTLocation loc = MTLocation.getMTLocationFromLocation(sign.getLocation());
+                                    MTLocation loc = MTLocation.getMTLocationFromLocation(s.getLocation());
                                     if (plugin.metricshandler.Safe.containsKey(loc)) {
                                         plugin.metricshandler.Safe.remove(loc);
                                         plugin.Logger("Removed Safe from list!", "Debug");
@@ -473,79 +563,19 @@ public class xpShopListener implements Listener {
                         }
                     }
                 }
-            } else {
-                Sign s = (Sign) event.getBlock().getState();
-                String[] line = s.getLines();
-                plugin.Logger("Line 0: " + line[0], "Debug");
-                plugin.Logger("Sign dedected", "Debug");
-                if (line[0].equalsIgnoreCase("[xpShop]")) {
-                    if (!plugin.Blacklistcode.startsWith("1", 12)) {
-                        if (this.blockIsValid(line, "break", p)) {
-                            if (!plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own") && !plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
-                                event.setCancelled(true);
-                            } else if (s.getLine(1).equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.own")) {
-                                plugin.PlayerLogger(p, "Destroying xpShop!", "");
-                                MTLocation loc = MTLocation.getMTLocationFromLocation(s.getLocation());
-                                if (plugin.metricshandler.Shop.containsKey(loc)) {
-                                    plugin.metricshandler.Shop.remove(loc);
-                                    plugin.Logger("Removed Shop from list!", "Debug");
-                                }
-                            } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.create.admin")) {
-                                plugin.PlayerLogger(p, "Destroying xpShop (Admin)!", "");
-                                MTLocation loc = MTLocation.getMTLocationFromLocation(s.getLocation());
-                                if (plugin.metricshandler.Shop.containsKey(loc)) {
-                                    plugin.metricshandler.Shop.remove(loc);
-                                    plugin.Logger("Removed Shop from list!", "Debug");
-                                }
-                            } else {
-                                event.setCancelled(true);
-                            }
-                        }
-                    } else {
-                        plugin.blacklistLogger(p);
-                        event.setCancelled(true);
-                    }
-                } else if (line[0].equalsIgnoreCase("[xpShopSafe]")) {
-                    if (!plugin.Blacklistcode.startsWith("1", 12)) {
-                        if (SafeIsValid(s)) {
-                            if (line[1].equalsIgnoreCase(p.getName()) && plugin.PermissionsHandler.checkpermissions(p, "xpShop.safe.create")) {
-                                plugin.PlayerLogger(p, "Destroying xpShopSafe!", "");
-                                plugin.UpdateXP(p, Integer.parseInt(line[2]), "destroy");
-                                if (plugin.config.usedbtomanageXP) {
-                                    try {
-                                        plugin.SQL.UpdateXP(p.getName(), plugin.SQL.getXP(p.getName()) + Integer.parseInt(line[2]));
-                                    } catch (SQLException ex) {
-                                        Logger.getLogger(xpShopListener.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
-                                }
-                                MTLocation loc = MTLocation.getMTLocationFromLocation(s.getLocation());
-                                if (plugin.metricshandler.Safe.containsKey(loc)) {
-                                    plugin.metricshandler.Safe.remove(loc);
-                                    plugin.Logger("Removed Safe from list!", "Debug");
-                                }
-                            } else if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.admin")) {
-                                plugin.PlayerLogger(p, "Destroying xpShopSafe (Admin)!", "");
-                                MTLocation loc = MTLocation.getMTLocationFromLocation(s.getLocation());
-                                if (plugin.metricshandler.Safe.containsKey(loc)) {
-                                    plugin.metricshandler.Safe.remove(loc);
-                                    plugin.Logger("Removed Safe from list!", "Debug");
-                                }
-                            } else {
-                                event.setCancelled(true);
-                            }
-                        }
-                    } else {
-                        plugin.blacklistLogger(p);
-                        event.setCancelled(true);
-                    }
-                }
+            } catch (Exception e) {
+                plugin.report.report(338, "break event failed", e.getMessage(), "xpShopListener", e);
             }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
-        interactHandler.InteracteventHandler(event);
+        try {
+            interactHandler.InteracteventHandler(event);
+        } catch (Exception e) {
+            plugin.report.report(340, "interact event failed", e.getMessage(), "xpShopListener", e);
+        }
     }
 
     public double getPrice(Sign s, Player p, boolean buy) {

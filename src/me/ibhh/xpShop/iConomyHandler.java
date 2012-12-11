@@ -9,7 +9,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 public class iConomyHandler {
 
-    public static int iConomyversion = 0;
+    private static int iConomyversion = 0;
     private com.iConomy.system.Holdings balance5;
     private Double balance;
     private xpShop plugin;
@@ -23,7 +23,6 @@ public class iConomyHandler {
             plugin.Logger("hooked into Vault", "Debug");
         }
         plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
-
             @Override
             public void run() {
                 plugin.Logger("checking MoneyPlugin!", "Debug");
@@ -74,11 +73,12 @@ public class iConomyHandler {
                     iConomyversion = 6;
                     plugin.Logger("hooked into iConomy6", "Debug");
                 } else {
-                    plugin.Logger("cant hook into iConomy5, iConomy6, Vault or Register.!", "");
+                    plugin.Logger("cant hook into iConomy5, iConomy6, Vault or Register. Downloading Vault!", "");
                     plugin.Logger(" ************ Please download and configure Vault!!!!! **********", "Warning");
                 }
             } catch (Exception E) {
                 E.printStackTrace();
+                plugin.report.report(3334, "Error on searching EconomyPlugin", E.getMessage(), "iConomyHandler", E);
                 iConomyversion = 0;
             }
             return iConomyversion;

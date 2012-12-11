@@ -4,6 +4,7 @@
  */
 package me.ibhh.xpShop;
 
+import me.ibhh.xpShop.Tools.ToolUtility;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -174,7 +175,7 @@ public class SignHandler {
         plugin.Logger("Line 3: " + line[2], "Debug");
         plugin.Logger("Line 4: " + line[3], "Debug");
         if (!playername.equalsIgnoreCase(line[1])) {
-            Player empfaenger = plugin.getmyOfflinePlayer(line, 1);
+            Player empfaenger = ToolUtility.getTools().getmyOfflinePlayer(plugin, line, 1);
             if (empfaenger != null) {
                 if (plugin.config.getPlayerConfig(empfaenger, player)) {
                     if (Integer.parseInt(sign.getLine(2)) >= Integer.parseInt(line[2])) {
@@ -297,7 +298,7 @@ public class SignHandler {
         plugin.Logger("Line 3: " + line[2], "Debug");
         plugin.Logger("Line 4: " + line[3], "Debug");
         if (!playername.equalsIgnoreCase(line[1])) {
-            Player empfaenger = plugin.getmyOfflinePlayer(line, 1);
+            Player empfaenger = ToolUtility.getTools().getmyOfflinePlayer(plugin, line, 1);
             if (empfaenger != null) {
                 if (plugin.config.getPlayerConfig(empfaenger, player)) {
                     if (empfaenger.getTotalExperience() >= Integer.parseInt(line[2])) {
@@ -442,7 +443,7 @@ public class SignHandler {
         plugin.Logger("Line 3: " + line[2], "Debug");
         plugin.Logger("Line 4: " + line[3], "Debug");
         if (!playername.equalsIgnoreCase(line[1])) {
-            Player empfaenger = plugin.getmyOfflinePlayer(line, 1);
+            Player empfaenger = ToolUtility.getTools().getmyOfflinePlayer(plugin, line, 1);
             if (empfaenger != null) {
                 if (plugin.config.getPlayerConfig(empfaenger, player)) {
                     if (player.getTotalExperience() >= Integer.parseInt(line[2])) {
@@ -561,7 +562,7 @@ public class SignHandler {
         plugin.Logger("Line 3: " + line[2], "Debug");
         plugin.Logger("Line 4: " + line[3], "Debug");
         if (!playername.equalsIgnoreCase(line[1])) {
-            Player empfaenger = plugin.getmyOfflinePlayer(line, 1);
+            Player empfaenger = ToolUtility.getTools().getmyOfflinePlayer(plugin, line, 1);
             if (empfaenger != null) {
                 if (plugin.config.getPlayerConfig(empfaenger, player)) {
                     if (player.getTotalExperience() >= Integer.parseInt(line[2])) {

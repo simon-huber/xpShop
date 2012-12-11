@@ -21,7 +21,7 @@ public class PanelControl extends JFrame {
         super();
         auc = au;
         setTitle("Default options");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.NORMAL);
         gruppe = new ButtonGroup();
         layout = new GroupLayout(getContentPane());
         layout.setAutoCreateGaps(true);

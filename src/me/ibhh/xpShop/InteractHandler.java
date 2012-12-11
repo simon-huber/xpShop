@@ -4,7 +4,6 @@
  */
 package me.ibhh.xpShop;
 
-import org.bukkit.Location;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
