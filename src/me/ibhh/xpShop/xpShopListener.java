@@ -1,12 +1,9 @@
 package me.ibhh.xpShop;
 
-import com.griefcraft.scripting.ModuleLoader;
-import java.io.File;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import me.ibhh.xpShop.Tools.Tools;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;

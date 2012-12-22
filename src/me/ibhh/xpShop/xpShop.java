@@ -125,7 +125,7 @@ public class xpShop extends JavaPlugin {
         "repairconfirm"
     };
     public TeleportManager TP;
-    private String[] mcversion = {"1.3", "1.4.1", "1.4.2", "1.4.3", "1.4.4", "1.4.5-R0.1", "1.4.5-R0.2", "1.4.5-R0.3"};
+    private String[] mcversion = {"1.3", "1.4.1", "1.4.2", "1.4.3", "1.4.4", "1.4.5-R0.1", "1.4.5-R0.2", "1.4.5-R0.3", "1.4.5-R1.0", "1.4.6"};
 
     public boolean isBukkitVersionCompatible() {
         boolean contains = false;

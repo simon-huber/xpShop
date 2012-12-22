@@ -9,6 +9,26 @@ import org.bukkit.entity.Player;
  * @author Simon
  */
 public abstract class Tools {
+    
+    /**
+     * Determines if all packages in a String array are within the Classpath
+     * This is the best way to determine if a specific plugin exists and will be
+     * loaded. If the plugin package isn't loaded, we shouldn't bother waiting
+     * for it!
+     * @param packages String Array of package names to check
+     * @return Success or Failure
+     */
+    public static boolean packagesExists(String...packages) {
+        try {
+            for (String pkg : packages) {
+                Class.forName(pkg);
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
     public static boolean isInteger(String input) {
         try {
             Integer.parseInt(input);
