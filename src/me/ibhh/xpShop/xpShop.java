@@ -159,9 +159,13 @@ public class xpShop extends JavaPlugin {
             SQL.CloseCon();
             SQL = null;
         }
-        metricshandler.saveStatsFiles();
-        forceUpdate();
-        blacklistUpdate();
+        if (metricshandler != null) {
+            metricshandler.saveStatsFiles();
+        }
+        if (upd != null) {
+            forceUpdate();
+            blacklistUpdate();
+        }
         timetemp = System.currentTimeMillis() - timetemp;
         Logger("disabled in " + timetemp + "ms", "");
     }
@@ -174,7 +178,7 @@ public class xpShop extends JavaPlugin {
     public void onEnable() {
         long timetemp1 = System.nanoTime();
         Loggerclass = new Logger(this);
-        
+
         Exception ex1 = null;
         try {
             config = new ConfigHandler(this);
@@ -238,7 +242,7 @@ public class xpShop extends JavaPlugin {
             e.printStackTrace();
             blacklistcheck();
         }
-        this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+        this.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
             @Override
             public void run() {
                 if (config.Internet) {
@@ -253,7 +257,7 @@ public class xpShop extends JavaPlugin {
             }
         }, 200L, 50000L);
         if (config.usedbtomanageXP) {
-            this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+            this.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
                 @Override
                 public void run() {
                     if (!toggle) {
@@ -288,7 +292,7 @@ public class xpShop extends JavaPlugin {
                 }
             }, (long) (config.DelayTimeTask * 20), (long) (config.TaskRepeat) * 20);
         }
-        this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+        this.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
             @Override
             public void run() {
                 if (config.Internet) {
@@ -344,7 +348,7 @@ public class xpShop extends JavaPlugin {
             repair = new Repair(this);
             metricshandler = new MetricsHandler(this);
             metricshandler.loadStatsFiles();
-            this.getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable() {
+            this.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
                 @Override
                 public void run() {
                     metricshandler.saveStatsFiles();
@@ -378,7 +382,7 @@ public class xpShop extends JavaPlugin {
             Logger(this.getDescription().getName() + " version " + Version + " is blacklisted because of bugs, after restart an bugfix will be installed!", "Warning");
             Logger("All funktions deactivated to prevent the server!", "Warning");
         }
-        this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+        this.getServer().getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
             @Override
             public void run() {
                 toggle = false;
