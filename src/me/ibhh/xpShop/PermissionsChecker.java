@@ -1,12 +1,7 @@
 package me.ibhh.xpShop;
 
-import de.bananaco.bpermissions.api.util.CalculableType;
-import org.anjocaido.groupmanager.GroupManager;
-import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
 import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -14,23 +9,16 @@ import ru.tehkode.permissions.bukkit.PermissionsEx;
 public class PermissionsChecker {
 
     private xpShop plugin;
-    private GroupManager groupManager;
     public int PermPlugin = 0;
 
     public PermissionsChecker(xpShop pl, String von) {
         this.plugin = pl;
         final String von2 = von;
-        final PluginManager pluginManager = plugin.getServer().getPluginManager();
-        final Plugin GMplugin = pluginManager.getPlugin("GroupManager");
 
-        plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+        plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
                 try {
-                    if (GMplugin != null && GMplugin.isEnabled()) {
-                        groupManager = (GroupManager) GMplugin;
-
-                    }
                     plugin.Logger("checking PermissionsPlugin!", "Debug");
                     searchpermplugin();
                 } catch (Exception e) {
@@ -117,16 +105,7 @@ public class PermissionsChecker {
                     return false;
                 }
                 try {
-                    final AnjoPermissionsHandler handler = groupManager.getWorldsHolder().getWorldPermissions(player);
-                    {
-                        if (handler != null) {
-                            if (handler.has(player, action)) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        }
-                    }
+                    return player.hasPermission(action) || player.hasPermission(action.toLowerCase());
                 } catch (Exception e) {
                     e.printStackTrace();
                     plugin.report.report(3327, "Couldnt check permission with GroupManager", e.getMessage(), "PermissionsChecker", e);
@@ -137,9 +116,7 @@ public class PermissionsChecker {
                     return false;
                 }
                 try {
-                    if (de.bananaco.bpermissions.api.ApiLayer.hasPermission(player.getWorld().getName(), CalculableType.USER, player.getName(), action)) {
-                        return true;
-                    } else if (de.bananaco.bpermissions.api.ApiLayer.hasPermission(player.getWorld().getName(), CalculableType.GROUP, player.getName(), action)) {
+                    if (player.hasPermission(action) || player.hasPermission(action.toLowerCase())) {
                         return true;
                     } else {
                         return false;
@@ -159,7 +136,6 @@ public class PermissionsChecker {
             e.printStackTrace();
             return false;
         }
-        return false;
     }
 
     public boolean checkpermissions(Player player, String action) {
@@ -172,7 +148,7 @@ public class PermissionsChecker {
             }
             if (PermPlugin == 1) {
                 try {
-                    if (player.hasPermission(action)) {
+                    if (player.hasPermission(action) || player.hasPermission(action.toLowerCase())) {
                         return true;
                     } else {
                         plugin.PlayerLogger(player, player.getName() + " " + plugin.getConfig().getString("permissions.error." + plugin.getConfig().getString("language")) + " (" + action + ")", "Error");
@@ -229,16 +205,11 @@ public class PermissionsChecker {
                     return false;
                 }
                 try {
-                    final AnjoPermissionsHandler handler = groupManager.getWorldsHolder().getWorldPermissions(player);
-                    {
-                        if (handler != null) {
-                            if (handler.has(player, action)) {
-                                return true;
-                            } else {
-                                plugin.PlayerLogger(player, player.getName() + " " + plugin.getConfig().getString("permissions.error." + plugin.getConfig().getString("language")) + " (" + action + ")", "Error");
-                                return false;
-                            }
-                        }
+                    if (player.hasPermission(action) || player.hasPermission(action.toLowerCase())) {
+                        return true;
+                    } else {
+                        plugin.PlayerLogger(player, player.getName() + " " + plugin.getConfig().getString("permissions.error." + plugin.getConfig().getString("language")) + " (" + action + ")", "Error");
+                        return false;
                     }
                 } catch (Exception e) {
                     plugin.Logger("Error on checking permissions with GroupManager!", "Error");
@@ -253,9 +224,7 @@ public class PermissionsChecker {
                     return false;
                 }
                 try {
-                    if (de.bananaco.bpermissions.api.ApiLayer.hasPermission(player.getWorld().getName(), CalculableType.USER, player.getName(), action)) {
-                        return true;
-                    } else if (de.bananaco.bpermissions.api.ApiLayer.hasPermission(player.getWorld().getName(), CalculableType.GROUP, player.getName(), action)) {
+                    if (player.hasPermission(action) || player.hasPermission(action.toLowerCase())) {
                         return true;
                     } else {
                         plugin.PlayerLogger(player, player.getName() + " " + plugin.getConfig().getString("permissions.error." + plugin.getConfig().getString("language")) + " (" + action + ")", "Error");
@@ -280,6 +249,5 @@ public class PermissionsChecker {
             e.printStackTrace();
             return false;
         }
-        return false;
     }
 }
