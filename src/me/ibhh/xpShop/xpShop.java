@@ -125,16 +125,19 @@ public class xpShop extends JavaPlugin {
         "repairconfirm"
     };
     public TeleportManager TP;
-    private String[] mcversion = {"1.3", "1.4.1", "1.4.2", "1.4.3", "1.4.4", "1.4.5-R0.1", "1.4.5-R0.2", "1.4.5-R0.3", "1.4.5-R1.0", "1.4.6"};
 
     public boolean isBukkitVersionCompatible() {
-        boolean contains = false;
-        for (String version1 : mcversion) {
-            if (getServer().getBukkitVersion().contains(version1)) {
-                contains = true;
-            }
+        return Tools.packagesExists("net.minecraft.server.v1_4_5.MinecraftServer")
+                || Tools.packagesExists("net.minecraft.server.v1_4_6.MinecraftServer")
+                || Tools.packagesExists("net.minecraft.server.v1_4_R1.MinecraftServer")
+                || Tools.packagesExists("net.minecraft.server.MinecraftServer");
+    }
+
+    public ReportToHost getReportHandler() {
+        if (report == null) {
+            report = new ReportToHost(this);
         }
-        return contains;
+        return report;
     }
 
     public static String getRawBukkitVersion() {
@@ -210,13 +213,7 @@ public class xpShop extends JavaPlugin {
         Logger("MC-Update!!!!", "Warning");
         Logger("*****************************", "Warning");
         Logger("Your Bukkit version: " + getServer().getBukkitVersion(), "Warning");
-        boolean contains = false;
-        for (String version : mcversion) {
-            if (getServer().getBukkitVersion().contains(version)) {
-                contains = true;
-            }
-        }
-        if (contains) {
+        if (isBukkitVersionCompatible()) {
             Logger("This plugin is compatible to this bukkit-version", "Warning");
         } else {
             Logger("Your plugin-version is NOT compatible!", "Error");
