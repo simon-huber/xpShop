@@ -100,7 +100,7 @@ public class BottleManager {
                     return false;
                 }
             } else {
-                plugin.PlayerLogger(player, String.format(plugin.getConfig().getString("BottleFilling.NotEnoughXp." + plugin.config.language), anzahl * plugin.getConfig().getInt("XPperBottle"), anzahl, plugin.getConfig().getInt("XPperBottle")), "Error");
+                plugin.PlayerLogger(player, String.format(plugin.getConfig().getString("BottleFilling.NotEnoughXP." + plugin.config.language), anzahl * plugin.getConfig().getInt("XPperBottle"), anzahl, plugin.getConfig().getInt("XPperBottle")), "Error");
                 return false;
             }
         } else {
