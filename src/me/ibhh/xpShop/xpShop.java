@@ -1683,6 +1683,7 @@ public class xpShop extends JavaPlugin {
                     empfaenger1 = ToolUtility.getTools().getmyOfflinePlayer(this, args, 1);
                 } catch (Exception e1) {
                     PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+                    e1.printStackTrace();
                     return;
                 }
                 if (empfaenger1 != null) {
