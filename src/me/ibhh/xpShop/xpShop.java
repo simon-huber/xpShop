@@ -130,6 +130,7 @@ public class xpShop extends JavaPlugin {
         return Tools.packagesExists("net.minecraft.server.v1_4_5.MinecraftServer")
                 || Tools.packagesExists("net.minecraft.server.v1_4_6.MinecraftServer")
                 || Tools.packagesExists("net.minecraft.server.v1_4_R1.MinecraftServer")
+                || Tools.packagesExists("net.minecraft.server.v1_5_R1.MinecraftServer")
                 || Tools.packagesExists("net.minecraft.server.MinecraftServer");
     }
 
@@ -155,12 +156,16 @@ public class xpShop extends JavaPlugin {
     public void onDisable() {
         toggle = true;
         long timetemp = System.currentTimeMillis();
-        if (config.Internet) {
-            UpdateAvailable(Version);
-        }
-        if (config.usedbtomanageXP) {
-            SQL.CloseCon();
-            SQL = null;
+        if (config != null) {
+            if (config.Internet) {
+                UpdateAvailable(Version);
+            }
+            if (config.usedbtomanageXP) {
+                if (SQL != null) {
+                    SQL.CloseCon();
+                    SQL = null;
+                }
+            }
         }
         if (metricshandler != null) {
             metricshandler.saveStatsFiles();
@@ -205,18 +210,16 @@ public class xpShop extends JavaPlugin {
             Logger("Version: " + Version + " failed to enable!", "Error");
             onDisable();
         }
-        Logger("*****************************", "Warning");
-        Logger("Because of some Bukkitchanges", "Warning");
-        Logger("you have to update the plugin", "Warning");
-        Logger("manually.", "Warning");
-        Logger("This plugin needs a update every", "Warning");
-        Logger("MC-Update!!!!", "Warning");
-        Logger("*****************************", "Warning");
-        Logger("Your Bukkit version: " + getServer().getBukkitVersion(), "Warning");
         if (isBukkitVersionCompatible()) {
-            Logger("This plugin is compatible to this bukkit-version", "Warning");
+            Logger("This plugin is compatible to this bukkit-version", "Debug");
         } else {
             Logger("Your plugin-version is NOT compatible!", "Error");
+            Logger("*****************************", "Warning");
+            Logger("Because of some Bukkitchanges", "Warning");
+            Logger("you have to update the plugin", "Warning");
+            Logger("manually.", "Warning");
+            Logger("*****************************", "Warning");
+            Logger("Your Bukkit version: " + getServer().getBukkitVersion(), "Warning");
             setEnabled(false);
             return;
         }
@@ -289,10 +292,10 @@ public class xpShop extends JavaPlugin {
                 }
             }, (long) (config.DelayTimeTask * 20), (long) (config.TaskRepeat) * 20);
         }
-        this.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
-            @Override
-            public void run() {
-                if (config.Internet) {
+        if (config.Internet) {
+            this.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
+                @Override
+                public void run() {
                     try {
                         Logger("Searching update for xpShop!", "Debug");
                         newversion = upd.checkUpdate();
@@ -304,7 +307,7 @@ public class xpShop extends JavaPlugin {
                             Logger("New version: " + newversion + " found!", "Warning");
                             Logger("******************************************", "Warning");
                             Logger("*********** Please update!!!! ************", "Warning");
-                            Logger("* http://ibhh.de/xpShop.jar *", "Warning");
+                            Logger("* http://dev.bukkit.org/server-mods/xpshop *", "Warning");
                             Logger("******************************************", "Warning");
                             xpShop.updateaviable = true;
                             if (getConfig().getBoolean("installondownload")) {
@@ -321,8 +324,8 @@ public class xpShop extends JavaPlugin {
                         Logger("may the mainserver is down!", "Error");
                     }
                 }
-            }
-        }, 400L, 50000L);
+            }, 400L, 50000L);
+        }
         if (!(Blacklistcode.startsWith("1"))) {
             if (getConfig().getBoolean("firstRun")) {
                 try {
@@ -358,7 +361,7 @@ public class xpShop extends JavaPlugin {
                         Logger("New version: " + upd.checkUpdate() + " found!", "Warning");
                         Logger("******************************************", "Warning");
                         Logger("*********** Please update!!!! ************", "Warning");
-                        Logger("* http://ibhh.de/xpShop.jar *", "Warning");
+                        Logger("* http://dev.bukkit.org/server-mods/xpshop *", "Warning");
                         Logger("******************************************", "Warning");
                         if (getConfig().getBoolean("autodownload")) {
                             Logger("After shutdown the new file is stored under 'plugins/xpShop", "Warning");
@@ -422,7 +425,7 @@ public class xpShop extends JavaPlugin {
                     Logger("New version: " + newversion + " found!", "Warning");
                     Logger("******************************************", "Warning");
                     Logger("*********** Please update!!!! ************", "Warning");
-                    Logger("* http://ibhh.de/xpShop.jar *", "Warning");
+                    Logger("* http://dev.bukkit.org/server-mods/xpshop *", "Warning");
                     Logger("******************************************", "Warning");
                     if (getConfig().getBoolean("autodownload") || getConfig().getBoolean("installondownload")) {
                         if (getConfig().getBoolean("autodownload")) {
@@ -547,8 +550,14 @@ public class xpShop extends JavaPlugin {
      * @param url from newVersion file + currentVersion
      */
     public void UpdateAvailable(final float currVersion) {
+        if(config == null) {
+            return;
+        }
         if (config.Internet) {
             try {
+                if(upd == null) {
+                    return;
+                }
                 if (upd.checkUpdate() > currVersion) {
                     xpShop.updateaviable = true;
                 }

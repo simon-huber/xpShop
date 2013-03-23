@@ -1,7 +1,5 @@
 package me.ibhh.xpShop.Tools;
 
-
-
 /**
  *
  * @author ibhh
@@ -45,6 +43,24 @@ public class ToolUtility {
                 "org.bukkit.craftbukkit.v1_4_R1.CraftServer",
                 "org.bukkit.entity.Player")) {
             return new Tools147();
+        } else if (Tools.packagesExists(
+                "net.minecraft.server.v1_5_R1.EntityPlayer",
+                "net.minecraft.server.v1_5_R1.PlayerInteractManager",
+                "net.minecraft.server.v1_5_R1.MinecraftServer",
+                "org.bukkit.Bukkit",
+                "org.bukkit.OfflinePlayer",
+                "org.bukkit.craftbukkit.v1_5_R1.CraftServer",
+                "org.bukkit.entity.Player")) {
+            return new Tools15();
+        }  else if (Tools.packagesExists(
+                "net.minecraft.server.v1_5_R2.EntityPlayer",
+                "net.minecraft.server.v1_5_R2.PlayerInteractManager",
+                "net.minecraft.server.v1_5_R2.MinecraftServer",
+                "org.bukkit.Bukkit",
+                "org.bukkit.OfflinePlayer",
+                "org.bukkit.craftbukkit.v1_5_R2.CraftServer",
+                "org.bukkit.entity.Player")) {
+            return new Tools151();
         }
         return null;
     }
