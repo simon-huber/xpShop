@@ -35,7 +35,7 @@ permissions:
       xpShop.deletetable: true
       xpShop.resetplayer: true
       xpShop.setxp: true
-      xpShop.showdebug: true
+      xpShop.showdebug: false
       xpShop.grand: true
       xpShop.repair: true
       xpShop.report: true
