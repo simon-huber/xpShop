@@ -113,14 +113,12 @@ public class MetricsHandler implements Serializable {
     public void initializeOthers() {
         Metrics.Graph ShopCountGraph = metrics.createGraph("Signs");
         ShopCountGraph.addPlotter(new Metrics.Plotter("xpShopSigns") {
-
             @Override
             public int getValue() {
                 return calculateShopQuantity();
             }
         });
         ShopCountGraph.addPlotter(new Metrics.Plotter("xpShopSafes") {
-
             @Override
             public int getValue() {
                 return calculateSafeQuantity();
@@ -128,7 +126,6 @@ public class MetricsHandler implements Serializable {
         });
         Metrics.Graph GMGraph = metrics.createGraph("DefaultGameMode");
         GMGraph.addPlotter(new Metrics.Plotter(plugin.getServer().getDefaultGameMode().name()) {
-
             @Override
             public int getValue() {
                 return 1;
@@ -139,7 +136,6 @@ public class MetricsHandler implements Serializable {
     private void initializeCommandGraph() {
         Metrics.Graph CMDUses = metrics.createGraph("CommandUses");
         CMDUses.addPlotter(new Metrics.Plotter("Buy") {
-
             @Override
             public int getValue() {
                 return buy;
@@ -151,7 +147,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("Sell") {
-
             @Override
             public int getValue() {
                 return sell;
@@ -163,7 +158,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("Buylevel") {
-
             @Override
             public int getValue() {
                 return buylevel;
@@ -175,7 +169,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("Selllevel") {
-
             @Override
             public int getValue() {
                 return selllevel;
@@ -187,7 +180,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("Send") {
-
             @Override
             public int getValue() {
                 return send;
@@ -199,7 +191,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("Grand") {
-
             @Override
             public int getValue() {
                 return grand;
@@ -211,7 +202,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("Infoxp") {
-
             @Override
             public int getValue() {
                 return infoxp;
@@ -223,7 +213,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("Infolevel") {
-
             @Override
             public int getValue() {
                 return infolevel;
@@ -235,7 +224,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("Info") {
-
             @Override
             public int getValue() {
                 return info;
@@ -247,7 +235,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("Bottle") {
-
             @Override
             public int getValue() {
                 return bottle;
@@ -259,7 +246,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("Toolinfo") {
-
             @Override
             public int getValue() {
                 return toolinfo;
@@ -271,7 +257,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("Repair") {
-
             @Override
             public int getValue() {
                 return repair;
@@ -283,7 +268,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("TPto") {
-
             @Override
             public int getValue() {
                 return tpto;
@@ -295,7 +279,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("TPme") {
-
             @Override
             public int getValue() {
                 return tpme;
@@ -307,7 +290,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("xpShopSignBuy") {
-
             @Override
             public int getValue() {
                 return xpShopSignBuy;
@@ -319,7 +301,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("xpShopSignSell") {
-
             @Override
             public int getValue() {
                 return xpShopSignSell;
@@ -331,7 +312,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("xpShopSafeGet") {
-
             @Override
             public int getValue() {
                 return xpShopSafeGet;
@@ -343,7 +323,6 @@ public class MetricsHandler implements Serializable {
             }
         });
         CMDUses.addPlotter(new Metrics.Plotter("xpShopSafeStore") {
-
             @Override
             public int getValue() {
                 return xpShopSafeStore;
@@ -371,27 +350,15 @@ public class MetricsHandler implements Serializable {
             }
         }
         depGraph.addPlotter(new Metrics.Plotter(iConomyName) {
-
             @Override
             public int getValue() {
                 return 1;
             }
         });
         Metrics.Graph Permgraph = metrics.createGraph("PermissionDependencies");
-        String PermName = "None";
-        if (plugin.PermissionsHandler.PermPlugin != 0) {
-            if (plugin.PermissionsHandler.PermPlugin == 1) {
-                PermName = "BukkitPermissions";
-            } else if (plugin.PermissionsHandler.PermPlugin == 2) {
-                PermName = "PermissionsEX";
-            } else if (plugin.PermissionsHandler.PermPlugin == 3) {
-                PermName = "GroupManager";
-            } else if (plugin.PermissionsHandler.PermPlugin == 4) {
-                PermName = "bPermissions";
-            }
-        }
+        String PermName;
+        PermName = "BukkitPermissions";
         Permgraph.addPlotter(new Metrics.Plotter(PermName) {
-
             @Override
             public int getValue() {
                 return 1;

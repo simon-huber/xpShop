@@ -1,5 +1,5 @@
 name: xpShop
-version: 10.4
+version: 10.5
 description: Managing of players XP
 author: ibhh
 website: http://ibhh.de/xpShop.jar
@@ -15,26 +15,44 @@ permissions:
   xpShop.*:
     description: Gives access to all xpShop commands
     children:
-      xpShop.buy: false
-      xpShop.sell: false
-      xpShop.buylevel: false
-      xpShop.selllevel: false
-      xpShop.info: false
-      xpShop.send: false
-      xpShop.infoxp.own: false
-      xpShop.infoxp.other: false
-      xpShop.infolevel.own: false
-      xpShop.infolevel.other: false
-      xpShop.debugfile: false
-      xpShop.admin: false
-      xpShop.deletetable: false
-      xpShop.resetplayer: false
-      xpShop.setxp: false
-      xpShop.grand: false
-      xpShop.tpto: false
-      xpShop.tpme: false
-      xpShop.tp: false
-      xpShop.update: false
+      xpShop.reload: true
+      xpShop.config: true
+      xpShop.buy: true
+      xpShop.sell: true
+      xpShop.buylevel: true
+      xpShop.selllevel: true
+      xpShop.info: true
+      xpShop.send: true
+      xpShop.bottle: true
+      xpShop.infoxp.own: true
+      xpShop.infoxp.other: true
+      xpShop.infolevel.own: true
+      xpShop.infolevel.other: true
+      xpShop.internet: true
+      xpShop.version: true
+      xpShop.debugfile: true
+      xpShop.admin: true
+      xpShop.deletetable: true
+      xpShop.resetplayer: true
+      xpShop.setxp: true
+      xpShop.showdebug: true
+      xpShop.grand: true
+      xpShop.repair: true
+      xpShop.report: true
+      xpShop.toolinfo: true
+      xpShop.tpto: true
+      xpShop.tpme: true
+      xpShop.tp: true
+      xpShop.update: true
+    default: op
+  xpShop.reload:
+    description: Allows you to reload the plugin.
+    default: op
+  xpShop.config:
+    description: Allows you to change the config ingame.
+    default: op
+  xpShop.bottle:
+    description: Allows you to use the bottlefilling command.
     default: false
   xpShop.buy:
     description: Allows you to buy xp.
@@ -69,6 +87,12 @@ permissions:
   xpShop.infolevel.other:
     description: Returns level amount of any player.
     default: false
+  xpShop.internet:
+    description: Gives you the ability to change the internet option.
+    default: op
+  xpShop.version:
+    description: Allows you to show the version number of the plugin.
+    default: true
   xpShop.debugfile:
     description: Allows you to toggle debuging.
     default: false
@@ -84,6 +108,18 @@ permissions:
   xpShop.setxp:
     description: Allows you to set players xp.
     default: false
+  xpShop.showdebug:
+    description: Shows you the debug.
+    default: false
+  xpShop.repair:
+    description: Gives you access to the repair command.
+    default: false
+  xpShop.report:
+    description: Gives you access to the report command.
+    default: op
+  xpShop.toolinfo:
+    description: Gives you access to the toolinfo command.
+    default: op
   xpShop.grand:
     description: Allows you to grand a mount of XP to a player
     default: false

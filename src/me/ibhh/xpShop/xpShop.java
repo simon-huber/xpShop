@@ -176,7 +176,7 @@ public class xpShop extends JavaPlugin {
             blacklistUpdate();
         }
         timetemp = System.currentTimeMillis() - timetemp;
-        Logger("disabled in " + timetemp + "ms", "");
+        Logger("disabled in " + timetemp + " ms", "");
     }
 
     /**
