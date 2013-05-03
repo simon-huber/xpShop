@@ -4,8 +4,8 @@
  */
 package me.ibhh.xpShop;
 
-import me.ibhh.xpShop.Tools.ToolUtility;
-import org.bukkit.ChatColor;
+import me.ibhh.xpShop.Tools.Tools;
+
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -14,7 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 /**
  *
- * @author Simon
+ * @author ibhh
  */
 public class SignHandler {
 
@@ -60,8 +60,8 @@ public class SignHandler {
                                 }
                             }
                             MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
-                            if (!plugin.metricshandler.Shop.containsKey(loc)) {
-                                plugin.metricshandler.Shop.put(loc, event.getPlayer().getName());
+                            if (!MetricsHandler.Shop.containsKey(loc)) {
+                                MetricsHandler.Shop.put(loc, event.getPlayer().getName());
                                 plugin.Logger("Added Shop to list!", "Debug");
                             }
                         } else {
@@ -75,8 +75,8 @@ public class SignHandler {
                             event.setLine(0, "[xpShop]");
                             event.setLine(1, "AdminShop");
                             MTLocation loc = MTLocation.getMTLocationFromLocation(event.getBlock().getLocation());
-                            if (!plugin.metricshandler.Shop.containsKey(loc)) {
-                                plugin.metricshandler.Shop.put(loc, event.getPlayer().getName());
+                            if (!MetricsHandler.Shop.containsKey(loc)) {
+                                MetricsHandler.Shop.put(loc, event.getPlayer().getName());
                                 plugin.Logger("Added Shop to list!", "Debug");
                             }
                             plugin.PlayerLogger(event.getPlayer(), "Successfully created xpShop!", "");
@@ -128,7 +128,6 @@ public class SignHandler {
                 plugin.Logger("Line 3: " + line[2], "Debug");
                 plugin.Logger("Line 4: " + line[3], "Debug");
                 plugin.Logger(" Block is valid!", "Debug");
-                String playername = p.getName();
                 Player player = event.getPlayer();
                 if (plugin.PermissionsHandler.checkpermissions(p, "xpShop.use")) {
                     plugin.Logger("Player: " + p.getName() + " has the permission: xpShop.use", "Debug");
@@ -175,7 +174,7 @@ public class SignHandler {
         plugin.Logger("Line 3: " + line[2], "Debug");
         plugin.Logger("Line 4: " + line[3], "Debug");
         if (!playername.equalsIgnoreCase(line[1])) {
-            Player empfaenger = ToolUtility.getTools().getmyOfflinePlayer(plugin, line, 1);
+            Player empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
             if (empfaenger != null) {
                 if (plugin.config.getPlayerConfig(empfaenger, player)) {
                     if (Integer.parseInt(sign.getLine(2)) >= Integer.parseInt(line[2])) {
@@ -298,7 +297,7 @@ public class SignHandler {
         plugin.Logger("Line 3: " + line[2], "Debug");
         plugin.Logger("Line 4: " + line[3], "Debug");
         if (!playername.equalsIgnoreCase(line[1])) {
-            Player empfaenger = ToolUtility.getTools().getmyOfflinePlayer(plugin, line, 1);
+            Player empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
             if (empfaenger != null) {
                 if (plugin.config.getPlayerConfig(empfaenger, player)) {
                     if (empfaenger.getTotalExperience() >= Integer.parseInt(line[2])) {
@@ -389,7 +388,6 @@ public class SignHandler {
     public void xpShopSignRechts(PlayerInteractEvent event, String[] line, Player p, Sign s) {
         if (!plugin.Blacklistcode.startsWith("1", 11)) {
             Player player = p;
-            String playername = p.getName();
             plugin.Logger("Shop rechts: ", "Debug");
             plugin.Logger("Line 1: " + line[0], "Debug");
             plugin.Logger("Line 2: " + line[1], "Debug");
@@ -443,7 +441,7 @@ public class SignHandler {
         plugin.Logger("Line 3: " + line[2], "Debug");
         plugin.Logger("Line 4: " + line[3], "Debug");
         if (!playername.equalsIgnoreCase(line[1])) {
-            Player empfaenger = ToolUtility.getTools().getmyOfflinePlayer(plugin, line, 1);
+            Player empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
             if (empfaenger != null) {
                 if (plugin.config.getPlayerConfig(empfaenger, player)) {
                     if (player.getTotalExperience() >= Integer.parseInt(line[2])) {
@@ -562,7 +560,7 @@ public class SignHandler {
         plugin.Logger("Line 3: " + line[2], "Debug");
         plugin.Logger("Line 4: " + line[3], "Debug");
         if (!playername.equalsIgnoreCase(line[1])) {
-            Player empfaenger = ToolUtility.getTools().getmyOfflinePlayer(plugin, line, 1);
+            Player empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
             if (empfaenger != null) {
                 if (plugin.config.getPlayerConfig(empfaenger, player)) {
                     if (player.getTotalExperience() >= Integer.parseInt(line[2])) {

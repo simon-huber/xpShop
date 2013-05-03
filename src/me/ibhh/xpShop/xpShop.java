@@ -32,8 +32,9 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.logging.Level;
-import me.ibhh.xpShop.Tools.ToolUtility;
+
 import me.ibhh.xpShop.Tools.Tools;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -310,7 +311,7 @@ public class xpShop extends JavaPlugin {
                             Logger("*********** Please update!!!! ************", "Warning");
                             Logger("* http://dev.bukkit.org/server-mods/xpshop *", "Warning");
                             Logger("******************************************", "Warning");
-                            xpShop.updateaviable = true;
+                            updateaviable = true;
                             if (getConfig().getBoolean("installondownload")) {
                                 install();
                             } else if (getConfig().getBoolean("autodownload")) {
@@ -560,7 +561,7 @@ public class xpShop extends JavaPlugin {
                     return;
                 }
                 if (upd.checkUpdate() > currVersion) {
-                    xpShop.updateaviable = true;
+                    updateaviable = true;
                 }
                 if (updateaviable) {
                     updateaviable = true;
@@ -864,7 +865,7 @@ public class xpShop extends JavaPlugin {
                                         if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                             if (config.usedbtomanageXP) {
                                                 final Player pl = player;
-                                                this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+                                                this.getServer().getScheduler().runTaskLater(this, new Runnable() {
                                                     @Override
                                                     public void run() {
                                                         if (SQL.deleteDB()) {
@@ -989,7 +990,7 @@ public class xpShop extends JavaPlugin {
                                                         PlayerLogger(player, getConfig().getString("teleport.teleportrequest1." + config.language), "Error");
                                                     } else {
                                                         final Player player1 = player;
-                                                        getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+                                                        getServer().getScheduler().runTaskLater(this, new Runnable() {
                                                             @Override
                                                             public void run() {
                                                                 if (commandexec.containsKey(player1)) {
@@ -1026,7 +1027,7 @@ public class xpShop extends JavaPlugin {
                                                         PlayerLogger(player, getConfig().getString("teleport.teleportrequest1." + config.language), "Error");
                                                     } else {
                                                         final Player player1 = player;
-                                                        getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+                                                        getServer().getScheduler().runTaskLater(this, new Runnable() {
                                                             @Override
                                                             public void run() {
                                                                 if (commandexec.containsKey(player1)) {
@@ -1234,7 +1235,7 @@ public class xpShop extends JavaPlugin {
                                             if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
                                                 Player empfaenger1;
                                                 try {
-                                                    empfaenger1 = ToolUtility.getTools().getmyOfflinePlayer(this, args, 1);
+                                                    empfaenger1 = Tools.getmyOfflinePlayer(this, args, 1);
                                                 } catch (Exception e1) {
                                                     PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                                                     return false;
@@ -1280,7 +1281,7 @@ public class xpShop extends JavaPlugin {
                                                 PlayerLogger(player, "Please confirm with \"/xpShop configconfirm\" !", "Warning");
                                                 PlayerLogger(player, "Please cancel with \"/xpShop configcancel\" !", "Warning");
                                                 final Player player1 = player;
-                                                getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+                                                getServer().getScheduler().runTaskLater(this, new Runnable() {
                                                     @Override
                                                     public void run() {
                                                         if (Config.containsKey(player1)) {
@@ -1331,7 +1332,7 @@ public class xpShop extends JavaPlugin {
                                                     PlayerLogger(player, "Please confirm with \"/xpShop configconfirm\" !", "Warning");
                                                     PlayerLogger(player, "Please cancel with \"/xpShop configcancel\" !", "Warning");
                                                     final Player player1 = player;
-                                                    getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+                                                    getServer().getScheduler().runTaskLater(this, new Runnable() {
                                                         @Override
                                                         public void run() {
                                                             if (Config.containsKey(player1)) {
@@ -1381,19 +1382,6 @@ public class xpShop extends JavaPlugin {
                                 return true;
                             } else if (args[0].equalsIgnoreCase("reload")) {
                                 onReload();
-                                return true;
-                            } else if (args[0].equalsIgnoreCase("deletetable")) {
-                                this.getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (SQL.deleteDB()) {
-                                            Logger("Table sucessfully deleted!", "");
-                                        } else {
-                                            Logger("Error on deleting table!", "Error");
-                                        }
-                                        SQL.PrepareDB();
-                                    }
-                                }, 1);
                                 return true;
                             } else if (args[0].equalsIgnoreCase("debug")) {
                                 getConfig().set("debug", !getConfig().getBoolean("debug"));
@@ -1690,7 +1678,7 @@ public class xpShop extends JavaPlugin {
                 }
             } else {
                 try {
-                    empfaenger1 = ToolUtility.getTools().getmyOfflinePlayer(this, args, 1);
+                    empfaenger1 = Tools.getmyOfflinePlayer(this, args, 1);
                 } catch (Exception e1) {
                     PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                     e1.printStackTrace();
@@ -1824,7 +1812,7 @@ public class xpShop extends JavaPlugin {
                 Player empfaenger1;
                 try {
                     try {
-                        empfaenger1 = ToolUtility.getTools().getmyOfflinePlayer(this, args, 1);
+                        empfaenger1 = Tools.getmyOfflinePlayer(this, args, 1);
                     } catch (Exception e1) {
                         PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
                         return;
@@ -1873,7 +1861,7 @@ public class xpShop extends JavaPlugin {
                     Player empfaenger1;
                     try {
                         try {
-                            empfaenger1 = ToolUtility.getTools().getmyOfflinePlayer(this, args, 1);
+                            empfaenger1 = Tools.getmyOfflinePlayer(this, args, 1);
                         } catch (Exception e1) {
                             if (config.debug) {
                                 e1.printStackTrace();
