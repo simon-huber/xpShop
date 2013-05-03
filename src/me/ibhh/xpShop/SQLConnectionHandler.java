@@ -7,7 +7,7 @@ import java.io.File;
 import java.sql.*;
 
 /**
- * @author Simon
+ * @author ibhh
  *
  */
 public class SQLConnectionHandler {
@@ -196,7 +196,6 @@ public class SQLConnectionHandler {
         Statement st = null;
         String sql;
         ResultSet result;
-        String Name = "";
         try {
             st = cn.createStatement();
         } catch (SQLException e) {

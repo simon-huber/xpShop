@@ -33,7 +33,8 @@ public class FileSend {
                     if (file.exists()) {
                         // Construct data
                         String data = URLEncoder.encode("file", "UTF-8") + "=";
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+                        @SuppressWarnings("resource")
+						BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
                         try {
                             String line = null;
                             while ((line = reader.readLine()) != null) {

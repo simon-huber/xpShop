@@ -4,12 +4,11 @@
  */
 package me.ibhh.xpShop;
 
-import org.bukkit.Location;
 import org.bukkit.event.block.SignChangeEvent;
 
 /**
  *
- * @author Simon
+ * @author ibhh
  */
 public class CreateHandler {
 

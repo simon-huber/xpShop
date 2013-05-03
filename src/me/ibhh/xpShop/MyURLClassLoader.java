@@ -19,10 +19,11 @@ public class MyURLClassLoader extends URLClassLoader {
     /**
      * Closes all open jar files
      */
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
     public void close() {
         try {
-            Class clazz = java.net.URLClassLoader.class;
+			Class clazz = java.net.URLClassLoader.class;
             Field ucp = clazz.getDeclaredField("ucp");
             ucp.setAccessible(true);
             Object sunMiscURLClassPath = ucp.get(this);

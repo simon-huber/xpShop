@@ -12,11 +12,9 @@ public class ReportToHost {
     
     private xpShop plugin;
     private FileSend filesend;
-    private StackTraceUtil util;
     
     public ReportToHost(xpShop pl) {
         this.plugin = pl;
-        util = new StackTraceUtil();
         this.filesend = new FileSend(this.plugin);
     }
     
@@ -30,7 +28,7 @@ public class ReportToHost {
             }
             String stacktrace;
             if (stack != null) {
-                stacktrace = util.getStackTrace(stack);
+                stacktrace = StackTraceUtil.getStackTrace(stack);
             } else {
                 stacktrace = "none";
             }

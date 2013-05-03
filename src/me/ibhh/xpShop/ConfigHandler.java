@@ -4,14 +4,7 @@
  */
 package me.ibhh.xpShop;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 /**
@@ -473,6 +466,6 @@ public class ConfigHandler {
         infootherXP = plugin.getConfig().getString("info.otherXP." + language);
         infoownLevel = plugin.getConfig().getString("info.ownLevel." + language);
         infootherLevel = plugin.getConfig().getString("info.otherLevel." + language);
-        infoPrefix = plugin.getConfig().getString("info.prefix." + language);
-    }
+		infoPrefix = plugin.getConfig().getString("info.prefix." + language);
+	}
 }

@@ -22,13 +22,13 @@ public class iConomyHandler {
             iConomyversion = 2;
             plugin.Logger("hooked into Vault", "Debug");
         }
-        plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
+        plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
             @Override
             public void run() {
                 plugin.Logger("checking MoneyPlugin!", "Debug");
                 iConomyversion();
             }
-        }, 0);
+        });
     }
 
     private static boolean packageExists(String[] packages) {
