@@ -4,6 +4,8 @@
  */
 package me.ibhh.xpShop;
 
+import me.ibhh.xpShop.Exceptions.PlayerNotOnlineException;
+import me.ibhh.xpShop.Exceptions.PlayerWasNeverOnlineException;
 import me.ibhh.xpShop.Tools.Tools;
 
 import org.bukkit.block.Block;
@@ -168,7 +170,16 @@ public class SignHandler {
 		plugin.Logger("Line 3: " + line[2], "Debug");
 		plugin.Logger("Line 4: " + line[3], "Debug");
 		if (!playername.equalsIgnoreCase(line[1])) {
-			Player empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
+			Player empfaenger = null;
+			try {
+				empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
+			} catch (PlayerNotOnlineException e) {
+				plugin.PlayerLogger(player, e.getMessage(), "Error");
+				return;
+			} catch (PlayerWasNeverOnlineException e) {
+				plugin.PlayerLogger(player, e.getMessage(), "Error");
+				return;
+			}
 			if (empfaenger != null) {
 				if (plugin.config.getPlayerConfig(empfaenger, player)) {
 					if (Integer.parseInt(sign.getLine(2)) >= Integer.parseInt(line[2])) {
@@ -201,8 +212,6 @@ public class SignHandler {
 						plugin.PlayerLogger(player, plugin.config.safenotenoughXPinShop, "Error");
 					}
 				}
-			} else {
-				plugin.PlayerLogger(player, line[1] + " " + plugin.config.playerwasntonline, "Error");
 			}
 		} else {
 			plugin.PlayerLogger(player, "That is your Shop", "Error");
@@ -238,7 +247,16 @@ public class SignHandler {
 		plugin.Logger("Line 3: " + line[2], "Debug");
 		plugin.Logger("Line 4: " + line[3], "Debug");
 		if (!playername.equalsIgnoreCase(line[1])) {
-			Player empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
+			Player empfaenger = null;
+			try {
+				empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
+			} catch (PlayerNotOnlineException e) {
+				plugin.PlayerLogger(player, e.getMessage(), "Error");
+				return;
+			} catch (PlayerWasNeverOnlineException e) {
+				plugin.PlayerLogger(player, e.getMessage(), "Error");
+				return;
+			}
 			if (empfaenger != null) {
 				if (plugin.config.getPlayerConfig(empfaenger, player)) {
 					if (empfaenger.getTotalExperience() >= Integer.parseInt(line[2])) {
@@ -263,8 +281,6 @@ public class SignHandler {
 						plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughxpseller, "Error");
 					}
 				}
-			} else {
-				plugin.PlayerLogger(player, line[1] + " " + plugin.config.playerwasntonline, "Error");
 			}
 		} else {
 			plugin.PlayerLogger(player, "That is your Shop", "Error");
@@ -320,7 +336,15 @@ public class SignHandler {
 		plugin.Logger("Line 3: " + line[2], "Debug");
 		plugin.Logger("Line 4: " + line[3], "Debug");
 		if (!playername.equalsIgnoreCase(line[1])) {
-			Player empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
+			Player empfaenger = null;
+			try {
+				empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
+			} catch (PlayerNotOnlineException e) {
+				plugin.PlayerLogger(player, e.getMessage(), "Error");
+				return;
+			} catch (PlayerWasNeverOnlineException e) {
+				return;
+			}
 			if (empfaenger != null) {
 				if (plugin.config.getPlayerConfig(empfaenger, player)) {
 					if (player.getTotalExperience() >= Integer.parseInt(line[2])) {
@@ -390,7 +414,16 @@ public class SignHandler {
 		plugin.Logger("Line 3: " + line[2], "Debug");
 		plugin.Logger("Line 4: " + line[3], "Debug");
 		if (!playername.equalsIgnoreCase(line[1])) {
-			Player empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
+			Player empfaenger;
+			try {
+				empfaenger = Tools.getmyOfflinePlayer(plugin, line, 1);
+			} catch (PlayerNotOnlineException e) {
+				plugin.PlayerLogger(player, e.getMessage(), "Error");
+				return;
+			} catch (PlayerWasNeverOnlineException e) {
+				plugin.PlayerLogger(player, e.getMessage(), "Error");
+				return;
+			}
 			if (empfaenger != null) {
 				if (plugin.config.getPlayerConfig(empfaenger, player)) {
 					if (player.getTotalExperience() >= Integer.parseInt(line[2])) {
@@ -415,8 +448,6 @@ public class SignHandler {
 						plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughxpconsumer, "Error");
 					}
 				}
-			} else {
-				plugin.PlayerLogger(player, line[1] + " " + plugin.config.playerwasntonline, "Error");
 			}
 		} else {
 			plugin.PlayerLogger(player, "That is your Shop", "Error");
