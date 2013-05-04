@@ -18,8 +18,8 @@ public class SendDatabase {
 	private Connection	cn;
 	private xpShop		plugin;
 
-	public SendDatabase(xpShop AuctTrade) {
-		plugin = AuctTrade;
+	public SendDatabase(xpShop plugin) {
+		this.plugin = plugin;
 		cn = null;
 	}
 

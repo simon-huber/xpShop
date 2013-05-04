@@ -1,8 +1,10 @@
 package me.ibhh.xpShop.Tools;
 
 import me.ibhh.xpShop.xpShop;
+import me.ibhh.xpShop.Exceptions.InvalidXPAmountException;
 import me.ibhh.xpShop.Exceptions.PlayerNotOnlineException;
 import me.ibhh.xpShop.Exceptions.PlayerWasNeverOnlineException;
+import me.ibhh.xpShop.send.sql.XPSend;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -117,7 +119,7 @@ public abstract class Tools {
 					}
 				}
 			}
-			if(!wasonline) {
+			if (!wasonline) {
 				throw new PlayerWasNeverOnlineException(plugin, playername);
 			} else {
 				throw new PlayerNotOnlineException(plugin, playername);
@@ -128,6 +130,22 @@ public abstract class Tools {
 			plugin.report.report(3312, "Uncatched Exeption on getting offlineplayer", e.getMessage(), "BookShop", e);
 		}
 		return player;
+	}
+
+	public static boolean addDB(final xpShop plugin, final String player, final String sender, final int amount) throws InvalidXPAmountException {
+		if (amount > 0) {
+			final XPSend send = new XPSend(player, sender, amount, String.format(plugin.config.commandsuccessrecievedxp, amount, sender), 0);
+			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+				
+				@Override
+				public void run() {
+					plugin.getSendDatabase().InsertSend(send);
+				}
+			} );
+		} else {
+			throw new InvalidXPAmountException(amount);
+		}
+		return true;
 	}
 
 }

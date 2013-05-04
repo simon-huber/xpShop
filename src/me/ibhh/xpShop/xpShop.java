@@ -33,7 +33,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Level;
 
+import me.ibhh.xpShop.Exceptions.InvalidXPAmountException;
+import me.ibhh.xpShop.Exceptions.PlayerNotOnlineException;
+import me.ibhh.xpShop.Exceptions.PlayerWasNeverOnlineException;
 import me.ibhh.xpShop.Tools.Tools;
+import me.ibhh.xpShop.send.sql.SendDatabase;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -78,6 +82,7 @@ public class xpShop extends JavaPlugin {
 	public boolean					toggle			= true;
 	public MetricsHandler			metricshandler;
 	public PlayerManager			playerManager;
+	private SendDatabase			sendDatabase;
 	public Repair					repair;
 	private HashMap<Player, Player>	requested		= new HashMap<Player, Player>();
 	public HashMap<Player, Boolean>	commandexec		= new HashMap<Player, Boolean>();
@@ -259,6 +264,7 @@ public class xpShop extends JavaPlugin {
 			Help = new Help(this);
 			MoneyHandler = new iConomyHandler(this);
 			PermissionsHandler = new PermissionsChecker(this, "xpShop");
+			getSendDatabase();
 			bottle = new BottleManager(this);
 			TP = new TeleportManager(this);
 			playerManager = new PlayerManager(this);
@@ -273,25 +279,6 @@ public class xpShop extends JavaPlugin {
 					metricshandler.saveStatsFiles();
 				}
 			}, 200L, 50000L);
-			if (config.Internet) {
-				try {
-					UpdateAvailable(Version);
-					if (updateaviable) {
-						Logger("New version: " + upd.checkUpdate() + " found!", "Warning");
-						Logger("******************************************", "Warning");
-						Logger("*********** Please update!!!! ************", "Warning");
-						Logger("* http://dev.bukkit.org/server-mods/xpshop *", "Warning");
-						Logger("******************************************", "Warning");
-						if (getConfig().getBoolean("autodownload")) {
-							Logger("After shutdown the new file is stored under 'plugins/xpShop", "Warning");
-						}
-					}
-				} catch (Exception e) {
-					Logger("Error on doing update check! Message: " + e.getMessage(), "Error");
-					report.report(334, "Error on doing update check", e.getMessage(), "xpShop", e);
-					Logger("may the mainserver is down!", "Error");
-				}
-			}
 		} else {
 			Logger(this.getDescription().getName() + " version " + Version + " is blacklisted because of bugs, after restart an bugfix will be installed!", "Warning");
 			Logger("All funktions deactivated to prevent the server!", "Warning");
@@ -1084,36 +1071,44 @@ public class xpShop extends JavaPlugin {
 										}
 									} else if (ActionxpShop.equalsIgnoreCase("grand")) {
 										if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
-											Player empfaenger1;
+											Player empfaengerPlayer = null;
+											int amount = 0;
 											try {
-												empfaenger1 = Tools.getmyOfflinePlayer(this, args, 1);
-											} catch (Exception e1) {
-												PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
-												return false;
+												amount = Integer.parseInt(args[2]);
+											} catch (NumberFormatException e) {
+												PlayerLogger(player, e.getMessage(), "Error");
+												return true;
 											}
-											if (empfaenger1 != null) {
-												if (empfaenger1.hasPlayedBefore()) {
-													if (config.getPlayerConfig(empfaenger1, player)) {
-														try {
-															UpdateXP(empfaenger1, Integer.parseInt(args[2]), "grand");
-															empfaenger1.saveData();
-														} catch (Exception e1) {
-															PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
-															return false;
-														}
-														try {
-															PlayerLogger(player, (String.format(config.commandsuccesssentxp, Integer.parseInt(args[2]), empfaenger1.getName())), "");
-														} catch (NullPointerException e) {
-															PlayerLogger(player, "Error!", "Error");
-														}
-														metricshandler.grand++;
-														return true;
-													}
-												} else {
-													PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+											try {
+												empfaengerPlayer = Tools.getmyOfflinePlayer(this, args, 1);
+											} catch (PlayerWasNeverOnlineException e) {
+												PlayerLogger(player, e.getMessage(), "Error");
+												return true;
+											} catch (PlayerNotOnlineException e) {
+												if (config.onlysendxptoonlineplayers) {
+													PlayerLogger(player, e.getMessage(), "Error");
+													return true;
 												}
+											}
+											if (empfaengerPlayer != null) {
+												UpdateXP(empfaengerPlayer, amount, "grand");
+												empfaengerPlayer.saveData();
+												try {
+													PlayerLogger(player, (String.format(config.commandsuccesssentxp, Integer.parseInt(args[2]), empfaengerPlayer.getName())), "");
+												} catch (NullPointerException e) {
+													PlayerLogger(player, "Error!", "Error");
+												}
+												metricshandler.grand++;
+												return true;
 											} else {
-												PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+												Tools.addDB(this, args[1], player.getName(), amount);
+												try {
+													PlayerLogger(player, (String.format(config.commandsuccesssentxp, Integer.parseInt(args[2]), args[1])), "");
+												} catch (NullPointerException e) {
+													PlayerLogger(player, "Error!", "Error");
+												}
+												metricshandler.grand++;
+												return true;
 											}
 										}
 										return false;
@@ -1497,45 +1492,68 @@ public class xpShop extends JavaPlugin {
 	 * @param empfaenger
 	 * @param args
 	 */
-	public void sendxp(CommandSender sender, int giveamount, String empfaenger, String[] args) {
-		Player player = (Player) sender;
+	public void sendxp(final CommandSender sender, final int giveamount, final String empfaenger, final String[] args) {
+		final Player player = (Player) sender;
 		if (!(Blacklistcode.startsWith("1", 3))) {
-			Player empfaenger1 = null;
+			Player empfaengerPlayer = null;
 			long time = 0;
 			time = System.nanoTime();
+
+			if (giveamount < 1) {
+				try {
+					throw new InvalidXPAmountException(giveamount);
+				} catch (Exception e) {
+					PlayerLogger(player, e.getMessage(), "Error");
+					return;
+				}
+			}
 			try {
-				empfaenger1 = Tools.getmyOfflinePlayer(this, args, 1);
-			} catch (Exception e1) {
-				PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
-				e1.printStackTrace();
+				empfaengerPlayer = Tools.getmyOfflinePlayer(this, args, 1);
+			} catch (PlayerNotOnlineException e2) {
+				if (config.onlysendxptoonlineplayers) {
+					PlayerLogger(player, e2.getMessage(), "Error");
+					return;
+				}
+			} catch (PlayerWasNeverOnlineException e2) {
+				PlayerLogger(player, e2.getMessage(), "Error");
 				return;
 			}
-			if (empfaenger1 != null) {
-				if (empfaenger1.hasPlayedBefore()) {
-					if (config.getPlayerConfig(empfaenger1, player)) {
-						int temp = sell(sender, giveamount, false, "sendxp");
-						// Trys to substract amount, else stop.
-						try {
-							buy(empfaenger1, temp, false, "sendxp");
-							// Gives other player XP wich were substracted.
-							empfaenger1.saveData();
-						} catch (Exception e1) {
-							buy(player, temp, false, "sendxp");
-							PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
-							return;
-						}
-						try {
-							PlayerLogger(player, (String.format(config.commandsuccesssentxp, temp, args[1])), "");
-							PlayerLogger(empfaenger1, (String.format(config.commandsuccessrecievedxp, temp, sender.getName())), "");
-						} catch (NullPointerException e) {
-							PlayerLogger(player, "Error!", "Error");
-						}
-					}
-				} else {
+
+			int temp = sell(sender, giveamount, false, "sendxp");
+
+			if (empfaengerPlayer != null) {
+				try {
+					buy(empfaengerPlayer, temp, false, "sendxp");
+					// Gives other player XP wich were substracted.
+					empfaengerPlayer.saveData();
+				} catch (Exception e1) {
+					buy(player, temp, false, "sendxp");
+					e1.printStackTrace();
+					report.report(1516, "", "Could not send xp", "xpShop", e1);
 					PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+					return;
+				}
+				try {
+					PlayerLogger(player, (String.format(config.commandsuccesssentxp, temp, args[1])), "");
+					PlayerLogger(empfaengerPlayer, (String.format(config.commandsuccessrecievedxp, temp, sender.getName())), "");
+				} catch (NullPointerException e) {
+					PlayerLogger(player, "Error!", "Error");
 				}
 			} else {
-				PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+
+				// Trys to substract amount, else stop.
+				try {
+					Tools.addDB(this, empfaenger, player.getName(), temp);
+				} catch (InvalidXPAmountException e) {
+					buy(player, temp, false, "sendxp");
+					PlayerLogger(player, e.getMessage(), "Error");
+					return;
+				}
+				try {
+					PlayerLogger(player, (String.format(config.commandsuccesssentxp, temp, args[1])), "");
+				} catch (NullPointerException e) {
+					PlayerLogger(player, "Error!", "Error");
+				}
 			}
 			time = (System.nanoTime() - time) / 1000000;
 			Logger("Send xp executed in " + time + " ms!", "Debug");
@@ -1918,5 +1936,14 @@ public class xpShop extends JavaPlugin {
 		} else {
 			blacklistLogger(sender);
 		}
+	}
+
+	public SendDatabase getSendDatabase() {
+		if (sendDatabase == null) {
+			sendDatabase = new SendDatabase(this);
+			sendDatabase.createConnection();
+			sendDatabase.PrepareDB();
+		}
+		return sendDatabase;
 	}
 }

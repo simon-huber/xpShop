@@ -1,6 +1,10 @@
 package me.ibhh.xpShop;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+
 import me.ibhh.xpShop.Tools.Tools;
+import me.ibhh.xpShop.send.sql.XPSend;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -34,12 +38,28 @@ public class xpShopListener implements Listener {
     public void join(PlayerJoinEvent event) {
         if (!plugin.toggle) {
             try {
-                Player player = event.getPlayer();
+                final Player player = event.getPlayer();
                 plugin.Logger("Player " + event.getPlayer().getTotalExperience() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
 //            double y = 1.75 * (event.getPlayer().getLevel() + event.getPlayer().getExp()) * (event.getPlayer().getLevel() + event.getPlayer().getExp()) + 4.9997 * (event.getPlayer().getLevel() + event.getPlayer().getExp()) + 0.1327;
 //            event.getPlayer().setTotalExperience((int) y);
                 double t = plugin.getLevelXP(player.getLevel()) + (xpShop.nextLevelAt(player.getLevel()) * player.getExp());
                 player.setTotalExperience((int) t);
+                plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
+					
+					@Override
+					public void run() {
+						try {
+							ArrayList<XPSend> xpSends = plugin.getSendDatabase().getOpenTransactions(player.getName());
+							for(XPSend send : xpSends) {
+								plugin.PlayerLogger(player, send.getMessage(), "");
+								plugin.UpdateXP(player, send.getSendedXP(), "sendxp");
+								plugin.getSendDatabase().setStatus(player.getName(), send.getId(), 1);
+							}
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+					}
+				}, 20);
                 plugin.Logger("After calculating: Player " + event.getPlayer().getTotalExperience() + " XP: " + event.getPlayer().getTotalExperience() + " Level: " + event.getPlayer().getLevel(), "Debug");
                 if (!plugin.Blacklistcode.startsWith("1")) {
                     if (plugin.PermissionsHandler.checkpermissionssilent(event.getPlayer(), "xpShop.admin")) {

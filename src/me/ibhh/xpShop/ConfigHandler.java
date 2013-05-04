@@ -5,7 +5,6 @@
 package me.ibhh.xpShop;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 /**
  *
@@ -354,29 +353,6 @@ public class ConfigHandler {
         xptomoney = plugin.getConfig().getDouble("xptomoney");
         TaskRepeat = plugin.getConfig().getDouble("TaskRepeat");
         DelayTimeTask = plugin.getConfig().getDouble("DelayTimeTask");
-    }
-
-    /**
-     * Loads player config
-     *
-     * @param player
-     * @param sender
-     * @return Returns true if player is editable
-     */
-    public boolean getPlayerConfig(Player player, Player sender) {
-        plugin.Logger("Player is online: " + player.isOnline(), "Debug");
-        plugin.Logger("Playeronlinemode: " + onlysendxptoonlineplayers, "Debug");
-        if (player.isOnline()) {
-            return true;
-        } else if (!player.isOnline() && onlysendxptoonlineplayers) {
-            plugin.PlayerLogger(sender, onlyonlineplayer, "Error");
-            return false;
-        } else if (!player.isOnline() && !onlysendxptoonlineplayers) {
-            return true;
-        } else {
-            plugin.PlayerLogger(sender, onlyonlineplayer, "Error");
-            return false;
-        }
     }
 
     /**
