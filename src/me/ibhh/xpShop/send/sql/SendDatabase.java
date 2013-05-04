@@ -65,7 +65,7 @@ public class SendDatabase {
 				st.executeUpdate(sql);
 				plugin.Logger("Table created!", "Debug");
 			} else {
-				st.executeUpdate("CREATE TABLE IF NOT EXISTS xpShopSend (ID INT PRIMARY KEY AUTOINCREMENT, Name VARCHAR, Sender VARCHAR, Message VARCHAR, XP INT, Status INT);");
+				st.executeUpdate("CREATE TABLE IF NOT EXISTS xpShopSend (ID INTEGER PRIMARY KEY AUTOINCREMENT, Name VARCHAR, Sender VARCHAR, Message VARCHAR, XP INT, Status INT);");
 				plugin.Logger("Table created!", "Debug");
 			}
 			cn.commit();
@@ -89,10 +89,10 @@ public class SendDatabase {
 		time = System.nanoTime();
 		try {
 			PreparedStatement ps = cn.prepareStatement("INSERT INTO xpShopSend (Name, Sender, Message, XP, Status) VALUES (?,?,?,?,?)");
-			ps.setString(1, player);
-			ps.setString(2, sender);
-			ps.setInt(3, sendedXP);
-			ps.setString(4, message);
+			ps.setString(1, player.toLowerCase());
+			ps.setString(2, sender.toLowerCase());
+			ps.setString(3, message);
+			ps.setInt(4, sendedXP);
 			ps.setInt(5, status);
 			ps.execute();
 			cn.commit();
@@ -107,12 +107,12 @@ public class SendDatabase {
 		return true;
 	}
 
-	public boolean setStatus(String player, int id, int status) {
+	public boolean setStatus(final String player,final int id, final int status) {
 		long time = 0;
 		plugin.Logger("Updating XP in DB!", "Debug");
 		time = System.nanoTime();
 		try {
-			PreparedStatement ps = cn.prepareStatement("UPDATE xpShopSend SET Status='" + status + "' WHERE Name='" + player + "' AND ID=" + id + ";");
+			PreparedStatement ps = cn.prepareStatement("UPDATE xpShopSend SET Status='" + status + "' WHERE Name='" + player.toLowerCase() + "' AND ID=" + id + ";");
 			ps.executeUpdate();
 			cn.commit();
 			ps.close();
@@ -196,7 +196,7 @@ public class SendDatabase {
 		}
 	}
 
-	public ArrayList<XPSend> getOpenTransactions(String name) throws SQLException {
+	public ArrayList<XPSend> getOpenTransactions(final String name) throws SQLException {
 		long time = 0;
 		plugin.Logger("getting Transactions!", "Debug");
 		time = System.nanoTime();
@@ -208,12 +208,12 @@ public class SendDatabase {
 		} catch (SQLException e) {
 			SQLErrorHandler(e);
 		}
-		sql = "SELECT * from xpShopSend WHERE Name='" + name + "' AND Status=0;";
+		sql = "SELECT * from xpShopSend WHERE Name='" + name.toLowerCase() + "' AND Status=0;";
 		result = st.executeQuery(sql);
 		ArrayList<XPSend> xpSends = new ArrayList<XPSend>();
 		try {
 			while (result.next() == true) {
-				XPSend temp = new XPSend(result.getString("Name"), result.getString("Sender"), result.getInt("XP"), result.getString("Message"), result.getInt("Status"));
+				XPSend temp = new XPSend(result.getString("Name").toLowerCase(), result.getString("Sender").toLowerCase(), result.getInt("XP"), result.getString("Message"), result.getInt("Status"));
 				temp.setId(result.getInt("ID"));
 				xpSends.add(temp);
 			}

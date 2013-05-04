@@ -53,6 +53,7 @@ public class xpShopListener implements Listener {
 							for(XPSend send : xpSends) {
 								plugin.PlayerLogger(player, send.getMessage(), "");
 								plugin.UpdateXP(player, send.getSendedXP(), "sendxp");
+								player.saveData();
 								plugin.getSendDatabase().setStatus(player.getName(), send.getId(), 1);
 							}
 						} catch (SQLException e) {

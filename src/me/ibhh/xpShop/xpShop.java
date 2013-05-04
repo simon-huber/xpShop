@@ -92,10 +92,6 @@ public class xpShop extends JavaPlugin {
 	public String[]					commands		= { "help", "bottle", "bottleconfirm", "bottlecancel", "buy", "sell", "buylevel", "selllevel", "info", "send", "infoxpown", "infoxpother", "infolevelown", "infolevelother", "toolinfo", "repair", "grand", "showdebug", "debugfile", "internet", "version", "update", "reload", "deletedebug", "log", "toggle", "deletetable", "language", "resetplayer", "setXP", "tpto", "tpme", "yestp", "notp", "accept", "deny", "repaircancel", "repairconfirm" };
 	public TeleportManager			TP;
 
-	public boolean isBukkitVersionCompatible() {
-		return Tools.packagesExists("net.minecraft.server.v1_4_5.MinecraftServer") || Tools.packagesExists("net.minecraft.server.v1_4_6.MinecraftServer") || Tools.packagesExists("net.minecraft.server.v1_4_R1.MinecraftServer") || Tools.packagesExists("net.minecraft.server.v1_5_R1.MinecraftServer") || Tools.packagesExists("net.minecraft.server.v1_5_R2.MinecraftServer") || Tools.packagesExists("net.minecraft.server.MinecraftServer");
-	}
-
 	public ReportToHost getReportHandler() {
 		if (report == null) {
 			report = new ReportToHost(this);
@@ -165,19 +161,6 @@ public class xpShop extends JavaPlugin {
 			e1.printStackTrace();
 			Logger("Version: " + Version + " failed to enable!", "Error");
 			onDisable();
-		}
-		if (isBukkitVersionCompatible()) {
-			Logger("This plugin is compatible to this bukkit-version", "Debug");
-		} else {
-			Logger("Your plugin-version is NOT compatible!", "Error");
-			Logger("*****************************", "Warning");
-			Logger("Because of some Bukkitchanges", "Warning");
-			Logger("you have to update the plugin", "Warning");
-			Logger("manually.", "Warning");
-			Logger("*****************************", "Warning");
-			Logger("Your Bukkit version: " + getServer().getBukkitVersion(), "Warning");
-			setEnabled(false);
-			return;
 		}
 		report = new ReportToHost(this);
 		if (ex1 != null) {

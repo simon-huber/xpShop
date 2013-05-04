@@ -100,48 +100,44 @@ public abstract class Tools {
 
 	public static Player getmyOfflinePlayer(xpShop plugin, String playername) throws PlayerNotOnlineException, PlayerWasNeverOnlineException {
 		plugin.Logger("Empfaenger: " + playername, "Debug");
-		Player player = plugin.getServer().getPlayerExact(playername);
-		try {
-			if (player == null) {
-				return plugin.getServer().getPlayer(playername);
-			}
-			boolean wasonline = false;
-			for (OfflinePlayer p : Bukkit.getServer().getOfflinePlayers()) {
-				OfflinePlayer offp = p;
-				if (offp.getName().toLowerCase().equals(playername.toLowerCase())) {
-					plugin.Logger("Player has same name: " + offp.getName(), "Debug");
-					if (offp != null) {
-						if (offp.hasPlayedBefore()) {
-							wasonline = true;
-							plugin.Logger("Player has Played before: " + offp.getName(), "Debug");
-						}
-						break;
-					}
-				}
-			}
-			if (!wasonline) {
-				throw new PlayerWasNeverOnlineException(plugin, playername);
+		Player player = plugin.getServer().getPlayer(playername);
+		if (player != null) {
+			if (player.isOnline()) {
+				plugin.Logger("Player is online!", "Debug");
+				return player;
 			} else {
 				throw new PlayerNotOnlineException(plugin, playername);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			plugin.Logger("Uncatched Exeption!", "Error");
-			plugin.report.report(3312, "Uncatched Exeption on getting offlineplayer", e.getMessage(), "BookShop", e);
 		}
-		return player;
+		boolean wasonline = false;
+		for (OfflinePlayer p : Bukkit.getServer().getOfflinePlayers()) {
+			if (p.getName().toLowerCase().equals(playername.toLowerCase())) {
+				if (p != null) {
+					if (p.hasPlayedBefore()) {
+						wasonline = true;
+						plugin.Logger("Player has Played before: " + p.getName(), "Debug");
+					}
+					break;
+				}
+			}
+		}
+		if (!wasonline) {
+			throw new PlayerWasNeverOnlineException(plugin, playername);
+		} else {
+			throw new PlayerNotOnlineException(plugin, playername);
+		}
 	}
 
 	public static boolean addDB(final xpShop plugin, final String player, final String sender, final int amount) throws InvalidXPAmountException {
 		if (amount > 0) {
 			final XPSend send = new XPSend(player, sender, amount, String.format(plugin.config.commandsuccessrecievedxp, amount, sender), 0);
 			plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
-				
+
 				@Override
 				public void run() {
 					plugin.getSendDatabase().InsertSend(send);
 				}
-			} );
+			});
 		} else {
 			throw new InvalidXPAmountException(amount);
 		}

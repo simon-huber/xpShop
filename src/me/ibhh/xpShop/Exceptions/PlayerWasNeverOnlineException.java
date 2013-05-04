@@ -7,7 +7,7 @@ public class PlayerWasNeverOnlineException extends Exception {
 	private static final long	serialVersionUID	= 1L;
 
 	public PlayerWasNeverOnlineException(xpShop plugin, String player) {
-		super(player + plugin.config.playerwasntonline);
+		super(player + " " + plugin.config.playerwasntonline);
 	}
 
 }
