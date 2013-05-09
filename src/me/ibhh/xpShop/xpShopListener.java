@@ -16,8 +16,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLevelChangeEvent;
 
 public class xpShopListener implements Listener {
 
@@ -107,7 +109,40 @@ public class xpShopListener implements Listener {
             }
         }
     }
+    
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onXPChange(PlayerExpChangeEvent event) {
+    	final PlayerExpChangeEvent e = event;
+    	plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+			
+			@Override
+			public void run() {
+				plugin.Logger("Player " + e.getPlayer().getTotalExperience() + " XP: " + e.getPlayer().getTotalExperience() + " Level: " + e.getPlayer().getLevel(), "Debug");
+//	            double y = 1.75 * (event.getPlayer().getLevel() + event.getPlayer().getExp()) * (event.getPlayer().getLevel() + event.getPlayer().getExp()) + 4.9997 * (event.getPlayer().getLevel() + event.getPlayer().getExp()) + 0.1327;
+//	            event.getPlayer().setTotalExperience((int) y);
+	                double t = plugin.getLevelXP(e.getPlayer().getLevel()) + (xpShop.nextLevelAt(e.getPlayer().getLevel()) * e.getPlayer().getExp());
+	                e.getPlayer().setTotalExperience((int) t);
+			}
+		}, 10);
+    }
 
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onLevelChange(PlayerLevelChangeEvent event) {
+    	final PlayerLevelChangeEvent e = event;
+    	plugin.getServer().getScheduler().runTaskLater(plugin, new Runnable() {
+			
+			@Override
+			public void run() {
+				plugin.Logger("Player " + e.getPlayer().getTotalExperience() + " XP: " + e.getPlayer().getTotalExperience() + " Level: " + e.getPlayer().getLevel(), "Debug");
+//	            double y = 1.75 * (event.getPlayer().getLevel() + event.getPlayer().getExp()) * (event.getPlayer().getLevel() + event.getPlayer().getExp()) + 4.9997 * (event.getPlayer().getLevel() + event.getPlayer().getExp()) + 0.1327;
+//	            event.getPlayer().setTotalExperience((int) y);
+	                double t = plugin.getLevelXP(e.getPlayer().getLevel()) + (xpShop.nextLevelAt(e.getPlayer().getLevel()) * e.getPlayer().getExp());
+	                e.getPlayer().setTotalExperience((int) t);
+			}
+		}, 10);
+    }
+    
+    
     public static Block getAttachedFace(org.bukkit.block.Sign sign) {
         return sign.getBlock().getRelative(((org.bukkit.material.Sign) sign.getData()).getAttachedFace());
     }
