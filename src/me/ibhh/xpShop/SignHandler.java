@@ -4,6 +4,7 @@
  */
 package me.ibhh.xpShop;
 
+import me.ibhh.xpShop.Exceptions.NoiConomyPluginFound;
 import me.ibhh.xpShop.Exceptions.PlayerNotOnlineException;
 import me.ibhh.xpShop.Exceptions.PlayerWasNeverOnlineException;
 import me.ibhh.xpShop.Tools.Tools;
@@ -184,24 +185,32 @@ public class SignHandler {
 				if (Integer.parseInt(sign.getLine(2)) >= Integer.parseInt(line[2])) {
 					if (plugin.ListenerShop.getPrice(s, player, true) > 0) {
 						double price = plugin.ListenerShop.getPrice(s, player, true);
-						if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
-							plugin.MoneyHandler.substract(price, player);
-							plugin.UpdateXP(player, (Integer.parseInt(s.getLine(2))), "Sign");
-							plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
-							// plugin.UpdateXP(empfaenger,
-							// -(Integer.parseInt(s.getLine(2))), "Sign");
-							plugin.MoneyHandler.addmoney(price, empfaenger);
-							// empfaenger.saveData();
-							int Erg = Integer.parseInt(sign.getLine(2)) - Integer.parseInt(line[2]);
-							StringBuilder bui = new StringBuilder();
-							bui.append(Erg);
-							plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
-							sign.setLine(2, bui.toString());
-							sign.update();
-							plugin.metricshandler.xpShopSignBuy++;
-							plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), player.getName(), price), "");
-						} else {
-							plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
+						try {
+							if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
+								plugin.MoneyHandler.substract(price, player);
+								plugin.UpdateXP(player, (Integer.parseInt(s.getLine(2))), "Sign");
+								plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
+								// plugin.UpdateXP(empfaenger,
+								// -(Integer.parseInt(s.getLine(2))), "Sign");
+								plugin.MoneyHandler.addmoney(price, empfaenger);
+								// empfaenger.saveData();
+								int Erg = Integer.parseInt(sign.getLine(2)) - Integer.parseInt(line[2]);
+								StringBuilder bui = new StringBuilder();
+								bui.append(Erg);
+								plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
+								sign.setLine(2, bui.toString());
+								sign.update();
+								plugin.metricshandler.xpShopSignBuy++;
+								plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), player.getName(), price), "");
+							} else {
+								plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
+							}
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+						} catch (IndexOutOfBoundsException e) {
+							e.printStackTrace();
+						} catch (NoiConomyPluginFound e) {
+							plugin.PlayerLogger(player, e.getMessage(), "Error");
 						}
 					} else {
 						plugin.PlayerLogger(player, plugin.config.Shoperrorcantbuyhere, "Error");
@@ -223,13 +232,21 @@ public class SignHandler {
 		plugin.Logger("Line 4: " + line[3], "Debug");
 		double price = plugin.ListenerShop.getPrice(s, player, true);
 		if (price > 0) {
-			if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
-				plugin.MoneyHandler.substract(price, player);
-				plugin.UpdateXP(player, (Integer.parseInt(s.getLine(2))), "Sign");
-				plugin.metricshandler.xpShopSignBuy++;
-				plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), "Admin", price), "");
-			} else {
-				plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
+			try {
+				if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
+					plugin.MoneyHandler.substract(price, player);
+					plugin.UpdateXP(player, (Integer.parseInt(s.getLine(2))), "Sign");
+					plugin.metricshandler.xpShopSignBuy++;
+					plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), "Admin", price), "");
+				} else {
+					plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
+				}
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			} catch (IndexOutOfBoundsException e) {
+				e.printStackTrace();
+			} catch (NoiConomyPluginFound e) {
+				plugin.PlayerLogger(player, e.getMessage(), "Error");
 			}
 		} else {
 			plugin.PlayerLogger(player, plugin.config.Shoperrorcantbuyhere, "Error");
@@ -258,17 +275,25 @@ public class SignHandler {
 				if (empfaenger.getTotalExperience() >= Integer.parseInt(line[2])) {
 					if (plugin.ListenerShop.getPrice(s, player, true) > 0) {
 						double price = plugin.ListenerShop.getPrice(s, player, true);
-						if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
-							plugin.MoneyHandler.substract(price, player);
-							plugin.MoneyHandler.addmoney(price, empfaenger);
-							plugin.UpdateXP(player, (Integer.parseInt(s.getLine(2))), "Sign");
-							plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
-							plugin.UpdateXP(empfaenger, -(Integer.parseInt(s.getLine(2))), "Sign");
-							empfaenger.saveData();
-							plugin.metricshandler.xpShopSignBuy++;
-							plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), playername, price), "");
-						} else {
-							plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
+						try {
+							if ((plugin.MoneyHandler.getBalance(player) - price) >= 0) {
+								plugin.MoneyHandler.substract(price, player);
+								plugin.MoneyHandler.addmoney(price, empfaenger);
+								plugin.UpdateXP(player, (Integer.parseInt(s.getLine(2))), "Sign");
+								plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccessbuy, s.getLine(2), s.getLine(1), price), "");
+								plugin.UpdateXP(empfaenger, -(Integer.parseInt(s.getLine(2))), "Sign");
+								empfaenger.saveData();
+								plugin.metricshandler.xpShopSignBuy++;
+								plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerbuy, s.getLine(2), playername, price), "");
+							} else {
+								plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
+							}
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+						} catch (IndexOutOfBoundsException e) {
+							e.printStackTrace();
+						} catch (NoiConomyPluginFound e) {
+							plugin.PlayerLogger(player, e.getMessage(), "Error");
 						}
 					} else {
 						plugin.PlayerLogger(player, plugin.config.Shoperrorcantbuyhere, "Error");
@@ -344,24 +369,32 @@ public class SignHandler {
 				if (player.getTotalExperience() >= Integer.parseInt(line[2])) {
 					if (plugin.ListenerShop.getPrice(s, player, false) > 0) {
 						double price = plugin.ListenerShop.getPrice(s, player, false);
-						if ((plugin.MoneyHandler.getBalance(empfaenger) - price) >= 0) {
-							plugin.MoneyHandler.substract(price, empfaenger);
-							// plugin.UpdateXP(empfaenger,
-							// (Integer.parseInt(s.getLine(2))), "Sign");
-							plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerselled, s.getLine(2), player.getName(), price), "");
-							plugin.MoneyHandler.addmoney(price, player);
-							plugin.UpdateXP(player, -(Integer.parseInt(s.getLine(2))), "Sign");
-							int Erg = Integer.parseInt(sign.getLine(2)) + Integer.parseInt(line[2]);
-							StringBuilder bui = new StringBuilder();
-							bui.append(Erg);
-							plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
-							sign.setLine(2, bui.toString());
-							sign.update();
-							empfaenger.saveData();
-							plugin.metricshandler.xpShopSignSell++;
-							plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccesssell, s.getLine(2), s.getLine(1), price), "");
-						} else {
-							plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
+						try {
+							if ((plugin.MoneyHandler.getBalance(empfaenger) - price) >= 0) {
+								plugin.MoneyHandler.substract(price, empfaenger);
+								// plugin.UpdateXP(empfaenger,
+								// (Integer.parseInt(s.getLine(2))), "Sign");
+								plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerselled, s.getLine(2), player.getName(), price), "");
+								plugin.MoneyHandler.addmoney(price, player);
+								plugin.UpdateXP(player, -(Integer.parseInt(s.getLine(2))), "Sign");
+								int Erg = Integer.parseInt(sign.getLine(2)) + Integer.parseInt(line[2]);
+								StringBuilder bui = new StringBuilder();
+								bui.append(Erg);
+								plugin.Logger("Erg: line2 = " + bui.toString(), "Debug");
+								sign.setLine(2, bui.toString());
+								sign.update();
+								empfaenger.saveData();
+								plugin.metricshandler.xpShopSignSell++;
+								plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccesssell, s.getLine(2), s.getLine(1), price), "");
+							} else {
+								plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
+							}
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+						} catch (IndexOutOfBoundsException e) {
+							e.printStackTrace();
+						} catch (NoiConomyPluginFound e) {
+							plugin.PlayerLogger(player, e.getMessage(), "Error");
 						}
 					} else {
 						plugin.PlayerLogger(player, plugin.config.Shoperrorcantsellhere, "Error");
@@ -418,17 +451,25 @@ public class SignHandler {
 				if (player.getTotalExperience() >= Integer.parseInt(line[2])) {
 					if (plugin.ListenerShop.getPrice(s, player, false) > 0) {
 						double price = plugin.ListenerShop.getPrice(s, player, false);
-						if ((plugin.MoneyHandler.getBalance(empfaenger) - price) >= 0) {
-							plugin.MoneyHandler.substract(price, empfaenger);
-							plugin.UpdateXP(empfaenger, (Integer.parseInt(s.getLine(2))), "Sign");
-							plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerselled, s.getLine(2), playername, price), "");
-							plugin.MoneyHandler.addmoney(price, player);
-							plugin.UpdateXP(player, -(Integer.parseInt(s.getLine(2))), "Sign");
-							empfaenger.saveData();
-							plugin.metricshandler.xpShopSignSell++;
-							plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccesssell, s.getLine(2), s.getLine(1), price), "");
-						} else {
-							plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
+						try {
+							if ((plugin.MoneyHandler.getBalance(empfaenger) - price) >= 0) {
+								plugin.MoneyHandler.substract(price, empfaenger);
+								plugin.UpdateXP(empfaenger, (Integer.parseInt(s.getLine(2))), "Sign");
+								plugin.PlayerLogger(empfaenger, String.format(plugin.config.Shopsuccesssellerselled, s.getLine(2), playername, price), "");
+								plugin.MoneyHandler.addmoney(price, player);
+								plugin.UpdateXP(player, -(Integer.parseInt(s.getLine(2))), "Sign");
+								empfaenger.saveData();
+								plugin.metricshandler.xpShopSignSell++;
+								plugin.PlayerLogger(player, String.format(plugin.config.Shopsuccesssell, s.getLine(2), s.getLine(1), price), "");
+							} else {
+								plugin.PlayerLogger(player, plugin.config.Shoperrornotenoughmoneyconsumer, "Error");
+							}
+						} catch (NumberFormatException e) {
+							e.printStackTrace();
+						} catch (IndexOutOfBoundsException e) {
+							e.printStackTrace();
+						} catch (NoiConomyPluginFound e) {
+							plugin.PlayerLogger(player, e.getMessage(), "Error");
 						}
 					} else {
 						plugin.PlayerLogger(player, plugin.config.Shoperrorcantsellhere, "Error");

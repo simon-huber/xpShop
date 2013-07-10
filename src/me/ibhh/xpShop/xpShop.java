@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.logging.Level;
 
 import me.ibhh.xpShop.Exceptions.InvalidXPAmountException;
+import me.ibhh.xpShop.Exceptions.NoiConomyPluginFound;
 import me.ibhh.xpShop.Exceptions.PlayerNotOnlineException;
 import me.ibhh.xpShop.Exceptions.PlayerWasNeverOnlineException;
 import me.ibhh.xpShop.Tools.Tools;
@@ -1711,10 +1712,15 @@ public class xpShop extends JavaPlugin {
 			boolean valid;
 			valid = false;
 			if (moneyactive) {
-				if (MoneyHandler.getBalance(player) >= TOTALXPDOUBLE) {
-					valid = true;
-				} else {
-					PlayerLogger(player, config.commanderrornotenoughmoney, "Error");
+				try {
+					if (MoneyHandler.getBalance(player) >= TOTALXPDOUBLE) {
+						valid = true;
+					} else {
+						PlayerLogger(player, config.commanderrornotenoughmoney, "Error");
+					}
+				} catch (NoiConomyPluginFound e) {
+					PlayerLogger(player, e.getMessage(), "Error");
+					return false;
 				}
 			} else if (von.equals("sendxp")) {
 				valid = true;
@@ -1726,9 +1732,14 @@ public class xpShop extends JavaPlugin {
 						MoneyHandler.substract(TOTALXPDOUBLE, player);
 					}
 				} else {
-					if (!von.equals("buylevel")) {
-						PlayerLogger(player, "Invalid exp count: " + buyamount, "Error");
-						PlayerLogger(player, String.format(config.commanderrorinfo, MoneyHandler.getBalance(player), (int) (MoneyHandler.getBalance(player) / getmoney)), "Error");
+					try {
+						if (!von.equals("buylevel")) {
+							PlayerLogger(player, "Invalid exp count: " + buyamount, "Error");
+							PlayerLogger(player, String.format(config.commanderrorinfo, MoneyHandler.getBalance(player), (int) (MoneyHandler.getBalance(player) / getmoney)), "Error");
+						}
+					} catch (NoiConomyPluginFound e) {
+						PlayerLogger(player, e.getMessage(), "Error");
+						return false;
 					}
 				}
 				if (ActionxpShop.equalsIgnoreCase("buy")) {
@@ -1820,13 +1831,18 @@ public class xpShop extends JavaPlugin {
 			double xpNeededForLevel = getLevelXP(levelamontbuy + level);
 			double xpAktuell = player.getTotalExperience();
 			double neededXP = xpNeededForLevel - xpAktuell;
-			if (MoneyHandler.getBalance(player) < (money1 * neededXP)) {
-				PlayerLogger(player, "Stopped because of not having enough money!", "Error");
-				PlayerLogger(player, "Invalid exp count: " + levelamontbuy, "Error");
-			} else {
-				if (moneyactive) {
-					buy(sender, (int) (neededXP), true, "buylevel");
+			try {
+				if (MoneyHandler.getBalance(player) < (money1 * neededXP)) {
+					PlayerLogger(player, "Stopped because of not having enough money!", "Error");
+					PlayerLogger(player, "Invalid exp count: " + levelamontbuy, "Error");
+				} else {
+					if (moneyactive) {
+						buy(sender, (int) (neededXP), true, "buylevel");
+					}
 				}
+			} catch (NoiConomyPluginFound e) {
+				PlayerLogger(player, e.getMessage(), "Error");
+				return;
 			}
 			if (ActionxpShop.equalsIgnoreCase("buylevel")) {
 

@@ -37,6 +37,10 @@ public class MetricsHandler {
 	}
 	
 	public void saveStatsFiles() {
+		File file = new File(plugin.getDataFolder() + File.separator + "metrics");
+		if(!file.exists()) {
+				file.mkdirs();
+		}
 		try {
 			ObjectManager.save(Shop, plugin.getDataFolder() + File.separator + "metrics" + File.separator + "Shop.statistics");
 			plugin.Logger("Shops stats file contains " + calculateShopQuantity() + " values!", "Debug");
@@ -63,7 +67,7 @@ public class MetricsHandler {
 			plugin.Logger("Shops stats file contains " + calculateShopQuantity() + " values!", "Debug");
 			plugin.Logger("Stats loaded!", "Debug");
 		} catch (Exception e) {
-			plugin.Logger("Cannot load Shop statistics!", "Error");
+			plugin.Logger("Cannot load Shop statistics!", "Warning");
 			if (plugin.config.debug) {
 				e.printStackTrace();
 			}
@@ -73,7 +77,7 @@ public class MetricsHandler {
 			plugin.Logger("Safe stats file contains " + calculateSafeQuantity() + " values!", "Debug");
 			plugin.Logger("Stats loaded!", "Debug");
 		} catch (Exception e) {
-			plugin.Logger("Cannot load Shop statistics!", "Error");
+			plugin.Logger("Cannot load Shop statistics!", "Warning");
 			if (plugin.config.debug) {
 				e.printStackTrace();
 			}

@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import me.ibhh.xpShop.Exceptions.NoiConomyPluginFound;
+
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -193,8 +196,13 @@ public class Repair {
 						ok = true;
 					}
 				} else {
-					if (plugin.MoneyHandler.getBalance(player) >= cost) {
-						ok = true;
+					try {
+						if (plugin.MoneyHandler.getBalance(player) >= cost) {
+							ok = true;
+						}
+					} catch (NoiConomyPluginFound e) {
+						plugin.PlayerLogger(player, e.getMessage(), "Error");
+						return;
 					}
 				}
 				if (ok) {
@@ -248,8 +256,13 @@ public class Repair {
 					ok = true;
 				}
 			} else {
-				if (plugin.MoneyHandler.getBalance(player) >= executer.get(player)) {
-					ok = true;
+				try {
+					if (plugin.MoneyHandler.getBalance(player) >= executer.get(player)) {
+						ok = true;
+					}
+				} catch (NoiConomyPluginFound e) {
+					plugin.PlayerLogger(player, e.getMessage(), "Error");
+					return;
 				}
 			}
 			if (ok) {

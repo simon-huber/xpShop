@@ -3,6 +3,8 @@ package me.ibhh.xpShop;
 import com.iCo6.system.Accounts;
 import com.iConomy.iConomy;
 import com.nijikokun.register.payment.Methods;
+
+import me.ibhh.xpShop.Exceptions.NoiConomyPluginFound;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -87,12 +89,12 @@ public class iConomyHandler {
         }
     }
 
-    public double getBalance(Player player) {
+    public double getBalance(Player player) throws NoiConomyPluginFound {
         String name = player.getName();
         return getBalance(name);
     }
 
-    public double getBalance(String name) {
+    public double getBalance(String name) throws NoiConomyPluginFound {
         if (iConomyversion == 5) {
             try {
                 this.balance5 = getAccount5(name).getHoldings();
@@ -139,7 +141,7 @@ public class iConomyHandler {
             return balance;
         }
 
-        return this.balance;
+        throw new NoiConomyPluginFound("No iConomy plugin found! Install a supported plugin and restart the server, please.");
     }
 
     private com.iConomy.system.Account getAccount5(String name) {

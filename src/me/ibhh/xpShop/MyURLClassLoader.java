@@ -20,8 +20,7 @@ public class MyURLClassLoader extends URLClassLoader {
      * Closes all open jar files
      */
     @SuppressWarnings("rawtypes")
-	@Override
-    public void close() {
+	public void close() {
         try {
 			Class clazz = java.net.URLClassLoader.class;
             Field ucp = clazz.getDeclaredField("ucp");
