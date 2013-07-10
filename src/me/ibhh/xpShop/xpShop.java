@@ -90,7 +90,7 @@ public class xpShop extends JavaPlugin {
 	public HashMap<String, Boolean>	DebugMsg		= new HashMap<String, Boolean>();
 	private HashMap<Player, String>	Config			= new HashMap<Player, String>();
 	private HashMap<Player, String>	Set				= new HashMap<Player, String>();
-	public String[]					commands		= { "help", "bottle", "bottleconfirm", "bottlecancel", "buy", "sell", "buylevel", "selllevel", "info", "send", "infoxpown", "infoxpother", "infolevelown", "infolevelother", "toolinfo", "repair", "grand", "showdebug", "debugfile", "internet", "version", "update", "reload", "deletedebug", "log", "toggle", "deletetable", "language", "resetplayer", "setXP", "tpto", "tpme", "yestp", "notp", "accept", "deny", "repaircancel", "repairconfirm" };
+	public String[]					commands		= { "help", "bottle", "bottleconfirm", "bottlecancel", "buy", "sell", "buylevel", "selllevel", "info", "send", "infoxpown", "infoxpother", "infolevelown", "infolevelother", "toolinfo", "repair", "grand", "showdebug", "debugfile", "internet", "version", "update", "deletedebug", "log", "toggle", "deletetable", "language", "resetplayer", "setXP", "tpto", "tpme", "yestp", "notp", "accept", "deny", "repaircancel", "repairconfirm" };
 	public TeleportManager			TP;
 
 	public ReportToHost getReportHandler() {
@@ -597,14 +597,14 @@ public class xpShop extends JavaPlugin {
 											PlayerLogger(player, String.format(getConfig().getString("Repair.damage." + config.language), repair.getDamage(player.getItemInHand()), repair.maxDurability(player.getItemInHand())), "");
 										}
 										return true;
-									} else if (args[0].equalsIgnoreCase("reload")) {
-										if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
-											PlayerLogger(player, "Please wait: Reloading this plugin!", "Warning");
-											plugman.unloadPlugin("xpShop");
-											plugman.loadPlugin("xpShop");
-											PlayerLogger(player, "Reloaded!", "");
-										}
-										return true;
+//									} else if (args[0].equalsIgnoreCase("reload")) {
+//										if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
+//											PlayerLogger(player, "Please wait: Reloading this plugin!", "Warning");
+//											plugman.unloadPlugin("xpShop");
+//											plugman.loadPlugin("xpShop");
+//											PlayerLogger(player, "Reloaded!", "");
+//										}
+//										return true;
 									} else if (args[0].equalsIgnoreCase("showdebug")) {
 										if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
 											if (DebugMsg.containsKey(player.getName())) {
