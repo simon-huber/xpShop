@@ -1514,7 +1514,7 @@ public class xpShop extends JavaPlugin {
 					buy(player, temp, false, "sendxp");
 					e1.printStackTrace();
 					report.report(1516, "", "Could not send xp", "xpShop", e1);
-					PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+					PlayerLogger(player, args[1] + " " + config.playernotonline, "Error");
 					return;
 				}
 				try {
@@ -1621,7 +1621,7 @@ public class xpShop extends JavaPlugin {
 					try {
 						empfaenger1 = Tools.getmyOfflinePlayer(this, args, 1);
 					} catch (Exception e1) {
-						PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+						PlayerLogger(player, args[1] + " " + config.playernotonline, "Error");
 						return;
 					}
 					if (empfaenger1 != null) {
@@ -1631,10 +1631,10 @@ public class xpShop extends JavaPlugin {
 							PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
 						}
 					} else {
-						PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+						PlayerLogger(player, args[1] + " " + config.playernotonline, "Error");
 					}
 				} catch (Exception e) {
-					PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+					PlayerLogger(player, args[1] + " " + config.playernotonline, "Error");
 				}
 			}
 		} else {
@@ -1663,7 +1663,7 @@ public class xpShop extends JavaPlugin {
 							e1.printStackTrace();
 							e1.getMessage();
 						}
-						PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+						PlayerLogger(player, args[1] + " " + config.playernotonline, "Error");
 						return;
 					}
 					if (empfaenger1 != null) {
@@ -1671,7 +1671,7 @@ public class xpShop extends JavaPlugin {
 							PlayerLogger(player, String.format(config.infootherXP, empfaenger1.getName(), empfaenger1.getTotalExperience()), "");
 						}
 					} else {
-						PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+						PlayerLogger(player, args[1] + " " + config.playernotonline, "Error");
 						Logger("Player == null", "Debug");
 					}
 				} catch (Exception e) {
@@ -1679,7 +1679,7 @@ public class xpShop extends JavaPlugin {
 						e.printStackTrace();
 						e.getMessage();
 					}
-					PlayerLogger(player, args[1] + " " + config.playerwasntonline, "Error");
+					PlayerLogger(player, args[1] + " " + config.playernotonline, "Error");
 				}
 			}
 		} else {
