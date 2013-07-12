@@ -137,9 +137,9 @@ public class ConfigHandler {
             reload();
             plugin.Logger("Config file found!", "Debug");
             if (Internet) {
-                plugin.Logger("internet: true!", "Debug");
+                plugin.Logger("check-for-updates: true!", "Debug");
             } else {
-                plugin.Logger("internet: false!", "Debug");
+                plugin.Logger("check-for-updates: false!", "Debug");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -370,7 +370,7 @@ public class ConfigHandler {
         autoinstall = plugin.getConfig().getBoolean("autoinstall");
         ConnectionofSafetoShop = plugin.getConfig().getBoolean("ConnectionofSafetoShop");
         optionalconnectionofSafetoShop = plugin.getConfig().getBoolean("optionalconnectionofSafetoShop");
-        Internet = plugin.getConfig().getBoolean("internet");
+        Internet = plugin.getConfig().getBoolean("check-for-updates");
         debugfile = plugin.getConfig().getBoolean("debugfile");
     }
 

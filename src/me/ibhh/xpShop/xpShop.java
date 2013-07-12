@@ -90,7 +90,7 @@ public class xpShop extends JavaPlugin {
 	public HashMap<String, Boolean>	DebugMsg		= new HashMap<String, Boolean>();
 	private HashMap<Player, String>	Config			= new HashMap<Player, String>();
 	private HashMap<Player, String>	Set				= new HashMap<Player, String>();
-	public String[]					commands		= { "help", "bottle", "bottleconfirm", "bottlecancel", "buy", "sell", "buylevel", "selllevel", "info", "send", "infoxpown", "infoxpother", "infolevelown", "infolevelother", "toolinfo", "repair", "grand", "showdebug", "debugfile", "internet", "version", "update", "deletedebug", "log", "toggle", "deletetable", "language", "resetplayer", "setXP", "tpto", "tpme", "yestp", "notp", "accept", "deny", "repaircancel", "repairconfirm" };
+	public String[]					commands		= { "help", "bottle", "bottleconfirm", "bottlecancel", "buy", "sell", "buylevel", "selllevel", "info", "send", "infoxpown", "infoxpother", "infolevelown", "infolevelother", "toolinfo", "repair", "grand", "showdebug", "debugfile", "´´", "version", "update", "deletedebug", "log", "toggle", "deletetable", "language", "resetplayer", "setXP", "tpto", "tpme", "yestp", "notp", "accept", "deny", "repaircancel", "repairconfirm" };
 	public TeleportManager			TP;
 
 	public ReportToHost getReportHandler() {
@@ -180,7 +180,6 @@ public class xpShop extends JavaPlugin {
 		} catch (IllegalAccessError e) {
 			Logger("Cant access Class \"Update\": " + e.getMessage(), "Error");
 			e.printStackTrace();
-			blacklistcheck();
 		}
 		this.getServer().getScheduler().runTaskTimerAsynchronously(this, new Runnable() {
 
@@ -625,8 +624,8 @@ public class xpShop extends JavaPlugin {
 										}
 									} else if (args[0].equalsIgnoreCase("internet")) {
 										if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
-											getConfig().set("internet", !getConfig().getBoolean("internet"));
-											PlayerLogger(player, "internet: " + getConfig().getBoolean("internet"), "");
+											getConfig().set("check-for-updates", !getConfig().getBoolean("check-for-updates"));
+											PlayerLogger(player, "check-for-updates: " + getConfig().getBoolean("check-for-updates"), "");
 											saveConfig();
 											reloadConfig();
 											config.reload();
