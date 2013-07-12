@@ -103,7 +103,7 @@ class Update {
                     break;
                 }
             }
-            s.close();´´
+            s.close();
             outputFile.delete();
         } catch (IOException e) {
             e.printStackTrace();
