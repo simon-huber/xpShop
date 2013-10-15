@@ -45,7 +45,7 @@ public class Help {
             } else if (args.length == 2) {
                 boolean found = false;
                 for (String command : plugin.commands) {
-                    if (plugin.getConfig().getString("help.commands." + command + ".name").equalsIgnoreCase(args[1])) {
+                    if (args[1].equalsIgnoreCase(plugin.getConfig().getString("help.commands." + command + ".name"))) {
                         if (plugin.PermissionsHandler.checkpermissions(player, plugin.getConfig().getString("help.commands." + command + ".permission"))) {
                             plugin.PlayerLogger(
                                     player,
@@ -73,7 +73,7 @@ public class Help {
             } else if (args.length == 1) {
                 boolean found = false;
                 for (String command : plugin.commands) {
-                    if (plugin.getConfig().getString("help.commands." + command + ".name").equalsIgnoreCase(args[0])) {
+                    if (args[0].equalsIgnoreCase(plugin.getConfig().getString("help.commands." + command + ".name"))) {
                         if (plugin.PermissionsHandler.checkpermissions(player, plugin.getConfig().getString("help.commands." + command + ".permission"))) {
                             plugin.PlayerLogger(
                                     player,
