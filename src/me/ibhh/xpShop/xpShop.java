@@ -33,8 +33,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Level;
 
-import me.ibhh.xpShop.Updater.UpdateResult;
-import me.ibhh.xpShop.Updater.UpdateType;
+import me.ibhh.UpdaterLib.Updater;
+import me.ibhh.UpdaterLib.Updater.UpdateResult;
+import me.ibhh.UpdaterLib.Updater.UpdateType;
 import me.ibhh.xpShop.Exceptions.InvalidXPAmountException;
 import me.ibhh.xpShop.Exceptions.NoiConomyPluginFound;
 import me.ibhh.xpShop.Exceptions.PlayerNotOnlineException;
@@ -173,6 +174,7 @@ public class xpShop extends JavaPlugin {
 		public void run() {
 		    Logger("Searching update for xpShop!", "Debug");
 		    Updater updater = new Updater(xpShop.this, 34732, xpShop.getFile(), UpdateType.NO_DOWNLOAD, true);
+		    Logger("Latest: " + updater.getLatestName(), "Debug");
 		    if (updater.getResult() == UpdateResult.UPDATE_AVAILABLE) {
 			Logger("New version: " + updater.getLatestName() + " found!", "Warning");
 			Logger("******************************************", "Warning");
