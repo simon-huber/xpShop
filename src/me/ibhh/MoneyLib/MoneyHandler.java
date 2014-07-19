@@ -1,33 +1,33 @@
-package me.ibhh.xpShop;
+package me.ibhh.MoneyLib;
 
 import com.iCo6.system.Accounts;
 import com.iConomy.iConomy;
 import com.nijikokun.register.payment.Methods;
 
-import me.ibhh.xpShop.Exceptions.NoiConomyPluginFound;
 import net.milkbowl.vault.economy.Economy;
+
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-public class iConomyHandler {
+public class MoneyHandler {
 
     private static int iConomyversion = 0;
     private com.iConomy.system.Holdings balance5;
     private Double balance;
-    private xpShop plugin;
+    private Plugin plugin;
     public static Economy economy = null;
 
-    public iConomyHandler(xpShop pl) {
+    public MoneyHandler(Plugin pl) {
         plugin = pl;
-        plugin.aktuelleVersion();
         if (setupEconomy() == true) {
             iConomyversion = 2;
-            plugin.Logger("hooked into Vault", "Debug");
+            plugin.getLogger().info("hooked into Vault");
         }
         plugin.getServer().getScheduler().runTask(plugin, new Runnable() {
             @Override
             public void run() {
-                plugin.Logger("checking MoneyPlugin!", "Debug");
+        	plugin.getLogger().fine("checking MoneyPlugin!");
                 iConomyversion();
             }
         });
@@ -64,23 +64,22 @@ public class iConomyHandler {
             try {
                 if (packageExists(new String[]{"net.milkbowl.vault.economy.Economy"})) {
                     iConomyversion = 2;
-                    plugin.Logger("hooked into Vault", "Debug");
+                    plugin.getLogger().info("hooked into Vault");
                 } else if (packageExists(new String[]{"com.nijikokun.register.payment.Methods"})) {
                     iConomyversion = 1;
-                    plugin.Logger("hooked into Register", "Debug");
+                    plugin.getLogger().info("hooked into Register");
                 } else if (packageExists(new String[]{"com.iConomy.iConomy", "com.iConomy.system.Account", "com.iConomy.system.Holdings"})) {
                     iConomyversion = 5;
-                    plugin.Logger("hooked into iConomy5", "Debug");
+                    plugin.getLogger().info("hooked into iConomy5");
                 } else if (packageExists(new String[]{"com.iCo6.system.Accounts"})) {
                     iConomyversion = 6;
-                    plugin.Logger("hooked into iConomy6", "Debug");
+                    plugin.getLogger().info("hooked into iConomy6");
                 } else {
-                    plugin.Logger("cant hook into iConomy5, iConomy6, Vault or Register. Downloading Vault!", "");
-                    plugin.Logger(" ************ Please download and configure Vault!!!!! **********", "Warning");
+                    plugin.getLogger().severe("cant hook into iConomy5, iConomy6, Vault or Register. Downloading Vault!");
+                    plugin.getLogger().severe(" ************ Please download and configure Vault!!!!! **********");
                 }
             } catch (Exception E) {
                 E.printStackTrace();
-                plugin.report.report(3334, "Error on searching EconomyPlugin", E.getMessage(), "iConomyHandler", E);
                 iConomyversion = 0;
             }
             return iConomyversion;
@@ -99,7 +98,7 @@ public class iConomyHandler {
             try {
                 this.balance5 = getAccount5(name).getHoldings();
             } catch (Exception E) {
-                plugin.Logger("No Account! Please report it to an admin!", "Error");
+        	plugin.getLogger().severe("No Account! Please report it to an admin!");
                 E.printStackTrace();
                 this.balance5 = null;
                 return this.balance;
@@ -107,7 +106,7 @@ public class iConomyHandler {
             try {
                 this.balance = Double.valueOf(this.balance5.balance());
             } catch (Exception E) {
-                plugin.Logger("No Account! Please report it to an admin!", "Error");
+        	plugin.getLogger().severe("No Account! Please report it to an admin!");
                 E.printStackTrace();
                 this.balance5 = null;
                 return this.balance;
@@ -119,7 +118,7 @@ public class iConomyHandler {
             try {
                 this.balance = new Accounts().get(name).getHoldings().getBalance();
             } catch (Exception e) {
-                plugin.Logger("No Account! Please report it to an admin!", "Error");
+        	plugin.getLogger().severe("No Account! Please report it to an admin!");
                 e.printStackTrace();
                 balance = null;
                 return this.balance;
@@ -130,7 +129,7 @@ public class iConomyHandler {
                 this.balance =
                         Double.valueOf(Methods.getMethod().getAccount(name).balance());
             } catch (Exception e) {
-                plugin.Logger("No Account! Please report it to an admin!", "Error");
+        	plugin.getLogger().severe("No Account! Please report it to an admin!");
                 e.printStackTrace();
                 this.balance = null;
                 return this.balance;
@@ -153,7 +152,7 @@ public class iConomyHandler {
             try {
                 getAccount5(name).getHoldings().subtract(amountsubstract);
             } catch (Exception e) {
-                plugin.Logger("Cant substract money! Does account exist?", "Error");
+        	errorSubstract();
                 e.printStackTrace();
             }
         } else if (iConomyversion == 6) {
@@ -161,21 +160,21 @@ public class iConomyHandler {
                 com.iCo6.system.Account account = new Accounts().get(name);
                 account.getHoldings().subtract(amountsubstract);
             } catch (Exception e) {
-                plugin.Logger("Cant substract money! Does account exist?", "Error");
+        	errorSubstract();
                 e.printStackTrace();
             }
         } else if (iConomyversion == 1) {
             try {
                 Methods.getMethod().getAccount(name).subtract(amountsubstract);
             } catch (Exception e) {
-                plugin.Logger("Cant substract money! Does account exist?", "Error");
+        	errorSubstract();
                 e.printStackTrace();
             }
         } else if (iConomyversion == 2) {
             try {
                 economy.withdrawPlayer(name, amountsubstract);
             } catch (Exception e) {
-                plugin.Logger("Cant substract money! Does account exist?", "Error");
+        	errorSubstract();
                 e.printStackTrace();
             }
         }
@@ -191,7 +190,7 @@ public class iConomyHandler {
             try {
                 getAccount5(name).getHoldings().add(amountadd);
             } catch (Exception e) {
-                plugin.Logger("Cant substract money! Does account exist?", "Error");
+        	errorSubstract();
                 e.printStackTrace();
             }
         } else if (iConomyversion == 6) {
@@ -199,24 +198,29 @@ public class iConomyHandler {
                 com.iCo6.system.Account account = new Accounts().get(name);
                 account.getHoldings().add(amountadd);
             } catch (Exception e) {
-                plugin.Logger("Cant substract money! Does account exist?", "Error");
+        	errorSubstract();
                 e.printStackTrace();
             }
         } else if (iConomyversion == 1) {
             try {
                 Methods.getMethod().getAccount(name).add(amountadd);
             } catch (Exception e) {
-                plugin.Logger("Cant substract money! Does account exist?", "Error");
+        	errorSubstract();
+        	
                 e.printStackTrace();
             }
         } else if (iConomyversion == 2) {
             try {
                 economy.depositPlayer(name, amountadd);
             } catch (Exception e) {
-                plugin.Logger("Cant substract money! Does account exist?", "Error");
+        	errorSubstract();
                 e.printStackTrace();
             }
         }
+    }
+    
+    private void errorSubstract() {
+	plugin.getLogger().severe("Cant substract money! Does account exist?");
     }
 
     public void addmoney(double amountadd, Player player) {

@@ -1,4 +1,4 @@
-package me.ibhh.xpShop.Exceptions;
+package me.ibhh.MoneyLib;
 
 public class NoiConomyPluginFound extends Exception {
 

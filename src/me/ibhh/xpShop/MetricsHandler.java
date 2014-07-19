@@ -347,14 +347,14 @@ public class MetricsHandler {
 	public void initializeDependenciesGraph() {
 		Metrics.Graph depGraph = metrics.createGraph("EconomyDependencies");
 		String iConomyName = "None";
-		if (plugin.MoneyHandler.iConomyversion() != 0) {
-			if (plugin.MoneyHandler.iConomyversion() == 1) {
+		if (plugin.moneyHandler.iConomyversion() != 0) {
+			if (plugin.moneyHandler.iConomyversion() == 1) {
 				iConomyName = "Register";
-			} else if (plugin.MoneyHandler.iConomyversion() == 2) {
+			} else if (plugin.moneyHandler.iConomyversion() == 2) {
 				iConomyName = "Vault";
-			} else if (plugin.MoneyHandler.iConomyversion() == 5) {
+			} else if (plugin.moneyHandler.iConomyversion() == 5) {
 				iConomyName = "iConomy5";
-			} else if (plugin.MoneyHandler.iConomyversion() == 6) {
+			} else if (plugin.moneyHandler.iConomyversion() == 6) {
 				iConomyName = "iConomy6";
 			}
 		}

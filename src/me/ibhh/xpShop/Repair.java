@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import me.ibhh.xpShop.Exceptions.NoiConomyPluginFound;
+import me.ibhh.MoneyLib.NoiConomyPluginFound;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -197,7 +197,7 @@ public class Repair {
 					}
 				} else {
 					try {
-						if (plugin.MoneyHandler.getBalance(player) >= cost) {
+						if (plugin.moneyHandler.getBalance(player) >= cost) {
 							ok = true;
 						}
 					} catch (NoiConomyPluginFound e) {
@@ -257,7 +257,7 @@ public class Repair {
 				}
 			} else {
 				try {
-					if (plugin.MoneyHandler.getBalance(player) >= executer.get(player)) {
+					if (plugin.moneyHandler.getBalance(player) >= executer.get(player)) {
 						ok = true;
 					}
 				} catch (NoiConomyPluginFound e) {
@@ -275,7 +275,7 @@ public class Repair {
 					if (mode) {
 						plugin.UpdateXP(player, -executer.get(player), "Repair");
 					} else {
-						plugin.MoneyHandler.substract(executer.get(player), player);
+						plugin.moneyHandler.substract(executer.get(player), player);
 					}
 					player.saveData();
 					executer.remove(player);
