@@ -1,6 +1,8 @@
 package me.ibhh.xpShop;
 
 import java.util.HashMap;
+
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -36,11 +38,11 @@ public class BottleManager {
 
     public boolean hasEnoughBottles(Player player, int anzahl) {
 	Inventory inv = player.getInventory();
-	boolean hasBottle = inv.contains(374, anzahl);
+	boolean hasBottle = inv.contains(Material.GLASS_BOTTLE, anzahl);
 	return hasBottle;
     }
 
-    public boolean replaceBottles(Player player, int anzahl, int ID, int ID2) {
+    public boolean replaceBottles(Player player, int anzahl) {
 	boolean ret = false;
 	Inventory inv = player.getInventory();
 	ItemStack[] stacks = inv.getContents();
@@ -48,13 +50,13 @@ public class BottleManager {
 	for (ItemStack stack : stacks) {
 	    if (stack != null) {
 		int stackanzahl = stack.getAmount();
-		if (stack.getTypeId() == ID) {
+		if (stack.getType().equals(Material.GLASS_BOTTLE)) {
 		    if (temp > 0) {
 			if (temp < stackanzahl) {
 			    inv.remove(stack);
-			    ItemStack rest = new ItemStack(ID, stackanzahl - temp);
+			    ItemStack rest = new ItemStack(Material.GLASS_BOTTLE, stackanzahl - temp);
 			    inv.addItem(rest);
-			    ItemStack XPBottles = new ItemStack(ID2, temp);
+			    ItemStack XPBottles = new ItemStack(Material.EXP_BOTTLE, temp);
 			    inv.addItem(XPBottles);
 			    player.saveData();
 			    temp = 0;
@@ -62,7 +64,7 @@ public class BottleManager {
 			} else {
 			    temp = temp - stackanzahl;
 			    inv.remove(stack);
-			    ItemStack XPBottles = new ItemStack(ID2, stackanzahl);
+			    ItemStack XPBottles = new ItemStack(Material.EXP_BOTTLE, stackanzahl);
 			    inv.addItem(XPBottles);
 			    player.saveData();
 			    plugin.Logger("Filled " + stackanzahl + " Bottles of " + player.getName(), "Debug");
@@ -151,7 +153,7 @@ public class BottleManager {
 
     public boolean executeCommandXPBottles(Player player, int anzahl) {
 	if (hasEnoughBottles(player, anzahl)) {
-	    replaceBottles(player, anzahl, 374, 384);
+	    replaceBottles(player, anzahl);
 	    return true;
 	} else {
 	    return false;

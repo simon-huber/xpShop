@@ -100,6 +100,7 @@ public abstract class Tools {
 
 	public static Player getmyOfflinePlayer(xpShop plugin, String playername) throws PlayerNotOnlineException, PlayerWasNeverOnlineException {
 		plugin.Logger("Empfaenger: " + playername, "Debug");
+		@SuppressWarnings("deprecation")
 		Player player = plugin.getServer().getPlayer(playername);
 		if (player != null) {
 			if (player.isOnline()) {

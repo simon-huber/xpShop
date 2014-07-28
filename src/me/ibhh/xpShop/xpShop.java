@@ -676,6 +676,7 @@ public class xpShop extends JavaPlugin {
 				    }
 				} else if (args[0].equalsIgnoreCase("tpme")) {
 				    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
+					@SuppressWarnings("deprecation")
 					Player teler = (Player) getServer().getPlayer(args[1]);
 					if (teler != null) {
 					    int entfernung = getEntfernung(player.getLocation(), teler.getLocation());
@@ -719,6 +720,7 @@ public class xpShop extends JavaPlugin {
 				    }
 				} else if (args[0].equalsIgnoreCase("tpto")) {
 				    if (PermissionsHandler.checkpermissions(player, getConfig().getString("help.commands." + ActionxpShop.toLowerCase() + ".permission"))) {
+					@SuppressWarnings("deprecation")
 					Player teler = (Player) getServer().getPlayer(args[1]);
 					if (teler != null) {
 					    int entfernung = getEntfernung(player.getLocation(), teler.getLocation());
